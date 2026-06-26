@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Trainer — Weekly Master Plan</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      margin: 0;
+      padding: 1.5rem;
+      max-width: 900px;
+    }
+    h1, h2, h3 { line-height: 1.2; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+    th, td {
+      border: 1px solid #8884;
+      padding: 0.6rem;
+      vertical-align: top;
+      text-align: left;
+    }
+    .today {
+      padding: 0.75rem;
+      border: 1px solid #2f9e44;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      background: color-mix(in srgb, #2f9e44 10%, transparent);
+    }
+    ul { margin-top: 0.4rem; }
+  </style>
+</head>
+<body>
+  <h1>Comprehensive Weekly Master Plan</h1>
+  <p>This schedule supports a high-volume, multi-sport lifestyle while keeping your marathon foundation strong.</p>
+
+  <section class="today" id="today-plan" aria-live="polite"></section>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Morning (Cardio/Agility)</th>
+        <th>Night (Strength/Skill)</th>
+        <th>Coaching Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Monday</td>
+        <td>Swim (1): 1,500–2,000m steady</td>
+        <td>Strength (1): 60-minute blueprint</td>
+        <td>Functional compounds focus.</td>
+      </tr>
+      <tr>
+        <td>Tuesday</td>
+        <td>Run (4 miles): conversational pace</td>
+        <td>Bouldering (1)</td>
+        <td>Focus on rhythmic breathing.</td>
+      </tr>
+      <tr>
+        <td>Wednesday</td>
+        <td>Swim (2): technique + leg flush</td>
+        <td>Strength (2): 60-minute blueprint</td>
+        <td>Keep intensity easy (Zone 2).</td>
+      </tr>
+      <tr>
+        <td>Thursday</td>
+        <td>Run (4 miles)</td>
+        <td>Tennis</td>
+        <td>High ankle/calf load day — hydrate well.</td>
+      </tr>
+      <tr>
+        <td>Friday</td>
+        <td>Golf (1): relaxed pace</td>
+        <td>Strength (3): 60-minute blueprint</td>
+        <td>Final strength push for the week.</td>
+      </tr>
+      <tr>
+        <td>Saturday</td>
+        <td colspan="2">Long Day (Alternate): Week A = 3-hour hike, Week B = 8–10 mile run</td>
+        <td>Build both time-on-feet endurance and impact tolerance.</td>
+      </tr>
+      <tr>
+        <td>Sunday</td>
+        <td>Golf (2): low intensity</td>
+        <td>Bouldering (2): technical movement focus</td>
+        <td>Skill day with controlled effort.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>60-Minute Strength Blueprint (Mon/Wed/Fri)</h2>
+
+  <h3>1) Mobility Primer (10 min)</h3>
+  <ul>
+    <li>World's Greatest Stretch — 5 reps/side</li>
+    <li>90/90 Hip Switches — 10 reps total</li>
+    <li>Single-Leg Deadlift (bodyweight) — 10 reps/side</li>
+  </ul>
+
+  <h3>2) Functional Compounds (25 min)</h3>
+  <ul>
+    <li>Goblet Squats — 3×12</li>
+    <li>Romanian Deadlifts (RDLs) — 3×12</li>
+    <li>Renegade Rows — 3×10/side</li>
+  </ul>
+
+  <h3>3) Stability &amp; Prehab Circuit (15 min)</h3>
+  <ul>
+    <li>Lateral Lunges — 2×12</li>
+    <li>Pallof Press — 2×12</li>
+    <li>Farmer's Carry — 3×45 sec</li>
+  </ul>
+
+  <h3>4) Flexibility Cool-Down (10 min)</h3>
+  <ul>
+    <li>Couch Stretch — 1 min/side</li>
+    <li>Pigeon Pose — 1 min/side</li>
+  </ul>
+
+  <h2>Guidelines for Sustainable Execution</h2>
+  <ul>
+    <li><strong>Easy Mandate:</strong> Keep morning runs/swims at recovery intensity (Zone 2) so evening sessions stay high quality.</li>
+    <li><strong>Saturday Pivot:</strong> Alternate long hike and long run to build endurance and running durability.</li>
+    <li><strong>Sleep Requirement:</strong> Prioritize 7–9 hours/night for adaptation and recovery.</li>
+    <li><strong>Listen to Niggles:</strong> If ankle/shoulder tightness persists, replace a run with an easy swim or 30-minute foam rolling session.</li>
+  </ul>
+
+  <script>
+    const schedule = [
+      { day: 'Sunday', plan: 'Golf (2) in the morning, Bouldering (2) at night. Keep it low intensity and technical.' },
+      { day: 'Monday', plan: 'Swim 1,500–2,000m steady in the morning, then Strength (1) with the 60-minute blueprint at night.' },
+      { day: 'Tuesday', plan: 'Run 4 miles at conversational pace in the morning, then Bouldering (1) at night.' },
+      { day: 'Wednesday', plan: 'Technique/flush swim in the morning, then Strength (2) with the 60-minute blueprint at night.' },
+      { day: 'Thursday', plan: 'Run 4 miles in the morning, then Tennis at night. Hydrate and monitor calves/ankles.' },
+      { day: 'Friday', plan: 'Relaxed Golf (1) in the morning, then Strength (3) with the 60-minute blueprint at night.' },
+      { day: 'Saturday', plan: 'Long Day: alternate Week A (3-hour hike) and Week B (8–10 mile run).' }
+    ];
+
+    const today = schedule[new Date().getDay()];
+    document.getElementById('today-plan').innerHTML =
+      `<strong>Today is ${today.day}.</strong><br />${today.plan}`;
+  </script>
+</body>
+</html>
