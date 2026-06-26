@@ -20,7 +20,7 @@
       margin-bottom: 1.5rem;
     }
     th, td {
-      border: 1px solid #8884;
+      border: 1px solid rgba(136, 136, 136, 0.27);
       padding: 0.6rem;
       vertical-align: top;
       text-align: left;
@@ -39,7 +39,7 @@
   <h1>Comprehensive Weekly Master Plan</h1>
   <p>This schedule supports a high-volume, multi-sport lifestyle while keeping your marathon foundation strong.</p>
 
-  <section class="today" id="today-plan" aria-live="polite"></section>
+  <section class="today" id="today-plan" aria-live="polite" aria-label="Today's Workout"></section>
 
   <table>
     <thead>
@@ -144,8 +144,12 @@
     ];
 
     const today = schedule[new Date().getDay()];
-    document.getElementById('today-plan').innerHTML =
-      `<strong>Today is ${today.day}.</strong><br />${today.plan}`;
+    const todayPlan = document.getElementById('today-plan');
+    const title = document.createElement('strong');
+    title.textContent = `Today is ${today.day}.`;
+    const details = document.createElement('div');
+    details.textContent = today.plan;
+    todayPlan.append(title, details);
   </script>
 </body>
 </html>
