@@ -30,6 +30,7 @@
       border: 1px solid #2f9e44;
       border-radius: 0.5rem;
       margin-bottom: 1rem;
+      background-color: rgba(47, 158, 68, 0.1);
       background: color-mix(in srgb, #2f9e44 10%, transparent);
     }
     ul { margin-top: 0.4rem; }
@@ -136,24 +137,23 @@
   </ul>
 
   <script>
-    const schedule = [
-      { day: 'Sunday', plan: 'Golf (2) in the morning, Bouldering (2) at night. Keep it low intensity and technical.' },
-      { day: 'Monday', plan: 'Swim 1,500–2,000m steady in the morning, then Strength (1) with the 60-minute blueprint at night.' },
-      { day: 'Tuesday', plan: 'Run 4 miles at conversational pace in the morning, then Bouldering (1) at night.' },
-      { day: 'Wednesday', plan: 'Technique/flush swim in the morning, then Strength (2) with the 60-minute blueprint at night.' },
-      { day: 'Thursday', plan: 'Run 4 miles in the morning, then Tennis at night. Hydrate and monitor calves/ankles.' },
-      { day: 'Friday', plan: 'Relaxed Golf (1) in the morning, then Strength (3) with the 60-minute blueprint at night.' },
-      { day: 'Saturday', plan: 'Long Day: alternate Week A (3-hour hike) and Week B (8–10 mile run).' }
-    ];
+    const scheduleByDay = {
+      Sunday: 'Golf (2) in the morning, Bouldering (2) at night. Keep it low intensity and technical.',
+      Monday: 'Swim 1,500–2,000m steady in the morning, then Strength (1) with the 60-minute blueprint at night.',
+      Tuesday: 'Run 4 miles at conversational pace in the morning, then Bouldering (1) at night.',
+      Wednesday: 'Technique/flush swim in the morning, then Strength (2) with the 60-minute blueprint at night.',
+      Thursday: 'Run 4 miles in the morning, then Tennis at night. Hydrate and monitor calves/ankles.',
+      Friday: 'Relaxed Golf (1) in the morning, then Strength (3) with the 60-minute blueprint at night.',
+      Saturday: 'Long Day: alternate Week A (3-hour hike) and Week B (8–10 mile run).'
+    };
 
     const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const todayName = weekdayNames[new Date().getDay()];
-    const today = schedule.find((entry) => entry.day === todayName) || schedule[0];
     const todayPlan = document.getElementById('today-plan');
     const title = document.createElement('strong');
-    title.textContent = `Today is ${today.day}.`;
+    title.textContent = `Today is ${todayName}.`;
     const details = document.createElement('div');
-    details.textContent = today.plan;
+    details.textContent = scheduleByDay[todayName];
     todayPlan.append(title, details);
   </script>
 </body>
