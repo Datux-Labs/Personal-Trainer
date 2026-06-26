@@ -146,7 +146,9 @@
       { day: 'Saturday', plan: 'Long Day: alternate Week A (3-hour hike) and Week B (8–10 mile run).' }
     ];
 
-    const today = schedule[new Date().getDay()];
+    const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const todayName = weekdayNames[new Date().getDay()];
+    const today = schedule.find((entry) => entry.day === todayName) || schedule[0];
     const todayPlan = document.getElementById('today-plan');
     const title = document.createElement('strong');
     title.textContent = `Today is ${today.day}.`;
