@@ -466,6 +466,7 @@
       <p id="today-plan" class="today-plan" aria-live="polite"></p>
       <div id="today-actions" class="today-actions" role="group" aria-labelledby="today-actions-label today-day-label">
         <span id="today-actions-label" class="sr-only">Sessions today</span>
+        <span id="today-actions-derived"></span>
       </div>
       <div id="slot-notices" class="slot-region" data-slot="notices" aria-live="polite"></div>
       <div id="slot-detail" class="slot-region" data-slot="detail"></div>
@@ -657,9 +658,14 @@
       'plan.select_long_day_variant': { urn: 'urn:cap:plan.select_long_day_variant', label: 'Select the long-day variant',        reversible: true,  reverseOf: null,                        destructive: false, confirmed: false },
       'plan.reset_progress':          { urn: 'urn:cap:plan.reset_progress',          label: 'Reset all logged progress',          reversible: false, reverseOf: null,                        destructive: true,  confirmed: true  },
       'preference.set':               { urn: 'urn:cap:preference.set',               label: 'Set a scalar preference',            reversible: true,  reverseOf: null,                        destructive: false, confirmed: false },
-      /* Irreversible on purpose and with no undo surface: dismissing a safety
-         proposal suppresses it permanently. Run 6's I3 flags this. */
-      'adaptation.dismiss':           { urn: 'urn:cap:adaptation.dismiss',           label: 'Decline a proposed adaptation',      reversible: false, reverseOf: null,                        destructive: false, confirmed: false }
+      /* Run 6's I3 flagged this as irreversible with no undo surface anywhere.
+         Run 7 gives it one — `adaptation.undismiss` — so this declaration
+         changes because the behaviour changed, not to turn the gate green.
+         I5 exists to check that the reverse is actually reachable. */
+      'adaptation.dismiss':           { urn: 'urn:cap:adaptation.dismiss',           label: 'Decline a proposed adaptation',      reversible: true,  reverseOf: null,                         destructive: false, confirmed: false },
+      'adaptation.undismiss':         { urn: 'urn:cap:adaptation.undismiss',         label: 'Show a declined suggestion again',   reversible: true,  reverseOf: 'adaptation.dismiss',         destructive: false, confirmed: false },
+      'adaptation.revert':            { urn: 'urn:cap:adaptation.revert',            label: 'Use the planned session instead',    reversible: true,  reverseOf: null,                         destructive: false, confirmed: false },
+      'adaptation.reapply':           { urn: 'urn:cap:adaptation.reapply',           label: 'Use the adapted session',            reversible: true,  reverseOf: 'adaptation.revert',          destructive: false, confirmed: false }
     };
 
     const SUBSTITUTIONS = [
@@ -1313,15 +1319,47 @@
       const facilities = FACILITIES_BY_EQUIPMENT[user.equipment] || FACILITIES_BY_EQUIPMENT.full;
       const budgetMinutes = parseInt(user.timeBudget, 10);
       const primary = slots.find(function (s) { return !s.complete; }) || slots[0] || null;
+      /* Run 7 / ADR 0013: the adaptation is now part of the derived plan
+         rather than a note printed beside an unchanged one. High confidence
+         replaces the prescription and carries a visible reason plus a
+         one-click revert; the revert is a scalar per slot and is reversible in
+         both directions. */
+      const rawConfidence = primary ? protectionConfidence(user.protecting, primary.effective) : 0;
+      let adaptation = null;
+      if (primary && !primary.substitution && rawConfidence >= ACT_THRESHOLD) {
+        const key = primary.key + '|' + user.protecting;
+        if (!dismissedAdaptations[key]) {
+          adaptation = {
+            key: key,
+            confidence: rawConfidence,
+            reason: user.protecting,
+            suggestion: facilities.includes('pool') ? 'Easy swim (20–30 min)' : 'Foam rolling (30 min)',
+            reverted: planOverrides[primary.key] === 'planned',
+            plannedText: primary.plannedText
+          };
+        }
+      }
+      if (adaptation && !adaptation.reverted) {
+        primary.adaptedTo = adaptation.suggestion;
+        primary.effective = Object.assign({ name: adaptation.suggestion }, ALTERNATIVE_MODEL[adaptation.suggestion] || {});
+      }
       return {
         ctx: ctx, user: user, slots: slots, primary: primary,
+        adaptation: adaptation,
         facilities: facilities, budgetMinutes: budgetMinutes,
         totalMinutes: slots.reduce(function (n, s) { return n + ((s.effective && s.effective.minutes) || 0); }, 0),
         protection: user.protecting,
-        protectionConfidence: primary ? protectionConfidence(user.protecting, primary.effective) : 0,
+        protectionConfidence: rawConfidence,
         dismissed: dismissedAdaptations
       };
     }
+
+    /* A scalar per slot: 'planned' means the user reverted an applied
+       adaptation. Not a rule, does not compose, and reversible in both
+       directions. */
+    let planOverrides = {};
+    try { planOverrides = JSON.parse(localStorage.getItem('pt.l2.planoverrides.v1') || '{}'); } catch (err) { planOverrides = {}; }
+    function savePlanOverrides() { try { localStorage.setItem('pt.l2.planoverrides.v1', JSON.stringify(planOverrides)); } catch (err) { /* ignore */ } }
 
     let dismissedAdaptations = {};
     try { dismissedAdaptations = JSON.parse(localStorage.getItem('pt.l2.dismissed.v1') || '{}'); } catch (err) { dismissedAdaptations = {}; }
@@ -1332,6 +1370,44 @@
        the render target. */
     const COMPONENTS = [
       {
+        /* Run 7 / I1: the surface must always carry the control that resolves
+           the problems it is capable of asserting. Persistent and pinned, so it
+           cannot appear and disappear, and it sits after the completion buttons
+           so nothing already on screen moves. */
+        id: 'action.substitute', slot: 'actions', pinned: true, density: 0,
+        provides: ['session.substitute_exercise', 'session.restore_planned'],
+        evaluate: function (f) {
+          if (!f.primary) return { ok: false };
+          return { ok: true, confidence: 1, score: 99, data: { slot: f.primary } };
+        },
+        build: function (item, f) {
+          const s = item.data.slot;
+          const wrap = document.createElement('span');
+          const labelId = 'today-swap-label';
+          const caption = document.createElement('span');
+          caption.id = labelId;
+          caption.className = 'sr-only';
+          caption.textContent = 'Swap today’s ' + s.label.toLowerCase() + ' session';
+          const sel = document.createElement('select');
+          sel.id = 'today-swap';
+          sel.className = 'field';
+          sel.setAttribute('aria-labelledby', labelId);
+          sel.dataset.capability = 'session.substitute_exercise session.restore_planned';
+          sel.add(new Option('As planned', ''));
+          SUBSTITUTIONS.forEach(function (o) { sel.add(new Option(o, o)); });
+          sel.value = s.substitution || '';
+          sel.addEventListener('change', function () {
+            const grid = document.getElementById('s-' + f.ctx.weekday.toLowerCase() + '-' + s.slotId + '-swap');
+            if (grid) { grid.value = sel.value; grid.dispatchEvent(new Event('change', { bubbles: true })); }
+            emitAttempt(sel, sel.value ? 'session.substitute_exercise' : 'session.restore_planned',
+              { day: f.ctx.weekday, slot: s.slotId, substituted_with: sel.value || null, surface: 'today' },
+              'completed', 0.95);
+          });
+          wrap.append(caption, sel);
+          return wrap;
+        }
+      },
+      {
         id: 'headline', slot: 'headline', pinned: true, density: 0,
         evaluate: function (f) {
           if (!f.primary) return { ok: false };
@@ -1339,15 +1415,52 @@
         },
         build: function (item, f) {
           const s = item.data.slot;
-          const activity = s.substitution || s.plannedText;
+          const activity = s.adaptedTo || s.substitution || s.plannedText;
           const parts = [s.label + ': ' + activity + '.'];
-          if (f.protectionConfidence >= ACT_THRESHOLD && !s.substitution) {
-            parts.push('Flagged against your ' + f.protection + ' — an easier option is offered below.');
-          } else if (f.user.experience === 'novice') {
-            parts.push('Keep the effort conversational.');
-          }
-          const p = document.createTextNode(parts.join(' '));
-          return p;
+          if (f.user.experience === 'novice') parts.push('Keep the effort conversational.');
+          return document.createTextNode(parts.join(' '));
+        }
+      },
+      {
+        /* The plan was changed. Visible reason, one-click revert, and the
+           revert is itself reversible — ADR 0003 satisfied without falling back
+           to propose-only, which is what hollowed run 5 out. */
+        id: 'adapt.applied', slot: 'notices', density: 1,
+        provides: ['adaptation.revert', 'adaptation.reapply'],
+        evaluate: function (f) {
+          if (!f.adaptation) return { ok: false };
+          return { ok: true, confidence: f.adaptation.confidence, score: 96, data: {} };
+        },
+        build: function (item, f) {
+          const a = f.adaptation;
+          const box = document.createElement('div');
+          box.className = 'derived derived-notice';
+          const why = document.createElement('p');
+          why.className = 'derived';
+          why.id = 'adapt-applied-reason';
+          why.textContent = a.reverted
+            ? 'Kept as planned: ' + a.plannedText + '. Your ' + a.reason + ' is flagged and this session loads it.'
+            : 'Changed to ' + a.suggestion + ' because your ' + a.reason + ' is flagged and ' + a.plannedText + ' loads it.';
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.id = 'adapt-revert';
+          btn.className = 'btn';
+          btn.textContent = a.reverted ? 'Use the adapted session' : 'Use the planned session instead';
+          btn.setAttribute('aria-pressed', a.reverted ? 'true' : 'false');
+          btn.setAttribute('aria-labelledby', btn.id + ' adapt-applied-reason');
+          btn.dataset.capability = 'adaptation.revert adaptation.reapply';
+          btn.addEventListener('click', function () {
+            const nowReverted = !a.reverted;
+            if (nowReverted) planOverrides[f.primary.key] = 'planned';
+            else delete planOverrides[f.primary.key];
+            savePlanOverrides();
+            emitAttempt(btn, nowReverted ? 'adaptation.revert' : 'adaptation.reapply',
+              { day: f.ctx.weekday, slot: f.primary.slotId, reason: a.reason }, 'completed', 0.95);
+            announce(nowReverted ? 'Using the planned session.' : 'Using the adapted session.');
+            rerender();
+          });
+          box.append(why, btn);
+          return box;
         }
       },
       {
@@ -1364,9 +1477,47 @@
         }
       },
       {
-        id: 'adapt.protection', slot: 'notices', density: 1, proposal: true,
+        /* Undo for a declined suggestion. Without this, adaptation.dismiss is
+           irreversible, which is what I3 caught. */
+        id: 'adapt.dismissed', slot: 'notices', density: 1,
+        provides: ['adaptation.undismiss'],
         evaluate: function (f) {
           if (!f.primary || f.primary.substitution) return { ok: false };
+          const key = f.primary.key + '|' + f.protection;
+          if (!f.dismissed[key]) return { ok: false };
+          return { ok: true, confidence: 1, score: 94, data: { key: key } };
+        },
+        build: function (item, f) {
+          const box = document.createElement('div');
+          box.className = 'derived derived-notice';
+          const p = document.createElement('p');
+          p.className = 'derived-explain';
+          p.id = 'undismiss-reason';
+          p.textContent = 'A suggestion for this session was declined.';
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.id = 'adapt-undismiss';
+          btn.className = 'btn';
+          btn.textContent = 'Show it again';
+          btn.setAttribute('aria-labelledby', btn.id + ' undismiss-reason');
+          btn.dataset.capability = 'adaptation.undismiss';
+          btn.addEventListener('click', function () {
+            delete dismissedAdaptations[item.data.key];
+            try { localStorage.setItem('pt.l2.dismissed.v1', JSON.stringify(dismissedAdaptations)); } catch (err) { /* ignore */ }
+            emitAttempt(btn, 'adaptation.undismiss', { day: f.ctx.weekday, slot: f.primary.slotId }, 'completed', 0.95);
+            announce('Suggestion restored.');
+            rerender();
+          });
+          box.append(p, btn);
+          return box;
+        }
+      },
+      {
+        id: 'adapt.protection', slot: 'notices', density: 1, proposal: true,
+        assertsProblem: true,
+        provides: ['session.substitute_exercise'],
+        evaluate: function (f) {
+          if (!f.primary || f.primary.substitution || f.adaptation) return { ok: false };
           const c = f.protectionConfidence;
           if (c <= 0) return { ok: false };
           if (f.dismissed[f.primary.key + '|' + f.protection]) return { ok: false };
@@ -1422,7 +1573,7 @@
         }
       },
       {
-        id: 'detail.equipment_gap', slot: 'detail', density: 1,
+        id: 'detail.equipment_gap', slot: 'detail', density: 1, assertsProblem: true,
         evaluate: function (f) {
           if (!f.primary || !f.primary.effective) return { ok: false };
           const need = f.primary.effective.facility;
@@ -1438,7 +1589,7 @@
         }
       },
       {
-        id: 'detail.time_fit', slot: 'detail', density: 1,
+        id: 'detail.time_fit', slot: 'detail', density: 1, assertsProblem: true,
         evaluate: function (f) {
           if (!f.primary || !f.primary.effective) return { ok: false };
           const need = f.primary.effective.minutes || 0;
@@ -1504,11 +1655,16 @@
         build: function (item, f) {
           const el = document.createElement('p');
           el.className = 'derived derived-explain';
+          /* Run 7 / I4: name only the constraints that actually changed
+             something on this surface. Claiming a constraint narrowed the plan
+             when it did not is a checkable falsehood, and worse than silence. */
+          const shown = (item.plan || []).map(function (x) { return x.id; });
+          const has = function (id) { return shown.indexOf(id) >= 0; };
           const bits = [];
-          if (f.protection !== 'none') bits.push('protecting your ' + f.protection);
-          if (f.user.equipment !== 'full') bits.push('equipment set to ' + f.user.equipment);
-          if (f.budgetMinutes < 90) bits.push(f.budgetMinutes + ' minutes available');
-          if (f.user.experience !== 'regular') bits.push(f.user.experience + ' level');
+          if (f.protection !== 'none' && (has('adapt.applied') || has('adapt.protection'))) bits.push('protecting your ' + f.protection);
+          if (f.user.equipment !== 'full' && has('detail.equipment_gap')) bits.push('equipment set to ' + f.user.equipment);
+          if (f.budgetMinutes < 90 && has('detail.time_fit')) bits.push(f.budgetMinutes + ' minutes available');
+          if (f.user.experience !== 'regular' && (has('secondary.checklist') || has('secondary.guideline'))) bits.push(f.user.experience + ' level');
           el.textContent = bits.length
             ? 'Shown this way because: ' + bits.join(', ') + '. Change any of them under Your setup.'
             : 'Showing the default plan. Nothing in Your setup is narrowing it.';
@@ -1573,13 +1729,14 @@
         decisions.push({ id: e.c.id, action: 'included', confidence: e.confidence, disclosure: disclosure });
       });
 
+      plan.forEach(function (item) { item.plan = plan; });
       return { plan: plan, facts: facts, budget: budget, spent: spent, decisions: decisions, target: ctx.target };
     }
 
     /* ---- The renderer ----------------------------------------------------
        One path. It contains no conditional on the render target: the target
        reached the solver as context, and reaches CSS as a data attribute. */
-    const SLOT_HOSTS = { notices: 'slot-notices', detail: 'slot-detail', secondary: 'slot-secondary', explain: 'slot-explain' };
+    const SLOT_HOSTS = { actions: 'today-actions-derived', notices: 'slot-notices', detail: 'slot-detail', secondary: 'slot-secondary', explain: 'slot-explain' };
     const todaySection = document.querySelector('.today');
     const headlineHost = document.getElementById('today-plan');
 
@@ -1623,6 +1780,11 @@
     }
 
     window.__datuxDerive = derive;
+    /* The gate reads component declarations rather than a hardcoded id list, so
+       a component cannot escape an invariant by being renamed. */
+    window.__datuxComponents = COMPONENTS.map(function (c) {
+      return { id: c.id, slot: c.slot, assertsProblem: !!c.assertsProblem, provides: c.provides || [] };
+    });
     window.__datuxSetPreference = function (key, value) {
       PREFERENCES = Object.assign({}, PREFERENCES, {});
       PREFERENCES[key] = value;

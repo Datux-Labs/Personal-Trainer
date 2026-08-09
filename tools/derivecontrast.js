@@ -30,8 +30,11 @@ const PORT = 8790;
 const WEEKDAY = 'Tuesday';
 
 /* Does the component change what the user should DO, or only what they read? */
-const MATERIAL = new Set(['adapt.protection', 'detail.equipment_gap', 'detail.time_fit', 'notice.substitution']);
-const ADVISORY = new Set(['headline', 'secondary.checklist', 'secondary.guideline', 'explain.why']);
+/* Run 7 adds adapt.applied — the component that actually replaces the plan —
+   and adapt.dismissed. Both change what the user should do, so they belong on
+   the material side by the same rule the original split used. */
+const MATERIAL = new Set(['adapt.protection', 'adapt.applied', 'adapt.dismissed', 'detail.equipment_gap', 'detail.time_fit', 'notice.substitution']);
+const ADVISORY = new Set(['headline', 'action.substitute', 'secondary.checklist', 'secondary.guideline', 'explain.why']);
 
 const PROFILES = [
   { name: 'A-default',        prefs: { protecting: 'none',     equipment: 'full', experience: 'regular',  timeBudget: '90' } },

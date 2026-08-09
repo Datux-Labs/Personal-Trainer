@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 /* AccName conformance harness.
 
    Question (Q14): an in-page instrumentation SDK cannot ask the browser for a
@@ -25,7 +25,7 @@
 
    Two comparison modes are reported. EXACT is string equality, which is what
    you get if the accessible name is used as a join key. NORMALISED casefolds,
-   strips punctuation and collapses whitespace â€” the best case for anyone
+   strips punctuation and collapses whitespace — the best case for anyone
    willing to fuzzy-match. The gap between them is the part of the problem that
    is cosmetic rather than semantic.
 

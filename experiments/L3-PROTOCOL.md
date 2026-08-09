@@ -205,7 +205,7 @@ Blocking conditions, all mechanically checkable today:
 | in-page name disagreeing with the browser's | `tools/selfcheck.js` — currently 62/62 agree |
 | any persistent control moving between derivations | `tools/derivecheck.js` frame gate — currently NONE |
 | any control not reachable by keyboard | `tools/derivecheck.js` — currently 0 unreachable |
-| **any Q4 correctness invariant failing** | `tools/invariants.js` — **currently failing, see §9** |
+| **any Q4 correctness invariant failing** | `tools/invariants.js` — **passing as of run 7, 0/108** |
 
 The last row means **this protocol cannot be run today.** That is the point of writing the
 gate before the test.
@@ -239,7 +239,7 @@ that plainly rather than pretending 4 people are a control.
 | baseline frozen and selectable by policy | **done** — `?policy=uniform` |
 | policy logged on every attempt | **done** — `context.policy` |
 | accessibility gates passing | **done** — 62/62 names, frame NONE, 0 unreachable |
-| Q4 correctness invariants passing | **FAILING** — I1 54/108, I3 9/108, I4 46/108 |
+| Q4 correctness invariants passing | **passing as of run 7** — 0/108, no vacuous invariants |
 | recruitment, consent, ethics | **not started — founder call** |
 
 **The derivation is not fit to put in front of a person yet**, and the gate says so with

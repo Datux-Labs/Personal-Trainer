@@ -1,5 +1,5 @@
 'use strict';
-/* Run 5 â€” does the derivation actually derive?
+/* Run 5 — does the derivation actually derive?
 
    Four questions, four measurements:
 
