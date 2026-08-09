@@ -233,6 +233,10 @@ function classify(mine, browser, meta) {
   return 'disjoint';
 }
 
+module.exports = { IN_PAGE, classify, ACTIONABLE, nrm, loose };
+
+if (require.main !== module) return;
+
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
   const { proc, cdp } = await launch(9411);
