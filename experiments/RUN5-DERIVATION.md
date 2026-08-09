@@ -12,49 +12,93 @@ weekdays × 3 render targets), replicated three times with identical results.
 
 ## 1. Did strategy A express meaningful per-user difference?
 
-**Yes, but the honest answer is narrower than the headline number, and I nearly reported the
-flattering version.**
+**Real difference, in the wrong place. The derivation varies the commentary on the plan and
+never varies the plan.**
 
-| measure (standard target, weekday pinned to Tuesday) | result |
+My first answer to this question was "yes — 7 of 8 distinct component sets, lowest pairwise
+overlap 0.40." That number is correct and it is the same *shape* of claim as run 4's 100%
+name conformance: internally consistent, and possibly about the wrong quantity. So it was
+tested the way run 4's names should have been tested — by looking at the output.
+
+### What the surfaces actually look like
+
+Six profiles, same Tuesday, standard target. Decomposing the components into those that
+change what a user should **do** and those that change what they **read**:
+
+| measure | result |
 |---|---|
-| distinct component sets across 8 profiles | **7 of 8** |
-| distinct rendered text across 8 profiles | 7 of 8 |
-| lowest pairwise component overlap | **0.40** |
+| distinct full component sets | 5 of 6 — *the number I first reported* |
+| distinct **material** component sets | **4 of 6** |
+| distinct **advisory** component sets | 2 of 6 |
+| users receiving **no material adaptation at all** | **3 of 6** |
+| pairs differing only cosmetically | 3 of 15 |
 
-Across all four pinned weekdays: **10 distinct component sets from 32 profile-days**, with
-the explanation line excluded from the comparison so it could not inflate the count.
+### Then two blind judges read them
 
-Concretely, two people on the same Tuesday get:
+Six surfaces, no source, no context beyond "this app claims these are personalised". Two
+different models, independently. They agreed on everything that matters:
 
-- *time-poor novice, home equipment* — the run flagged as 40 minutes against a 20-minute
-  budget, an equipment gap on the pool swap, the session structure expanded, the easy-mandate
-  guideline in full, and an explanation naming all three constraints.
-- *advanced, full facilities* — the prescription, and nothing else. Three components against
-  five, and a smaller density budget by construction.
+- **Both clustered A, D and E as the same screen** — exactly the three my material-component
+  analysis had flagged as receiving no material adaptation. The metric and the human-style
+  judgement agreed, which is the only reason I trust either.
+- **Both counted 12 material and 3 cosmetic pairs** out of 15, independently.
+- **Both identified the same root cause, which I had missed entirely.**
 
-That is material rather than cosmetic: different *components*, not the same components
-reworded.
+> *Judge B:* "Every single surface — all six — prescribes the identical workout: *Run
+> (4 miles): conversational pace*. Not one surface changes the actual plan. The
+> personalisation is a warning and attribution layer bolted underneath a fixed default…
+> The word *personalised* is not defensible here."
 
-**But two caveats do real damage to the strength of that claim.**
+> *Judge A:* "Superficially personalised. B, C and F provide real exception handling, but
+> even they retain the same headline four-mile run… one generic plan with bolted-on
+> warnings, not six genuinely user-derived plans."
 
-First, **most of the variation comes from a small number of high-signal predicates.** The
-protection constraint and the equipment constraint do nearly all the work; experience level
-mostly moves the density budget by one, which changes what survives at the margin rather
-than what the surface is about. A constraint solver expresses difference well where the
-domain has hard constraints and poorly where it has soft preferences.
+They are right, and my component-counting metric could not have seen it. **All six surfaces
+share a byte-identical prescription line.** The derivation decides what to say *about* the
+run. It never decides that this user should not be running.
 
-Second — and this is the part I got wrong first — **the weekday was an uncontrolled
-variable.** My first measurement said 3 distinct component sets from 6 profiles and made
-strategy A look rigid. The reason was that the run happened on a Sunday, and Sunday's
-morning session is golf, which loads no joint, so *every* protection profile collapsed to
-the same surface. Pinning the weekday and re-running moved it to 7 of 8. The rigidity I was
-about to report was an artefact of the calendar. Run 4's lesson generalised further than I
-expected: **pin every input you are not varying, including the ones that arrive from the
-environment rather than from your test.**
+The most damning single case is surface E: a user protecting a shoulder, on home equipment,
+with 45 minutes. The surface names all three constraints in its explanation and then
+prescribes the same outdoor four-mile run as the user with no constraints at all. It is
+literally a screen that says "shown this way because: protecting your shoulder" above an
+unchanged plan.
 
-**Verdict on Q2 strategy A: not too rigid for this task.** The failure mode it was suspected
-of did not appear. What did appear is that its expressiveness is proportional to how much of
-the user model is *constraints* rather than *taste* — see §3.
+### Why it happened, which is the useful part
+
+Two causes, and only one of them is a mistake.
+
+**The component library has no component that can replace the prescription.** `headline`
+renders the planned activity with an optional caveat clause. `adapt.protection` *proposes* a
+substitution and waits for the user to accept it. Nothing in the library can say "today you
+are swimming." That is a limitation of my implementation, not of strategy A — a solver can
+select a prescription as easily as it can select a warning. I did not give it that option.
+
+**I did not give it that option because of ADR 0003.** Adaptation must be legible and
+reversible, so I made every adaptation a *proposal* rather than a change. The result is that
+my "act" branch does not act on the plan; it annotates the plan more loudly. That is a real
+tension worth naming: **the conservative reading of legible-and-reversible produces something
+a user would not recognise as personalised at all.** ADR 0003 does not require it — a changed
+prescription with a visible "why" and a one-click revert would be both legible and reversible
+— but conservatism was the path of least resistance, and nothing in my own gates objected.
+
+### The precise answer to Q2
+
+**Strategy A personalises by exception, and only where a constraint binds.** It produced a
+materially different surface exactly when the user's constraints conflicted with the plan —
+a flagged joint the session loads, missing equipment, a session longer than the time budget —
+and produced the default otherwise. Three of six users had no binding constraint on that
+Tuesday and got the default with a different sentence under it.
+
+That is a sharper statement than "too rigid" or "expressive enough". It says the
+expressiveness of strategy A is a function of **how often the user model conflicts with the
+domain**, not of how rich the user model is. Adding more preferences will not help. Adding
+preferences that can *contradict the plan* will, and so will letting the solver choose the
+plan rather than only the commentary.
+
+**So: is strategy A viable?** On this evidence, yes for exception handling and unproven for
+personalisation. The failure Q2 predicted — rigidity in the layout space — did not occur.
+A different failure did: the derivation never reached the domain content, and the metric I
+chose could not tell me.
 
 ---
 
@@ -229,6 +273,12 @@ Run 5 shows the same failure through the calendar: the weekday selected which ac
 planned, which decided whether any protection constraint could fire. Anything reaching the
 system from the environment — date, locale, viewport, time of day — is an experimental input
 and must be fixed explicitly.
+
+**Add — judge derived output by reading it, not only by measuring it.** Two blind judges,
+given six surfaces and no context, independently reached the same clustering and the same
+12-material/3-cosmetic split as the material-component metric — and both then identified a
+root cause the metric structurally could not represent. Cheap, and it is the only check that
+caught the real problem in this run.
 
 **Add — check that every branch of a decision rule is reachable before reporting it works.**
 The act/ask/default trichotomy read as "0 asks in 96 derivations" until I noticed the ask

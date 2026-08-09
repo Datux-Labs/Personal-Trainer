@@ -1571,6 +1571,7 @@
     function rerender() {
       const ctx = readContext();
       const surface = derive(ctx, PREFERENCES);
+      document.getElementById('today-day-label').textContent = ctx.weekday;
       renderSurface(surface);
       window.__datuxSurface = surface;
       return surface;

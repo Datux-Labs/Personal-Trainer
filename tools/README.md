@@ -29,6 +29,7 @@ node --experimental-websocket <script> <args>
 | `authinteriors.js` | the same AccName rungs measured behind a login, on public demo systems that publish their own credentials, plus a name-usability metric |
 | `nameprobe.js` | **precondition.** Builds a fixture where a real engine and a reimplementation must disagree. Run any new name source against it before believing its numbers. |
 | `derivecheck.js` | run-5 derivation gate: expressiveness across user profiles, render-target code duplication, the ADR 0004 frame check, and the cost of holding it |
+| `derivecontrast.js` | splits derived difference into material and advisory, and dumps the rendered surfaces so they can be judged by reading rather than counting |
 
 ## The one to steal
 
