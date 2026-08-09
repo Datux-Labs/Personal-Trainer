@@ -652,7 +652,21 @@
        Q4 correctness invariants can be checked mechanically instead of being
        hardcoded against a list of names. data-layer.md asks capabilities to
        describe "what they change, what they cost, whether they're reversible";
-       until now this registry only carried the label. */
+       until now this registry only carried the label.
+
+       Run 9 follow-up: two labels here were stale copies of button text. Run 9
+       changed the revert control's wording because "use the planned session
+       instead" makes the option that reloads a flagged joint sound like the
+       vetted choice — but the registry kept the old string, and this label is
+       what every attempt envelope carries in `capability.label`. So the
+       telemetry named an affordance the product no longer has.
+
+       That is model drift in the direction this project exists to argue
+       against: the UI is supposed to derive from the model, and here the model
+       was holding a copy of last week's UI. Labels are now stated in domain
+       terms — what the capability *is* — so that changing a button cannot
+       silently invalidate them again. Nothing derived from them, so this is a
+       naming change only. */
     const CAPABILITIES = {
       'session.complete':             { urn: 'urn:cap:session.complete',             label: 'Mark session complete',              reversible: true,  reverseOf: null,                        destructive: false, confirmed: false },
       'session.reopen':               { urn: 'urn:cap:session.reopen',               label: 'Reopen a completed session',         reversible: true,  reverseOf: 'session.complete',          destructive: false, confirmed: false },
@@ -668,8 +682,8 @@
          I5 exists to check that the reverse is actually reachable. */
       'adaptation.dismiss':           { urn: 'urn:cap:adaptation.dismiss',           label: 'Decline a proposed adaptation',      reversible: true,  reverseOf: null,                         destructive: false, confirmed: false },
       'adaptation.undismiss':         { urn: 'urn:cap:adaptation.undismiss',         label: 'Show a declined suggestion again',   reversible: true,  reverseOf: 'adaptation.dismiss',         destructive: false, confirmed: false },
-      'adaptation.revert':            { urn: 'urn:cap:adaptation.revert',            label: 'Use the planned session instead',    reversible: true,  reverseOf: null,                         destructive: false, confirmed: false },
-      'adaptation.reapply':           { urn: 'urn:cap:adaptation.reapply',           label: 'Use the adapted session',            reversible: true,  reverseOf: 'adaptation.revert',          destructive: false, confirmed: false }
+      'adaptation.revert':            { urn: 'urn:cap:adaptation.revert',            label: 'Decline an applied adaptation',      reversible: true,  reverseOf: null,                         destructive: false, confirmed: false },
+      'adaptation.reapply':           { urn: 'urn:cap:adaptation.reapply',           label: 'Re-apply a declined adaptation',     reversible: true,  reverseOf: 'adaptation.revert',          destructive: false, confirmed: false }
     };
 
     const SUBSTITUTIONS = [
