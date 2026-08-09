@@ -36,7 +36,10 @@ const path = require('path');
 const { sleep, launch, probeMap } = require('./cdp');
 
 const OUT = process.argv[2];
-const CORPUS = [
+/* Optional second argument: a JSON file of [name, url] pairs, so the same
+   rungs can be pointed at a different corpus without forking the tool. */
+const CORPUS_FILE = process.argv[3];
+const DEFAULT_CORPUS = [
   ['gov-uk',        'https://www.gov.uk/'],
   ['grafana-play',  'https://play.grafana.org/dashboards'],
   ['openstreetmap', 'https://www.openstreetmap.org/'],
@@ -58,6 +61,7 @@ const CORPUS = [
   ['vuejs',         'https://vuejs.org/'],
   ['cdc',           'https://www.cdc.gov/']
 ];
+const CORPUS = CORPUS_FILE ? JSON.parse(fs.readFileSync(CORPUS_FILE, 'utf8')) : DEFAULT_CORPUS;
 
 const ACTIONABLE = new Set([
   'button', 'link', 'textbox', 'searchbox', 'combobox', 'checkbox', 'radio', 'switch',
@@ -228,6 +232,10 @@ function classify(mine, browser, meta) {
   if (ta === tb) return 'reordered';
   return 'disjoint';
 }
+
+module.exports = { IN_PAGE, classify, ACTIONABLE, nrm, loose };
+
+if (require.main !== module) return;
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
