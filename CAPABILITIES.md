@@ -126,6 +126,13 @@ could see `aria-pressed` on the button said so explicitly and with reasons — m
 rather than separate complete/uncomplete capabilities."* We are the minority position, 1
 against 4.
 
+> **Corrected by run 2.** The generalisation drawn from this — that bootstrapping is blind
+> to reversals — was too broad. Against GOV.UK, which has reversals with their own
+> dedicated controls (`Remove filter`, `Clear all filters`), a blind namer found and named
+> both, separately, with a better argument for splitting than the one below. The real
+> blind spot is narrower: it is reversals that **share a control with the forward action**.
+> See [experiments/Q13-RUN2-EXTERNAL-APPS.md §5](experiments/Q13-RUN2-EXTERNAL-APPS.md).
+
 Our reasoning: `instrumentation.md` §6 wants to know *which capabilities are most often
 corrected or undone shortly after*. If un-completing is an attribute value of
 `session.complete`, that query becomes "count events where the attribute flipped", which

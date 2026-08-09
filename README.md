@@ -12,3 +12,7 @@ Single static file, no build step, no dependencies.
 layer was added to answer open question Q13 in `Datux-Labs/core`. Read
 [CAPABILITIES.md](CAPABILITIES.md) first — the write-up in it is the point of the
 exercise, and the app is the means.
+
+Later experiments using the same rig are in [experiments/](experiments), and the rig
+itself is in [tools/](tools). Neither is part of the app; `index.html` still has no
+build step and no dependencies.
