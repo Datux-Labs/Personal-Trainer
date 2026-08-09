@@ -30,6 +30,7 @@ node --experimental-websocket <script> <args>
 | `nameprobe.js` | **precondition.** Builds a fixture where a real engine and a reimplementation must disagree. Run any new name source against it before believing its numbers. |
 | `derivecheck.js` | run-5 derivation gate: expressiveness across user profiles, render-target code duplication, the ADR 0004 frame check, and the cost of holding it |
 | `derivecontrast.js` | splits derived difference into material and advisory, and dumps the rendered surfaces so they can be judged by reading rather than counting |
+| `invariants.js` | the Q4 correctness gate. Four invariants over every derivation, each reported with how many derivations met its precondition — an invariant that never had the chance to fail is not a pass |
 
 ## The one to steal
 
