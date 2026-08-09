@@ -132,7 +132,10 @@ const CHECK = `(() => {
   add('I4-derive', 'derive', unbacked.length === 0,
       unbacked.length ? 'explanation names constraints that changed nothing: ' + unbacked.join(', ') : 'all named constraints backed');
 
-  return JSON.stringify({ results, ids: ids, named: named, substituted: !!substituted });
+  /* Diagnostic, not an invariant: the prescription line itself. Run 5's core
+     defect was that this string never varies, and nothing in I1-I4 looks at it. */
+  const prescription = (document.getElementById('today-plan').innerText || '').replace(/\\s+/g, ' ').trim();
+  return JSON.stringify({ results, ids: ids, named: named, substituted: !!substituted, prescription: prescription });
 })()`;
 
 (async () => {
@@ -165,7 +168,7 @@ const CHECK = `(() => {
           Object.keys(prefs).forEach((k) => window.__datuxSetPreference(k, prefs[k]));
         })()`);
         const r = JSON.parse(await cdp.evaluate(CHECK));
-        rows.push({ target, weekday, profile: p.name, results: r.results, ids: r.ids, named: r.named, substituted: r.substituted });
+        rows.push({ target, weekday, profile: p.name, results: r.results, ids: r.ids, named: r.named, substituted: r.substituted, prescription: r.prescription });
       }
     }
   }
@@ -217,6 +220,28 @@ const CHECK = `(() => {
   console.log('\n---- where the failures live ----');
   console.log('  derivation-time checks: ' + stages.derive.fail + ' failures of ' + (stages.derive.pass + stages.derive.fail));
   console.log('  render-time checks    : ' + stages.render.fail + ' failures of ' + (stages.render.pass + stages.render.fail));
+
+  /* The blind spot, measured. Per weekday, how many distinct prescriptions did
+     the derivation produce across genuinely different users? */
+  console.log('\n---- BLIND SPOT: does the gate notice an unvarying plan? ----');
+  /* Only profiles that differ in USER MODEL. Profiles that complete or
+     substitute a session change the prescription through domain state, which
+     would flatter this number by counting variation the derivation did not
+     produce. */
+  const USER_MODEL_ONLY = PROFILES.filter((p) => !p.completeMorning && !p.substituteMorning).map((p) => p.name);
+  WEEKDAYS.forEach((w) => {
+    const rows_ = rows.filter((r) => r.weekday === w && r.target === 'standard' && USER_MODEL_ONLY.includes(r.profile));
+    /* The prescribed activity is the first sentence. Everything after it is
+       appended commentary, which is exactly what run 5 found varying. */
+    const core = new Set(rows_.map((r) => r.prescription.split('. ')[0].replace(/\.\s*$/, '').trim()));
+    const whole = new Set(rows_.map((r) => r.prescription));
+    console.log('  ' + w.padEnd(10) + 'distinct prescriptions across ' + rows_.length + ' profiles: ' + core.size +
+      '   (distinct headlines including commentary: ' + whole.size + ')' +
+      (core.size === 1 ? '   <-- every user told to do the same thing' : ''));
+  });
+  const flaggedByAny = rows.filter((r) => r.results.some((x) => !x.ok)).length;
+  console.log('  derivations failing at least one invariant: ' + flaggedByAny + '/' + rows.length);
+  console.log('  invariants that examine the prescription text: 0');
 
   fs.writeFileSync(path.join(OUT, 'invariants.json'), JSON.stringify({ rows, byId, opportunity }, null, 2), 'utf8');
   proc.kill(); server.close();

@@ -77,7 +77,63 @@ invariant with a zero there is not evidence of anything.
 
 ---
 
-## 2. The judgment you asked for: derivation time, render time, or both
+## 3. Would this gate have caught run 5's defect? Mostly not.
+
+ADR 0013's lesson applies to the gate itself: every structural check passed run 5's surfaces
+while the output was one plan with warnings bolted on. So the right question is not "does the
+gate fail" — it does, three of four — but **"would it have caught the thing that actually
+mattered?"**
+
+Measured rather than reasoned about. Across the six profiles that differ **only** in user
+model — excluding profiles that inject domain state by completing or substituting a session,
+which would flatter the number by counting variation the derivation did not produce:
+
+| weekday | distinct prescribed activities across 6 different users | distinct headlines including commentary |
+|---|---|---|
+| Monday | **1** | 3 |
+| Tuesday | **1** | 4 |
+| Thursday | **1** | 4 |
+| Saturday | **1** | 3 |
+
+Every user is told to do the same thing. The variation is entirely in appended sentences:
+
+```
+default          Morning: Run (4 miles): conversational pace.
+ankle-full       Morning: Run (4 miles): conversational pace. Flagged against your ankle …
+novice-20min     Morning: Run (4 miles): conversational pace. Keep the effort conversational.
+advanced-full    Morning: Run (4 miles): conversational pace.
+shoulder-home    Morning: Run (4 miles): conversational pace.
+knee-nothing     Morning: Run (4 miles): conversational pace. Flagged against your knee …
+```
+
+**Invariants that examine the prescribed activity: zero.**
+
+So the gate catches run 5's defect only obliquely. **I4** fires on 46 of 68 derivations whose
+explanation names a constraint that changed nothing — which is the *symptom*. **I1** fires
+when a problem is asserted with no control to resolve it — an adjacent defect. But a surface
+that quietly prescribed the identical run to everyone and said nothing about why would pass
+all four invariants cleanly.
+
+That is worth stating precisely because it is the failure mode ADR 0013 was written about:
+**a structural correctness gate certifies that a surface is not self-contradictory. It cannot
+certify that the surface is doing anything.** Those are different claims and the second one
+is the one the thesis rests on.
+
+I have not added a fifth invariant for it, for two reasons. It is a **quality** question, not
+a correctness one, and Q4 separates those deliberately. And the obvious formulation — "the
+derived plan must differ across sufficiently different users" — is a metric over the artefact
+of exactly the kind that has now been wrong twice. Writing it would feel like closing the gap
+and would mostly move the blind spot somewhere I cannot see it. The honest position is that
+this half of Q4 currently has no mechanical check and I do not have a trustworthy one to
+propose.
+
+Note also: **79 of 108 derivations fail at least one invariant.** A gate this red is not yet
+a regression detector — it is a defect list. It becomes a gate once the defects are fixed and
+the expected state is green.
+
+---
+
+## 4. The judgment you asked for: derivation time, render time, or both
 
 **Both, and the split is principled rather than pragmatic.**
 
@@ -119,7 +175,7 @@ half of Q4 this run does not touch.
 
 ---
 
-## 3. What this run does not establish
+## 5. What this run does not establish
 
 - **Only the correctness half of Q4.** Q4 separates correctness from quality. Nothing here
   says a surface is *good*, only that it is not self-contradictory. Run 5's blind-judge result
@@ -138,7 +194,7 @@ half of Q4 this run does not touch.
 
 ---
 
-## 4. A correction to run 5
+## 6. A correction to run 5
 
 Building the isolation this run needed exposed a defect in run 5's own harness: **profiles
 leaked state into each other.** Two profiles mark the morning session complete, and nothing
