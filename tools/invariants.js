@@ -167,7 +167,67 @@ const CHECK = `(() => {
   add('I5-render', 'render', reverseGaps.length === 0,
       reverseGaps.length ? 'effect active but its reversal is unreachable: ' + reverseGaps.join(', ') : 'ok');
 
-  return JSON.stringify({ results, ids: ids, named: named, substituted: !!substituted, prescription: prescription });
+  /* ---- I6 consequence disclosure ----
+     Run 9. The founder review found that reverting an injury adaptation hands
+     back the session that loads the flagged joint, and that EVERY prior
+     invariant certified it: I3 passed because revert is reversible, I5 passed
+     because the reversal is reachable, I1 passed because a resolving control
+     was present. None of them ask what the control actually does to the user.
+
+     Data-driven from the adaptation's own facts, so a rename cannot escape it.
+     The precondition deliberately uses reason and plannedText, which both
+     existed BEFORE this run's fix, rather than the revertIsSafe /
+     revertReViolates fields added alongside it. Keying the precondition to the
+     new declaration would have made the invariant vacuous on the defective
+     code instead of failing on it.
+
+     FIRST ATTEMPT AT THIS INVARIANT WAS WRONG AND PASSED ON THE DEFECTIVE
+     CODE. It checked the accessible name for the constraint token and the
+     restored activity. Both were already present pre-fix, because the old
+     control pulled a past-tense paragraph in through aria-labelledby: "Use the
+     planned session instead / Changed to Easy swim because you flagged your
+     ankle, and Run (4 miles) loads it." Token presence cannot tell "what
+     already happened" from "what pressing this will do", and no amount of care
+     inside a token check fixes that.
+
+     What actually separates the two is that the CONTROL ITSELF is
+     self-describing. A button read aloud in a forms list, or scanned visually,
+     or truncated, must say what it does without borrowing sense from the
+     paragraph beside it. So the check is on the control's own label text, with
+     the accessible name required to carry it too.
+
+     This is a regression detector for one known defect. It is NOT a measure of
+     whether the disclosure is any good, and it is still cheaply gamed --
+     appending "Run (4 miles) ankle" to the old label would satisfy it. That is
+     stated in the write-up rather than hidden, and the check that is not
+     cheaply gamed is a reader who has not been told what the button is for. */
+  const adapt = f.adaptation;
+  const unsafeRestore = !!(adapt && adapt.reason && adapt.plannedText && !adapt.reverted);
+  let discloseFail = '';
+  if (unsafeRestore) {
+    const revertControls = controls.filter((c) => c.dataset.capability.split(/\\s+/).includes('adaptation.revert'));
+    if (!revertControls.length) {
+      discloseFail = 'no adaptation.revert control on surface';
+    } else {
+      const restored = String(adapt.revertRestores || adapt.plannedText || '').split(':')[0].trim().toLowerCase();
+      const constraint = String(adapt.revertReViolates || adapt.reason || '').toLowerCase();
+      const names = (str) => {
+        const t = String(str || '').toLowerCase();
+        return !!restored && t.includes(restored) && t.includes(constraint);
+      };
+      const bad = revertControls.filter((c) => !names(c.textContent) || !names(accessibleName(c)));
+      if (bad.length) {
+        discloseFail = 'the revert control is not self-describing: its own label must name what it restores ('
+          + restored + ') and the constraint that costs (' + constraint + '); borrowing them from an adjacent paragraph does not count';
+      }
+    }
+  }
+  add('I6-render', 'render', !unsafeRestore || !discloseFail,
+      unsafeRestore ? (discloseFail || 'revert names the restored session and the constraint it re-violates')
+                    : 'no unsafe restore is being offered');
+
+  return JSON.stringify({ results, ids: ids, named: named, substituted: !!substituted, prescription: prescription,
+    unsafeRestore: unsafeRestore });
 })()`;
 
 (async () => {
@@ -200,7 +260,7 @@ const CHECK = `(() => {
           Object.keys(prefs).forEach((k) => window.__datuxSetPreference(k, prefs[k]));
         })()`);
         const r = JSON.parse(await cdp.evaluate(CHECK));
-        rows.push({ target, weekday, profile: p.name, results: r.results, ids: r.ids, named: r.named, substituted: r.substituted, prescription: r.prescription });
+        rows.push({ target, weekday, profile: p.name, results: r.results, ids: r.ids, named: r.named, substituted: r.substituted, prescription: r.prescription, unsafeRestore: r.unsafeRestore });
       }
     }
   }
@@ -241,6 +301,7 @@ const CHECK = `(() => {
     'I2b-derive': rows.filter((r) => r.ids.includes('detail.time_fit')).length,
     'I3-render': rows.length,
     'I5-render': rows.filter((r) => r.results.find((x) => x.id === 'I5-render')).length,
+    'I6-render': rows.filter((r) => r.unsafeRestore).length,
     'I4-derive': rows.filter((r) => r.named && r.named.length > 0).length
   };
   Object.entries(opportunity).forEach(([id, n]) => {
