@@ -1,12 +1,12 @@
-﻿'use strict';
-/* Cross-engine accessible-name divergence â€” run 4.
+'use strict';
+/* Cross-engine accessible-name divergence — run 4.
 
    ADR 0010 was decided entirely on Chromium. If Gecko computes materially
    different names for the same elements, then the per-deployment conformance
    gate needs a browser dimension, and "observe from outside the page" stops
    being one measurement and becomes several.
 
-   Blink names come from Chromium's own accessibility tree over CDP â€” the same
+   Blink names come from Chromium's own accessibility tree over CDP — the same
    source used as ground truth in run 3.
    Gecko names come from WebDriver's spec-defined "Get Computed Label", which
    delegates to Firefox's own accessible-name computation.
@@ -22,7 +22,7 @@
    Both engines are served a FROZEN SNAPSHOT of each page, not the live URL.
    The first attempt compared live loads and produced 6% "disjoint" names that
    turned out to be Hacker News reordering its front page between the two
-   passes â€” content drift masquerading as engine divergence. Chromium now
+   passes — content drift masquerading as engine divergence. Chromium now
    renders the live page once, the fully-rendered DOM is captured with scripts
    stripped and a <base> added so stylesheets still resolve, and both engines
    read that identical byte stream from localhost. CSS is deliberately kept,

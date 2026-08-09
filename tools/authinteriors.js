@@ -1,5 +1,5 @@
-﻿'use strict';
-/* Authenticated application interiors â€” the open half of run 4 item 2.
+'use strict';
+/* Authenticated application interiors — the open half of run 4 item 2.
 
    Run 3's corpus was landing pages. Run 4 measured anonymous app interiors and
    found them better, not worse. This closes the gap: interiors behind a login,
