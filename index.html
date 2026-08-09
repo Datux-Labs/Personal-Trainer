@@ -641,17 +641,25 @@
     /* --- 1. The capability registry -------------------------------------
        Stable id separated from human display label, per instrumentation.md §2.
        Namespaced, low cardinality. High-cardinality data (which day, which
-       substitution) travels in `detail`, never in the capability name. */
+       substitution) travels in `detail`, never in the capability name.
+
+       `reversible`, `destructive` and `confirmed` were added in run 6 so the
+       Q4 correctness invariants can be checked mechanically instead of being
+       hardcoded against a list of names. data-layer.md asks capabilities to
+       describe "what they change, what they cost, whether they're reversible";
+       until now this registry only carried the label. */
     const CAPABILITIES = {
-      'session.complete':             { urn: 'urn:cap:session.complete',             label: 'Mark session complete' },
-      'session.reopen':               { urn: 'urn:cap:session.reopen',               label: 'Reopen a completed session' },
-      'session.substitute_exercise':  { urn: 'urn:cap:session.substitute_exercise',  label: 'Substitute the planned exercise' },
-      'session.restore_planned':      { urn: 'urn:cap:session.restore_planned',      label: 'Restore the planned exercise' },
-      'session.log_note':             { urn: 'urn:cap:session.log_note',             label: 'Log a note against a session' },
-      'plan.select_long_day_variant': { urn: 'urn:cap:plan.select_long_day_variant', label: 'Select the long-day variant' },
-      'plan.reset_progress':          { urn: 'urn:cap:plan.reset_progress',          label: 'Reset all logged progress' },
-      'preference.set':               { urn: 'urn:cap:preference.set',               label: 'Set a scalar preference' },
-      'adaptation.dismiss':           { urn: 'urn:cap:adaptation.dismiss',           label: 'Decline a proposed adaptation' }
+      'session.complete':             { urn: 'urn:cap:session.complete',             label: 'Mark session complete',              reversible: true,  reverseOf: null,                        destructive: false, confirmed: false },
+      'session.reopen':               { urn: 'urn:cap:session.reopen',               label: 'Reopen a completed session',         reversible: true,  reverseOf: 'session.complete',          destructive: false, confirmed: false },
+      'session.substitute_exercise':  { urn: 'urn:cap:session.substitute_exercise',  label: 'Substitute the planned exercise',    reversible: true,  reverseOf: null,                        destructive: false, confirmed: false },
+      'session.restore_planned':      { urn: 'urn:cap:session.restore_planned',      label: 'Restore the planned exercise',       reversible: true,  reverseOf: 'session.substitute_exercise', destructive: false, confirmed: false },
+      'session.log_note':             { urn: 'urn:cap:session.log_note',             label: 'Log a note against a session',       reversible: true,  reverseOf: null,                        destructive: false, confirmed: false },
+      'plan.select_long_day_variant': { urn: 'urn:cap:plan.select_long_day_variant', label: 'Select the long-day variant',        reversible: true,  reverseOf: null,                        destructive: false, confirmed: false },
+      'plan.reset_progress':          { urn: 'urn:cap:plan.reset_progress',          label: 'Reset all logged progress',          reversible: false, reverseOf: null,                        destructive: true,  confirmed: true  },
+      'preference.set':               { urn: 'urn:cap:preference.set',               label: 'Set a scalar preference',            reversible: true,  reverseOf: null,                        destructive: false, confirmed: false },
+      /* Irreversible on purpose and with no undo surface: dismissing a safety
+         proposal suppresses it permanently. Run 6's I3 flags this. */
+      'adaptation.dismiss':           { urn: 'urn:cap:adaptation.dismiss',           label: 'Decline a proposed adaptation',      reversible: false, reverseOf: null,                        destructive: false, confirmed: false }
     };
 
     const SUBSTITUTIONS = [
@@ -833,6 +841,7 @@
           device: matchMedia('(pointer: coarse)').matches ? 'touch' : 'pointer',
           modality: lastModality,
           ms_into_session: Date.now() - sessionStart,
+          policy: POLICY,
           viewing_weekday: todayName
         },
         detail: detail,
@@ -1244,6 +1253,25 @@
     }
 
     /* ---- Context --------------------------------------------------------- */
+    /* ---- Policy assignment (ADR 0006, experimentation.md section 1) --------
+       The experimental unit is the derivation policy, never the rendered
+       artifact. Both policies ship in this one file so an L3 run randomises
+       which FUNCTION produces the surface, not which pixels are shown.
+
+         derived   the constraint solver from run 5
+         uniform   the frozen baseline: the same static sentence every user saw
+                   before derivation existed, and no derived regions at all
+         holdout   identical to uniform, labelled separately so its data is
+                   never used to fit or tune anything (experimentation.md section 5)
+
+       Set with ?policy=uniform. The assignment travels on every attempt
+       envelope, which is what makes the logs analysable per policy. */
+    const POLICY = (function () {
+      const p = new URLSearchParams(location.search).get('policy');
+      return ['derived', 'uniform', 'holdout'].includes(p) ? p : 'derived';
+    })();
+    const DERIVATION_ACTIVE = POLICY === 'derived';
+
     let weekdayOverride = null;   /* L2 test hook: the weekday is otherwise an uncontrolled variable */
 
     function readContext() {
@@ -1570,8 +1598,25 @@
 
     function rerender() {
       const ctx = readContext();
-      const surface = derive(ctx, PREFERENCES);
       document.getElementById('today-day-label').textContent = ctx.weekday;
+      if (!DERIVATION_ACTIVE) {
+        /* The frozen baseline. One sentence, identical for every user, and no
+           derived regions. This is what the L3 protocol compares against, and
+           it ships in the same file so an L3 run randomises the policy rather
+           than the build. */
+        headlineHost.textContent = scheduleByDay[ctx.weekday];
+        Object.keys(SLOT_HOSTS).forEach(function (s) { document.getElementById(SLOT_HOSTS[s]).textContent = ''; });
+        todaySection.dataset.target = 'standard';
+        const flat = {
+          plan: [], facts: buildFacts(ctx, PREFERENCES), budget: 0, spent: 0,
+          decisions: [{ id: 'policy', action: 'derivation disabled', policy: POLICY }],
+          target: 'standard', policy: POLICY
+        };
+        window.__datuxSurface = flat;
+        return flat;
+      }
+      const surface = derive(ctx, PREFERENCES);
+      surface.policy = POLICY;
       renderSurface(surface);
       window.__datuxSurface = surface;
       return surface;
@@ -1588,6 +1633,16 @@
     };
     window.__datuxAssertNonComposing = function () { return assertNonComposing(PREFERENCES); };
     window.__datuxSetWeekday = function (d) { weekdayOverride = d; return rerender(); };
+    /* L2 test hook: reset domain state without the confirm dialog, so a harness
+       can isolate one profile from the next. Run 6 found profiles leaking state
+       into each other, which had silently contaminated run 5's per-target counts. */
+    window.__datuxResetState = function () {
+      state = defaultState();
+      dismissedAdaptations = {};
+      try { localStorage.removeItem('pt.l2.dismissed.v1'); saveState(); } catch (err) { /* ignore */ }
+      refreshAll();
+      return rerender();
+    };
 
     /* ---- Preference controls: scalar selects, nothing else --------------- */
     const prefsHost = document.getElementById('prefs');

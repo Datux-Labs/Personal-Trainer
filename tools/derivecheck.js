@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 /* Run 5 â€” does the derivation actually derive?
 
    Four questions, four measurements:
@@ -86,7 +86,7 @@ const jaccard = (a, b) => {
     for (const profile of PROFILES) {
       const prefs = Object.assign({ target: target }, profile.prefs);
       const r = await cdp.evaluate(`(() => {
-        localStorage.removeItem('pt.l2.dismissed.v1');
+        window.__datuxResetState();
         window.__datuxSetWeekday(${JSON.stringify(weekday)});
         if (${profile.completeMorning ? "true" : "false"}) {
           const done = document.getElementById('s-' + ${JSON.stringify(weekday)}.toLowerCase() + '-morning-done');
