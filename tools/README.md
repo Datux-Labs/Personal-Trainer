@@ -25,6 +25,7 @@ node --experimental-websocket <script> <args>
 | `selfcheck.js` | run-1 self-check against this repo's own `index.html`: frame stability, keyboard reachability, and the accessible-name conformance diff |
 | `accname.js` | the conformance harness: eight in-page AccName implementations diffed against `Accessibility.getFullAXTree` across a corpus, with divergence classification |
 | `annotate.js` | `href` mode captures a tree with link destinations joined in; `flip` mode enumerates controls whose ARIA state can flip |
+| `crossengine.js` | Blink vs Gecko accessible-name comparison on frozen page snapshots, via CDP and WebDriver Get Computed Label |
 
 ## The one to steal
 
