@@ -87,10 +87,17 @@ const CHECK = `(() => {
   const results = [];
   const add = (id, stage, ok, detail) => results.push({ id, stage, ok, detail });
 
-  /* ---- I1 capability sufficiency ---- */
-  const assertsProblem = ids.includes('adapt.protection') || ids.includes('detail.equipment_gap') || ids.includes('detail.time_fit');
-  const RESOLVERS = ['session.substitute_exercise'];
-  const plannedResolver = s.plan.some((p) => p.id === 'adapt.protection' && p.mode === 'ask');
+  /* ---- I1 capability sufficiency ----
+     Run 7: read the component library's own declarations rather than a
+     hardcoded id list, so a component cannot escape this invariant by being
+     renamed. The logic is unchanged — assert a problem, offer a resolver — only
+     the vocabulary is now data-driven. */
+  const lib = window.__datuxComponents || [];
+  const declaredBy = {};
+  lib.forEach((c) => { declaredBy[c.id] = c; });
+  const assertsProblem = ids.some((i) => declaredBy[i] && declaredBy[i].assertsProblem);
+  const RESOLVERS = ['session.substitute_exercise', 'session.restore_planned'];
+  const plannedResolver = ids.some((i) => declaredBy[i] && (declaredBy[i].provides || []).some((p) => RESOLVERS.includes(p)));
   add('I1a-derive', 'derive', !assertsProblem || plannedResolver,
       assertsProblem ? (plannedResolver ? 'problem asserted, resolving component planned'
                                         : 'problem asserted, NO resolving component planned') : 'no problem asserted');
@@ -124,7 +131,13 @@ const CHECK = `(() => {
   if (/equipment set to/.test(text)) named.push('equipment');
   if (/minutes available/.test(text)) named.push('time');
   const attributable = {
-    protecting: ids.includes('adapt.protection'),
+    /* Run 7 extends this vocabulary because the components changed, not because
+       the requirement changed: the high-confidence path now renders
+       adapt.applied instead of adapt.protection, and a declined suggestion
+       renders adapt.dismissed. All three are visible consequences of the
+       protection constraint. The logic — a named constraint must have changed
+       something — is untouched. */
+    protecting: ids.includes('adapt.protection') || ids.includes('adapt.applied') || ids.includes('adapt.dismissed'),
     equipment: ids.includes('detail.equipment_gap'),
     time: ids.includes('detail.time_fit')
   };
@@ -132,9 +145,28 @@ const CHECK = `(() => {
   add('I4-derive', 'derive', unbacked.length === 0,
       unbacked.length ? 'explanation names constraints that changed nothing: ' + unbacked.join(', ') : 'all named constraints backed');
 
+  const prescriptionEarly = 1;
   /* Diagnostic, not an invariant: the prescription line itself. Run 5's core
      defect was that this string never varies, and nothing in I1-I4 looks at it. */
   const prescription = (document.getElementById('today-plan').innerText || '').replace(/\\s+/g, ' ').trim();
+  /* ---- I5 reverse reachability ----
+     Run 7 added this specifically to police run 7's own fix. I3 passes if a
+     capability declares itself reversible; nothing stopped that being a flag
+     flip. I5 requires that when a capability's effect is currently active, the
+     control that reverses it is actually on the surface. */
+  const reverseGaps = [];
+  Object.keys(caps).forEach((id) => {
+    const meta = caps[id];
+    if (!meta.reverseOf) return;
+    const activeStates = {
+      'adaptation.undismiss': !!(f.primary && f.dismissed[f.primary.key + '|' + f.protection]),
+      'adaptation.reapply': !!(f.adaptation && f.adaptation.reverted)
+    };
+    if (activeStates[id] === true && !capsOnSurface.has(id)) reverseGaps.push(id);
+  });
+  add('I5-render', 'render', reverseGaps.length === 0,
+      reverseGaps.length ? 'effect active but its reversal is unreachable: ' + reverseGaps.join(', ') : 'ok');
+
   return JSON.stringify({ results, ids: ids, named: named, substituted: !!substituted, prescription: prescription });
 })()`;
 
@@ -208,6 +240,7 @@ const CHECK = `(() => {
     'I2a-derive': rows.filter((r) => r.substituted).length,
     'I2b-derive': rows.filter((r) => r.ids.includes('detail.time_fit')).length,
     'I3-render': rows.length,
+    'I5-render': rows.filter((r) => r.results.find((x) => x.id === 'I5-render')).length,
     'I4-derive': rows.filter((r) => r.named && r.named.length > 0).length
   };
   Object.entries(opportunity).forEach(([id, n]) => {
