@@ -1180,6 +1180,116 @@
                    confidence, never two.
        ===================================================================== */
 
+    /* ---- Run 8: the phrase cache -----------------------------------------
+       ADR 0012 named the gap: selection is derived, wording is authored. This
+       is the narrow version of strategy D — a model writes the strings OFFLINE,
+       they are baked in below, and serving is a deterministic dictionary
+       lookup. Nothing is generated on the request path and there is no network
+       call. A miss falls back to the authored template rather than blocking.
+
+       The cache key is a user-and-context CLASS, never a user. Classes are
+       coarse on purpose: experience level plus whatever the component varies
+       on. That keeps the cache bounded and inspectable.
+
+       Two constraints are load-bearing and are checked mechanically by
+       tools/langcheck.js rather than trusted:
+         - a generated string must carry every concrete fact its template
+           carried. Prose that reads better and says less is a net loss,
+           especially for the explanation, which is ADR 0003's legibility.
+         - no engagement language. Warmer, stickier or more encouraging is not
+           the goal; the objective is still error events driven toward zero. */
+    /* Generated offline by a model, reviewed against the constraints in
+       tools/langcheck.js, and baked in. Serving is a dictionary lookup: no
+       network call, no generation on the request path, deterministic for a
+       given class. A miss falls back to the authored template. */
+    const PHRASES = {
+      "adapt.applied": {
+        "novice|ankle|applied": "Changed to {suggestion} because you flagged your {reason}, and {planned} puts load on it.",
+        "novice|ankle|reverted": "Kept as planned: {planned}. You flagged your {reason}, and this session loads it.",
+        "novice|shoulder|applied": "Changed to {suggestion} because you flagged your {reason}, and {planned} puts load on it.",
+        "novice|shoulder|reverted": "Kept as planned: {planned}. You flagged your {reason}, and this session loads it.",
+        "novice|knee|applied": "Changed to {suggestion} because you flagged your {reason}, and {planned} puts load on it.",
+        "novice|knee|reverted": "Kept as planned: {planned}. You flagged your {reason}, and this session loads it.",
+        "regular|ankle|applied": "Changed to {suggestion}: your {reason} is flagged and {planned} loads it.",
+        "regular|ankle|reverted": "Kept as planned: {planned}. Your {reason} is flagged and this session loads it.",
+        "regular|shoulder|applied": "Changed to {suggestion}: your {reason} is flagged and {planned} loads it.",
+        "regular|shoulder|reverted": "Kept as planned: {planned}. Your {reason} is flagged and this session loads it.",
+        "regular|knee|applied": "Changed to {suggestion}: your {reason} is flagged and {planned} loads it.",
+        "regular|knee|reverted": "Kept as planned: {planned}. Your {reason} is flagged and this session loads it.",
+        "advanced|ankle|applied": "Swapped to {suggestion}: {reason} flagged, {planned} loads it.",
+        "advanced|ankle|reverted": "Kept: {planned}. {reason} flagged; this session loads it.",
+        "advanced|shoulder|applied": "Swapped to {suggestion}: {reason} flagged, {planned} loads it.",
+        "advanced|shoulder|reverted": "Kept: {planned}. {reason} flagged; this session loads it.",
+        "advanced|knee|applied": "Swapped to {suggestion}: {reason} flagged, {planned} loads it.",
+        "advanced|knee|reverted": "Kept: {planned}. {reason} flagged; this session loads it."
+      },
+      "detail.equipment_gap": {
+        "novice|pool": "This session needs {need}, which you have marked as unavailable.",
+        "novice|gym": "This session needs {need}, which you have marked as unavailable.",
+        "novice|court": "This session needs {need}, which you have marked as unavailable.",
+        "novice|course": "This session needs {need}, which you have marked as unavailable.",
+        "novice|bike": "This session needs {need}, which you have marked as unavailable.",
+        "regular|pool": "Needs {need}, which you marked unavailable.",
+        "regular|gym": "Needs {need}, which you marked unavailable.",
+        "regular|court": "Needs {need}, which you marked unavailable.",
+        "regular|course": "Needs {need}, which you marked unavailable.",
+        "regular|bike": "Needs {need}, which you marked unavailable.",
+        "advanced|pool": "Requires {need}; marked unavailable.",
+        "advanced|gym": "Requires {need}; marked unavailable.",
+        "advanced|court": "Requires {need}; marked unavailable.",
+        "advanced|course": "Requires {need}; marked unavailable.",
+        "advanced|bike": "Requires {need}; marked unavailable."
+      },
+      "detail.time_fit": {
+        "novice|mild": "Planned at about {planned} minutes, over your {budget}. Shorten it or take one of the swaps.",
+        "novice|severe": "Planned at about {planned} minutes, well over your {budget}. Shorten it or take one of the swaps.",
+        "regular|mild": "Planned at about {planned} minutes against your {budget}. Shorten it or take a swap.",
+        "regular|severe": "Planned at about {planned} minutes, well over your {budget}. Shorten it or take a swap.",
+        "advanced|mild": "~{planned} min vs your {budget}. Shorten or swap.",
+        "advanced|severe": "~{planned} min, well over your {budget}. Shorten or swap."
+      },
+      "secondary.guideline": {
+        "novice": "Keep morning sessions at recovery intensity so the evening session stays high quality.",
+        "regular": "Keep the easy sessions easy so the hard sessions stay high quality.",
+        "advanced": "Easy sessions easy, so hard sessions stay high quality."
+      }
+    };
+
+    let phraseMisses = 0;
+    let phraseHits = 0;
+    const phraseServed = {};
+
+    function phrase(componentId, key, fallback) {
+      const bucket = PHRASES[componentId];
+      const found = bucket && Object.prototype.hasOwnProperty.call(bucket, key) ? bucket[key] : null;
+      if (found) {
+        phraseHits++;
+        const id = componentId + ' [' + key + ']';
+        phraseServed[id] = (phraseServed[id] || 0) + 1;
+        return found;
+      }
+      phraseMisses++;
+      return fallback;
+    }
+
+    function phraseKey() {
+      return Array.prototype.slice.call(arguments).join('|');
+    }
+
+    window.__datuxPhraseStats = function () {
+      const all = [];
+      Object.keys(PHRASES).forEach(function (c) {
+        Object.keys(PHRASES[c]).forEach(function (k) { all.push(c + ' [' + k + ']'); });
+      });
+      return {
+        hits: phraseHits,
+        misses: phraseMisses,
+        classes: all.length,
+        served: phraseServed,
+        neverServed: all.filter(function (id) { return !phraseServed[id]; })
+      };
+    };
+
     /* ---- Domain state: what the activities actually are ----------------- */
     const ACTIVITY_MODEL = {
       Swim:       { loads: ['shoulder'],          facility: 'pool',   minutes: 45,  kind: 'endurance' },
@@ -1438,9 +1548,13 @@
           const why = document.createElement('p');
           why.className = 'derived';
           why.id = 'adapt-applied-reason';
-          why.textContent = a.reverted
+          const tmplApplied = a.reverted
             ? 'Kept as planned: ' + a.plannedText + '. Your ' + a.reason + ' is flagged and this session loads it.'
             : 'Changed to ' + a.suggestion + ' because your ' + a.reason + ' is flagged and ' + a.plannedText + ' loads it.';
+          why.textContent = phrase('adapt.applied', phraseKey(f.user.experience, a.reason, a.reverted ? 'reverted' : 'applied'), tmplApplied)
+            .split('{suggestion}').join(a.suggestion)
+            .split('{planned}').join(a.plannedText)
+            .split('{reason}').join(a.reason);
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.id = 'adapt-revert';
@@ -1583,8 +1697,9 @@
         build: function (item, f) {
           const el = document.createElement('p');
           el.className = 'derived derived-notice';
-          el.textContent = 'This session needs ' + item.data.need + ', which you have marked unavailable. ' +
-            (f.facilities.includes('none') ? 'Foam rolling (30 min) needs nothing.' : '');
+          const tmplEquip = 'This session needs ' + item.data.need + ', which you have marked unavailable.';
+          el.textContent = phrase('detail.equipment_gap', phraseKey(f.user.experience, item.data.need), tmplEquip)
+            .split('{need}').join(item.data.need);
           return el;
         }
       },
@@ -1599,8 +1714,12 @@
         build: function (item, f) {
           const el = document.createElement('p');
           el.className = 'derived';
-          el.textContent = 'Planned at about ' + item.data.need + ' minutes against your ' + f.budgetMinutes +
+          const severity = (item.data.need - f.budgetMinutes) >= 30 ? 'severe' : 'mild';
+          const tmplTime = 'Planned at about ' + item.data.need + ' minutes against your ' + f.budgetMinutes +
             '. Shorten it or take one of the swaps.';
+          el.textContent = phrase('detail.time_fit', phraseKey(f.user.experience, severity), tmplTime)
+            .split('{planned}').join(String(item.data.need))
+            .split('{budget}').join(String(f.budgetMinutes));
           return el;
         }
       },
@@ -1634,16 +1753,22 @@
       },
       {
         id: 'secondary.guideline', slot: 'secondary', density: 1,
+        /* Run 8: this used to return ok:false for advanced, which made the one
+           genuinely terse register variant unreachable — I generated a string
+           for an audience the component refused to serve. Advanced users now
+           get the guideline at the lowest score, so density still drops it
+           first under budget. A phrase variant nobody can be shown is not a
+           null result about language; it is an untested treatment. */
         evaluate: function (f) {
-          if (f.user.experience === 'advanced') return { ok: false };
-          return { ok: true, confidence: 1, score: 40, data: {} };
+          return { ok: true, confidence: 1, score: f.user.experience === 'advanced' ? 20 : 40, data: {} };
         },
         build: function (item, f) {
           const el = document.createElement('p');
           el.className = 'derived derived-explain';
-          el.textContent = f.user.experience === 'novice'
+          const tmplGuide = f.user.experience === 'novice'
             ? 'Easy mandate: keep morning sessions at recovery intensity so the evening session stays high quality.'
             : 'Keep the easy sessions easy.';
+          el.textContent = phrase('secondary.guideline', phraseKey(f.user.experience), tmplGuide);
           return el;
         }
       },
