@@ -413,6 +413,10 @@
       font-size: calc(0.78rem * var(--d-scale, 1));
     }
 
+    .btn-consequence {
+      border-color: rgba(233, 176, 106, 0.7);
+    }
+
     .derived ul {
       margin: 0.2rem 0 0;
       font-size: calc(0.86rem * var(--d-scale, 1));
@@ -1276,6 +1280,13 @@
       return Array.prototype.slice.call(arguments).join('|');
     }
 
+    /* "Run (4 miles): conversational pace" -> "Run (4 miles)". Only ever used
+       to keep a button label readable; the full text is always present in the
+       consequence line beside it, so nothing is lost from the accessible name. */
+    function shortActivity(text) {
+      return String(text || '').split(':')[0].trim() || String(text || '');
+    }
+
     window.__datuxPhraseStats = function () {
       const all = [];
       Object.keys(PHRASES).forEach(function (c) {
@@ -1445,7 +1456,16 @@
             reason: user.protecting,
             suggestion: facilities.includes('pool') ? 'Easy swim (20–30 min)' : 'Foam rolling (30 min)',
             reverted: planOverrides[primary.key] === 'planned',
-            plannedText: primary.plannedText
+            plannedText: primary.plannedText,
+            /* Run 9. The consequence of reverting is a fact about the domain, so
+               it lives in the layer rather than being reassembled inside a
+               string in one component. `restoring` is what the user gets back;
+               `reViolates` is the constraint that getting it back breaks. Any
+               component offering the revert can read this, and the gate can
+               check that whatever offers it actually says so. */
+            revertRestores: primary.plannedText,
+            revertReViolates: user.protecting,
+            revertIsSafe: false
           };
         }
       }
@@ -1534,9 +1554,27 @@
       {
         /* The plan was changed. Visible reason, one-click revert, and the
            revert is itself reversible — ADR 0003 satisfied without falling back
-           to propose-only, which is what hollowed run 5 out. */
+           to propose-only, which is what hollowed run 5 out.
+
+           Run 9. The founder review caught what two of us filed as a design
+           tension: reverting an injury adaptation hands back the session that
+           loads the flagged joint, and the control that did it read "Use the
+           planned session instead" — a label whose connotation is inverted
+           relative to its consequence, because "planned" sounds like the
+           conservative choice. The old accessible name did mention the joint,
+           but in the past tense, explaining a change already made rather than
+           the one about to be made.
+
+           The fix is disclosure, not friction. No confirm step, no extra click,
+           no dulled affordance: ADR 0003 is not negotiable and data-layer.md is
+           explicit that the answer is not to weaken the revert. What changes is
+           that the control names what it restores and what that costs, at the
+           moment of restoring, in both the visible label and the accessible
+           name — and it says the move is undoable, which is what earns the
+           right not to confirm. */
         id: 'adapt.applied', slot: 'notices', density: 1,
         provides: ['adaptation.revert', 'adaptation.reapply'],
+        disclosesConsequence: true,
         evaluate: function (f) {
           if (!f.adaptation) return { ok: false };
           return { ok: true, confidence: f.adaptation.confidence, score: 96, data: {} };
@@ -1555,13 +1593,39 @@
             .split('{suggestion}').join(a.suggestion)
             .split('{planned}').join(a.plannedText)
             .split('{reason}').join(a.reason);
+
+          /* Run 9, second pass. The first pass disclosed the consequence in
+             three places — the explanation, a dedicated paragraph, and the
+             button. Two blind readers independently called that out: one
+             "by the third occurrence it's wallpaper", the other "deliberate
+             friction ... the final reassurance sounds patronizing". Saying it
+             three times is a way of discouraging the action, which is the
+             pressure ADR 0003 forbids, so the paragraph is gone.
+
+             What remains does two different jobs: the explanation above says
+             why the app changed the plan (ADR 0003 legibility), and the
+             control says what pressing it costs. One reader wanted it down to
+             a single mention; the explanation is kept because dropping it
+             would trade a legibility requirement for a redundancy complaint.
+
+             The control is now self-describing on its own text, with no
+             aria-labelledby borrowing sense from a neighbouring paragraph. A
+             button that only makes sense next to its siblings is not a button
+             a screen-reader user can navigate by.
+
+             "Planned" is gone from the label. Both readers said it lends the
+             harmful option undeserved authority — "it isn't asking you to
+             override a safety measure, it's asking you to restore the proper
+             course of action" — which is the connotation inversion this run
+             set out to fix, and I had left half of it in place. */
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.id = 'adapt-revert';
-          btn.className = 'btn';
-          btn.textContent = a.reverted ? 'Use the adapted session' : 'Use the planned session instead';
+          btn.className = a.reverted ? 'btn' : 'btn btn-consequence';
+          btn.textContent = a.reverted
+            ? 'Switch to ' + a.suggestion + ', which avoids your ' + a.reason
+            : 'Switch to ' + shortActivity(a.revertRestores) + ', which loads your ' + a.revertReViolates;
           btn.setAttribute('aria-pressed', a.reverted ? 'true' : 'false');
-          btn.setAttribute('aria-labelledby', btn.id + ' adapt-applied-reason');
           btn.dataset.capability = 'adaptation.revert adaptation.reapply';
           btn.addEventListener('click', function () {
             const nowReverted = !a.reverted;
@@ -1569,8 +1633,12 @@
             else delete planOverrides[f.primary.key];
             savePlanOverrides();
             emitAttempt(btn, nowReverted ? 'adaptation.revert' : 'adaptation.reapply',
-              { day: f.ctx.weekday, slot: f.primary.slotId, reason: a.reason }, 'completed', 0.95);
-            announce(nowReverted ? 'Using the planned session.' : 'Using the adapted session.');
+              { day: f.ctx.weekday, slot: f.primary.slotId, reason: a.reason,
+                restored: nowReverted ? a.revertRestores : a.suggestion,
+                reViolates: nowReverted ? a.revertReViolates : null }, 'completed', 0.95);
+            announce(nowReverted
+              ? 'Now doing ' + shortActivity(a.revertRestores) + ', which loads your ' + a.revertReViolates + '. The same button switches back.'
+              : 'Now doing ' + a.suggestion + ', which avoids your ' + a.reason + '.');
             rerender();
           });
           box.append(why, btn);

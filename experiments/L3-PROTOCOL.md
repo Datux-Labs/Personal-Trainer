@@ -238,14 +238,57 @@ that plainly rather than pretending 4 people are a control.
 |---|---|
 | baseline frozen and selectable by policy | **done** — `?policy=uniform` |
 | policy logged on every attempt | **done** — `context.policy` |
-| accessibility gates passing | **done** — 62/62 names, frame NONE, 0 unreachable |
-| Q4 correctness invariants passing | **passing as of run 7** — 0/108, no vacuous invariants |
+| accessibility gates passing | **done** — 63/63 names, frame NONE, 0 unreachable |
+| Q4 correctness invariants passing | **passing as of run 7, still 0/108 at run 9** |
+| injury-reversal path safe to show a real person | **done — run 9.** See below. |
 | recruitment, consent, ethics | **not started — founder call** |
 
-**The derivation is not fit to put in front of a person yet**, and the gate says so with
-numbers rather than an opinion. In 54 of 108 derivations the surface tells the user their
-planned session is a problem and offers no control to do anything about it. Running an L3 on
-that would measure a defect, not a thesis.
+### The injury-reversal blocker, and why it was not a correctness problem
+
+The founder review found what the agent side had twice filed as an acceptable
+design tension: **reverting an injury adaptation handed back the session that
+loads the flagged joint**, behind a control labelled "Use the planned session
+instead."
+
+Every correctness invariant certified that surface. I3 passed because the
+revert is reversible. I5 passed because its reversal is reachable. I1 passed
+because a resolving control was present. None of them asked what the control
+*does to the person pressing it*, and the label's connotation ran the opposite
+way to its consequence — "planned" reads as the correct, officially-sanctioned
+choice, so the most authoritative-sounding option was the one that re-injures
+you.
+
+Run 9 fixed it by disclosure rather than friction: the revert is still one
+click in both directions, with no confirmation step, and the control now names
+what it restores and what that costs, in its own label. `I6-render` was added
+and **verified to fail 21/108 on the pre-fix code** before being accepted.
+
+**Consequence for the study design.** Until this landed, the pilot could only
+have used *synthetic* injury profiles, because putting the pre-fix surface in
+front of someone with a real injury would have been asking them to act on a
+control that hid its own consequence. With run 9 in, a pilot using **real
+self-reported injury constraints** is defensible. That is a change in what the
+first study is *allowed to be*, not merely a bug fix, and it is the reason this
+row is a precondition rather than a nice-to-have.
+
+**This is still not a claim that the disclosure is good.** I6 is a regression
+detector for one known defect and is cheaply satisfied by appending the right
+tokens. The check that is not cheaply satisfied is a reader who has not been
+told what the button is for, and two of them found four further problems that
+I6 passes over — listed in `RUN9-INJURY-REVERSAL.md` §5.
+
+**The correctness blockers are cleared; recruitment is not.** When this section
+was written in run 6, 54 of 108 derivations asserted a problem and offered no
+control to resolve it, and running an L3 on that would have measured a defect
+rather than a thesis. Run 7 cleared that and run 9 cleared the injury-reversal
+path. **The remaining blocker is recruitment, consent and ethics, which is a
+founder call and not an agent one.**
+
+One caveat carried forward deliberately: a green gate says the surface is not
+self-contradictory. It does not say the surface is doing anything useful, and
+blind readers have twice called the derivation "superficially personalised"
+while every invariant passed. That is a reason to keep the pre-registered
+expectation modest, not a reason to delay the study.
 
 ---
 
