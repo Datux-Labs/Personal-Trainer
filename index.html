@@ -1,4 +1,22 @@
 <!doctype html>
+<!--
+  ============================================================================
+  L2 PROTOTYPE — DISPOSABLE. NOT PRODUCTION CODE.
+
+  Built for Datux Labs to test open question Q13 ("does a capability model
+  survive contact with a real codebase?") from Datux-Labs/core.
+
+  Before this change the page had zero capabilities: no button, no input, no
+  form, no handler. There was nothing to attempt, so nothing to instrument.
+  The controls below exist so that there is something to name, and so the
+  capability model in CAPABILITIES.md has a referent.
+
+  The experiment result lives in CAPABILITIES.md. This file is the means.
+
+  Deliberate constraints: one static file, no build step, no dependencies,
+  localStorage only. Anyone can open it. Keep it that way.
+  ============================================================================
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -196,6 +214,152 @@
       color: #ffffff;
     }
 
+    /* ---- L2 capability layer ------------------------------------------
+       Frame-holding rules (ADR 0004): every control below occupies a fixed
+       position and every state line reserves its height, so populating state
+       never moves anything the user has built recall against. */
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    :where(button, select, input, a):focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .btn {
+      font: inherit;
+      font-size: 0.82rem;
+      line-height: 1.3;
+      color: var(--text);
+      background: #1b2229;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.3rem 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      border-color: rgba(100, 212, 144, 0.5);
+    }
+
+    .btn[aria-pressed="true"] {
+      background: var(--accent-soft);
+      border-color: rgba(100, 212, 144, 0.7);
+      color: #d8ffe6;
+    }
+
+    .field {
+      font: inherit;
+      font-size: 0.82rem;
+      color: var(--text);
+      background: #11161c;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.3rem 0.45rem;
+      min-width: 0;
+    }
+
+    .field::placeholder {
+      color: #6d7d90;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      min-height: 2.1rem;
+    }
+
+    .status {
+      flex: 1 1 16rem;
+      min-height: 1.35rem;
+      margin: 0;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .today-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      align-items: center;
+      min-height: 2.1rem;
+    }
+
+    .slot {
+      padding-left: 0.55rem;
+      border-left: 2px solid transparent;
+    }
+
+    .slot.is-complete {
+      border-left-color: var(--accent);
+    }
+
+    .slot.is-substituted .item-text {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+
+    .slot-group {
+      display: grid;
+      gap: 0.3rem;
+      margin-top: 0.35rem;
+    }
+
+    .slot-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .slot-controls .grow {
+      flex: 1 1 7rem;
+    }
+
+    /* Fixed height, not min-height: a wrapping state line was measured pushing
+       the next slot's controls down, which is exactly the frame movement
+       ADR 0004 forbids. Clipped visually; the full text stays in the DOM for
+       assistive technology. */
+    .slot-state {
+      height: 1.15rem;
+      line-height: 1.15rem;
+      margin: 0;
+      font-size: 0.76rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .variant {
+      display: grid;
+      gap: 0.25rem;
+      margin-top: 0.35rem;
+    }
+
+    .variant label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.86rem;
+      color: #f4f8ff;
+      cursor: pointer;
+    }
+
     @media (max-width: 620px) {
       body {
         padding: 1rem;
@@ -216,15 +380,22 @@
     <header class="panel hero">
       <h1>Weekly Training Planner</h1>
       <p>A minimalist weekly reference to keep daily decisions easy, training balanced, and strength progress consistent.</p>
+      <div class="hero-actions">
+        <p id="app-status" class="status" role="status"></p>
+        <button type="button" id="reset-progress" class="btn">Reset progress</button>
+      </div>
     </header>
 
-    <section class="panel today" aria-live="polite" aria-labelledby="today-workout-heading">
+    <section class="panel today" aria-labelledby="today-workout-heading">
       <div class="eyebrow">Daily focus</div>
       <div class="today-title">
         <h2 id="today-workout-heading">Today’s Workout</h2>
         <span id="today-day-label" class="day-chip">Today</span>
       </div>
-      <p id="today-plan" class="today-plan"></p>
+      <p id="today-plan" class="today-plan" aria-live="polite"></p>
+      <div id="today-actions" class="today-actions" role="group" aria-labelledby="today-actions-label today-day-label">
+        <span id="today-actions-label" class="sr-only">Sessions today</span>
+      </div>
     </section>
 
     <section class="panel" aria-labelledby="weekly-plan-heading">
@@ -235,11 +406,11 @@
       <div class="week-grid">
         <article class="day-card" data-day="Monday">
           <h3>Monday</h3>
-          <div>
+          <div class="slot" data-slot="morning">
             <div class="item-title">Morning</div>
             <div class="item-text">Swim (1): 1,500–2,000m steady</div>
           </div>
-          <div>
+          <div class="slot" data-slot="night">
             <div class="item-title">Night</div>
             <div class="item-text">Strength (1): 60-minute blueprint</div>
           </div>
@@ -248,11 +419,11 @@
 
         <article class="day-card" data-day="Tuesday">
           <h3>Tuesday</h3>
-          <div>
+          <div class="slot" data-slot="morning">
             <div class="item-title">Morning</div>
             <div class="item-text">Run (4 miles): conversational pace</div>
           </div>
-          <div>
+          <div class="slot" data-slot="night">
             <div class="item-title">Night</div>
             <div class="item-text">Strength (2): 60-minute blueprint</div>
           </div>
@@ -261,11 +432,11 @@
 
         <article class="day-card" data-day="Wednesday">
           <h3>Wednesday</h3>
-          <div>
+          <div class="slot" data-slot="morning">
             <div class="item-title">Morning</div>
             <div class="item-text">Swim (2): technique + leg flush</div>
           </div>
-          <div>
+          <div class="slot" data-slot="night">
             <div class="item-title">Night</div>
             <div class="item-text">Bouldering (1)</div>
           </div>
@@ -274,11 +445,11 @@
 
         <article class="day-card" data-day="Thursday">
           <h3>Thursday</h3>
-          <div>
+          <div class="slot" data-slot="morning">
             <div class="item-title">Morning</div>
             <div class="item-text">Run (4 miles)</div>
           </div>
-          <div>
+          <div class="slot" data-slot="night">
             <div class="item-title">Night</div>
             <div class="item-text">Tennis</div>
           </div>
@@ -287,11 +458,11 @@
 
         <article class="day-card" data-day="Friday">
           <h3>Friday</h3>
-          <div>
+          <div class="slot" data-slot="morning">
             <div class="item-title">Morning</div>
             <div class="item-text">Golf (1): relaxed pace</div>
           </div>
-          <div>
+          <div class="slot" data-slot="night">
             <div class="item-title">Night</div>
             <div class="item-text">Strength (3): 60-minute blueprint</div>
           </div>
@@ -300,21 +471,20 @@
 
         <article class="day-card" data-day="Saturday">
           <h3>Saturday</h3>
-          <div>
+          <div class="slot" data-slot="long">
             <div class="item-title">Long Day (Alternate)</div>
             <div class="item-text">Week A: 3-hour hike</div>
-            <div class="item-text">Week B: 8–10 mile run</div>
           </div>
           <div class="note">Build both time-on-feet endurance and impact tolerance.</div>
         </article>
 
         <article class="day-card" data-day="Sunday">
           <h3>Sunday</h3>
-          <div>
+          <div class="slot" data-slot="morning">
             <div class="item-title">Morning</div>
             <div class="item-text">Golf (2): low intensity</div>
           </div>
-          <div>
+          <div class="slot" data-slot="night">
             <div class="item-title">Night</div>
             <div class="item-text">Bouldering (2): technical movement focus</div>
           </div>
@@ -380,6 +550,33 @@
   </main>
 
   <script>
+    /* =====================================================================
+       L2 capability layer. Disposable prototype — see CAPABILITIES.md.
+       ===================================================================== */
+
+    /* --- 1. The capability registry -------------------------------------
+       Stable id separated from human display label, per instrumentation.md §2.
+       Namespaced, low cardinality. High-cardinality data (which day, which
+       substitution) travels in `detail`, never in the capability name. */
+    const CAPABILITIES = {
+      'session.complete':             { urn: 'urn:cap:session.complete',             label: 'Mark session complete' },
+      'session.reopen':               { urn: 'urn:cap:session.reopen',               label: 'Reopen a completed session' },
+      'session.substitute_exercise':  { urn: 'urn:cap:session.substitute_exercise',  label: 'Substitute the planned exercise' },
+      'session.restore_planned':      { urn: 'urn:cap:session.restore_planned',      label: 'Restore the planned exercise' },
+      'session.log_note':             { urn: 'urn:cap:session.log_note',             label: 'Log a note against a session' },
+      'plan.select_long_day_variant': { urn: 'urn:cap:plan.select_long_day_variant', label: 'Select the long-day variant' },
+      'plan.reset_progress':          { urn: 'urn:cap:plan.reset_progress',          label: 'Reset all logged progress' }
+    };
+
+    const SUBSTITUTIONS = [
+      'Easy swim (20–30 min)',
+      'Foam rolling (30 min)',
+      'Easy bike (30 min)',
+      'Rest / full recovery'
+    ];
+
+    const LONG_DAY_VARIANTS = { A: 'Week A: 3-hour hike', B: 'Week B: 8–10 mile run' };
+
     const scheduleByDay = {
       Sunday: 'Golf (2) in the morning, Bouldering (2) at night. Keep it low intensity and technical.',
       Monday: 'Swim 1,500–2,000m steady in the morning, then Strength (1) with the 60-minute blueprint at night.',
@@ -393,18 +590,465 @@
     const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const todayName = weekdayNames[new Date().getDay()];
 
-    const todayPlan = document.getElementById('today-plan');
-    const todayDayLabel = document.getElementById('today-day-label');
+    /* --- 2. Persistence -------------------------------------------------- */
+    const STORAGE_KEY = 'pt.l2.state.v1';
+    const ACTOR_KEY = 'pt.l2.actor';
 
-    todayDayLabel.textContent = todayName;
-    todayPlan.textContent = scheduleByDay[todayName];
+    function defaultState() {
+      return { version: 1, longDayVariant: 'A', slots: {} };
+    }
 
-    document.querySelectorAll('.day-card').forEach((card) => {
-      if (card.dataset.day === todayName) {
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return defaultState();
+        const parsed = JSON.parse(raw);
+        if (!parsed || parsed.version !== 1) return defaultState();
+        return Object.assign(defaultState(), parsed);
+      } catch (err) {
+        return defaultState();
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    let state = loadState();
+
+    function slotState(key) {
+      if (!state.slots[key]) state.slots[key] = { complete: false, substitution: '', note: '' };
+      return state.slots[key];
+    }
+
+    /* --- 3. Attempt emitter ----------------------------------------------
+       The envelope from instrumentation.md §2. Local only: this writes to
+       window.__datuxAttempts and console.debug. No network, no vendor. */
+    const attempts = [];
+    window.__datuxAttempts = attempts;
+    window.__datuxCapabilities = CAPABILITIES;
+
+    const actor = (function () {
+      try {
+        let existing = localStorage.getItem(ACTOR_KEY);
+        if (!existing) {
+          existing = 'anon-' + Math.random().toString(36).slice(2, 10);
+          localStorage.setItem(ACTOR_KEY, existing);
+        }
+        return existing;
+      } catch (err) {
+        return 'anon-ephemeral';
+      }
+    })();
+
+    const sessionStart = Date.now();
+    let attemptSeq = 0;
+    let lastModality = 'unknown';
+    addEventListener('keydown', function () { lastModality = 'keyboard'; }, true);
+    addEventListener('pointerdown', function () { lastModality = 'pointer'; }, true);
+
+    function roleOf(el) {
+      if (el.hasAttribute('role')) return el.getAttribute('role');
+      const tag = el.tagName.toLowerCase();
+      if (tag === 'button') return 'button';
+      if (tag === 'select') return el.multiple ? 'listbox' : 'combobox';
+      if (tag === 'textarea') return 'textbox';
+      if (tag === 'input') {
+        const type = (el.getAttribute('type') || 'text').toLowerCase();
+        if (type === 'radio') return 'radio';
+        if (type === 'checkbox') return 'checkbox';
+        return 'textbox';
+      }
+      return tag;
+    }
+
+    /* The browser does not expose the computed accessible name to page script,
+       so this reimplements a subset of AccName. It is an approximation and a
+       known weak point — see CAPABILITIES.md §7.
+
+       The text-transform handling below is not decoration. Without it this
+       function agreed with the browser's computed name on 4 of 56 controls,
+       because `.item-title` is styled `text-transform: uppercase` and AccName
+       uses rendered text. One presentational CSS declaration silently
+       repointed almost every `surface` identity in the telemetry. */
+    function renderedText(node) {
+      const raw = (node.textContent || '').trim();
+      if (!raw) return '';
+      const transform = getComputedStyle(node).textTransform;
+      if (transform === 'uppercase') return raw.toUpperCase();
+      if (transform === 'lowercase') return raw.toLowerCase();
+      if (transform === 'capitalize') return raw.replace(/\b\p{L}/gu, function (c) { return c.toUpperCase(); });
+      return raw;
+    }
+
+    function accessibleName(el) {
+      const labelledBy = el.getAttribute('aria-labelledby');
+      if (labelledBy) {
+        const text = labelledBy.split(/\s+/)
+          .map(function (id) { return document.getElementById(id); })
+          .filter(Boolean)
+          .map(renderedText)
+          .filter(Boolean)
+          .join(' ');
+        if (text) return text;
+      }
+      const ariaLabel = el.getAttribute('aria-label');
+      if (ariaLabel && ariaLabel.trim()) return ariaLabel.trim();
+      if (el.id) {
+        const explicit = document.querySelector('label[for="' + CSS.escape(el.id) + '"]');
+        if (explicit) return renderedText(explicit);
+      }
+      const wrapping = el.closest('label');
+      if (wrapping) return renderedText(wrapping);
+      return renderedText(el);
+    }
+
+    function containerOf(el) {
+      const container = el.closest('[role="group"], [role="radiogroup"], section, article');
+      if (!container) return null;
+      return { role: roleOf(container), name: accessibleName(container) };
+    }
+
+    function emitAttempt(el, capabilityId, detail, outcome, confidence) {
+      const capability = CAPABILITIES[capabilityId];
+      const record = {
+        attempt_id: 'att-' + String(++attemptSeq).padStart(4, '0'),
+        actor: actor,
+        capability: {
+          id: capability ? capability.urn : 'urn:cap:UNREGISTERED.' + capabilityId,
+          label: capability ? capability.label : capabilityId
+        },
+        surface: {
+          role: roleOf(el),
+          name: accessibleName(el),
+          container: containerOf(el)
+        },
+        context: {
+          device: matchMedia('(pointer: coarse)').matches ? 'touch' : 'pointer',
+          modality: lastModality,
+          ms_into_session: Date.now() - sessionStart,
+          viewing_weekday: todayName
+        },
+        detail: detail,
+        /* Outcome is normally DERIVED downstream (instrumentation.md §4).
+           Every capability here is a local state write, so the transition is
+           directly observable and we label at emit time. That is a property of
+           this toy, not a validation of the model. See CAPABILITIES.md §8. */
+        outcome: outcome,
+        outcome_confidence: confidence,
+        schema_ref: 'datux/attempt/0.1-l2'
+      };
+      attempts.push(record);
+      if (attempts.length > 500) attempts.shift();
+      console.debug('[attempt]', record);
+      return record;
+    }
+
+    /* --- 4. Rendering ---------------------------------------------------- */
+    const statusRegion = document.getElementById('app-status');
+    const refreshers = [];
+
+    function announce(message) {
+      statusRegion.textContent = message;
+    }
+
+    function refreshAll() {
+      refreshers.forEach(function (fn) { fn(); });
+    }
+
+    function makeSrLabel(id, text) {
+      const span = document.createElement('span');
+      span.id = id;
+      span.className = 'sr-only';
+      span.textContent = text;
+      return span;
+    }
+
+    function buildSlot(day, dayKey, headingId, slotEl) {
+      const slotId = slotEl.dataset.slot;
+      const base = 's-' + dayKey + '-' + slotId;
+      const key = dayKey + '.' + slotId;
+      const title = slotEl.querySelector('.item-title');
+      const text = slotEl.querySelector('.item-text');
+      title.id = base + '-title';
+      text.id = base + '-text';
+
+      const slotLabel = title.textContent.trim() + ' ' + day;
+      const nameRefs = ' ' + title.id + ' ' + headingId;
+
+      const group = document.createElement('div');
+      group.className = 'slot-group';
+      group.setAttribute('role', 'group');
+      group.setAttribute('aria-labelledby', title.id + ' ' + headingId);
+
+      const rowOne = document.createElement('div');
+      rowOne.className = 'slot-controls';
+      const rowTwo = document.createElement('div');
+      rowTwo.className = 'slot-controls';
+
+      const stateLine = document.createElement('p');
+      stateLine.id = base + '-state';
+      stateLine.className = 'slot-state';
+
+      /* One control, two capabilities: pressing it is session.complete,
+         pressing it again is session.reopen. */
+      const done = document.createElement('button');
+      done.type = 'button';
+      done.id = base + '-done';
+      done.className = 'btn';
+      done.textContent = 'Done';
+      done.setAttribute('aria-pressed', 'false');
+      done.setAttribute('aria-labelledby', done.id + nameRefs);
+      done.setAttribute('aria-describedby', stateLine.id);
+      done.dataset.capability = 'session.complete session.reopen';
+
+      const swapLabel = makeSrLabel(base + '-swap-label', 'Swap');
+      const swap = document.createElement('select');
+      swap.id = base + '-swap';
+      swap.className = 'field grow';
+      swap.setAttribute('aria-labelledby', swapLabel.id + nameRefs);
+      swap.dataset.capability = 'session.substitute_exercise session.restore_planned';
+      swap.add(new Option('As planned', ''));
+      SUBSTITUTIONS.forEach(function (option) { swap.add(new Option(option, option)); });
+
+      const noteLabel = makeSrLabel(base + '-note-label', 'Note');
+      const note = document.createElement('input');
+      note.type = 'text';
+      note.id = base + '-note';
+      note.className = 'field grow';
+      note.placeholder = 'What you actually did';
+      note.setAttribute('aria-labelledby', noteLabel.id + nameRefs);
+      note.dataset.capability = 'session.log_note';
+
+      const log = document.createElement('button');
+      log.type = 'button';
+      log.id = base + '-log';
+      log.className = 'btn';
+      log.textContent = 'Log';
+      log.setAttribute('aria-labelledby', log.id + nameRefs);
+      log.dataset.capability = 'session.log_note';
+
+      rowOne.append(done, swapLabel, swap);
+      rowTwo.append(noteLabel, note, log);
+      group.append(rowOne, rowTwo, stateLine);
+      slotEl.append(group);
+
+      function plannedText() {
+        if (dayKey === 'saturday' && slotId === 'long') return LONG_DAY_VARIANTS[state.longDayVariant];
+        return text.dataset.planned;
+      }
+
+      text.dataset.planned = text.textContent.trim();
+
+      function refresh() {
+        const current = slotState(key);
+        text.textContent = plannedText();
+        done.setAttribute('aria-pressed', current.complete ? 'true' : 'false');
+        swap.value = current.substitution;
+        if (document.activeElement !== note) note.value = current.note;
+        slotEl.classList.toggle('is-complete', current.complete);
+        slotEl.classList.toggle('is-substituted', Boolean(current.substitution));
+
+        const parts = [current.complete ? 'Complete' : 'Not logged'];
+        if (current.substitution) parts.push('swapped to ' + current.substitution);
+        if (current.note) parts.push('note saved');
+        stateLine.textContent = parts.join(' · ');
+      }
+
+      refreshers.push(refresh);
+
+      function toggleComplete(control) {
+        const current = slotState(key);
+        const nextComplete = !current.complete;
+        current.complete = nextComplete;
+        const saved = saveState();
+        refreshAll();
+        emitAttempt(
+          control,
+          nextComplete ? 'session.complete' : 'session.reopen',
+          { day: day, slot: slotId, activity: current.substitution || plannedText() },
+          saved ? 'completed' : 'abandoned',
+          saved ? 0.95 : 0.5
+        );
+        announce(slotLabel + (nextComplete ? ' marked complete.' : ' reopened.'));
+      }
+
+      done.addEventListener('click', function () { toggleComplete(done); });
+
+      swap.addEventListener('change', function () {
+        const current = slotState(key);
+        const chosen = swap.value;
+        current.substitution = chosen;
+        const saved = saveState();
+        refreshAll();
+        emitAttempt(
+          swap,
+          chosen ? 'session.substitute_exercise' : 'session.restore_planned',
+          { day: day, slot: slotId, planned: plannedText(), substituted_with: chosen || null },
+          saved ? 'completed' : 'abandoned',
+          saved ? 0.95 : 0.5
+        );
+        announce(chosen
+          ? slotLabel + ' swapped to ' + chosen + '.'
+          : slotLabel + ' restored to the planned session.');
+      });
+
+      function commitNote() {
+        const current = slotState(key);
+        const next = note.value.trim();
+        const changed = next !== current.note;
+        current.note = next;
+        const saved = saveState();
+        refreshAll();
+        /* Nothing to save is not in the fixed outcome enum, so it is forced
+           onto 'abandoned' at low confidence. See CAPABILITIES.md §7. */
+        emitAttempt(
+          log,
+          'session.log_note',
+          { day: day, slot: slotId, length: next.length, cleared: changed && next === '', no_op: !changed },
+          changed && saved ? 'completed' : 'abandoned',
+          changed ? 0.9 : 0.4
+        );
+        if (!changed) {
+          announce('No change to the note for ' + slotLabel + '.');
+        } else if (next) {
+          announce('Note saved for ' + slotLabel + '.');
+        } else {
+          announce('Note cleared for ' + slotLabel + '.');
+        }
+      }
+
+      log.addEventListener('click', commitNote);
+      note.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          commitNote();
+        }
+      });
+
+      return { key: key, slotId: slotId, label: title.textContent.trim(), toggleComplete: toggleComplete, group: group };
+    }
+
+    function buildLongDayVariant(headingId, slotEl, slotApi) {
+      const groupLabel = makeSrLabel('s-saturday-variant-label', 'Long day option');
+      const radioGroup = document.createElement('div');
+      radioGroup.className = 'variant';
+      radioGroup.setAttribute('role', 'radiogroup');
+      radioGroup.setAttribute('aria-labelledby', groupLabel.id + ' ' + headingId);
+      radioGroup.append(groupLabel);
+
+      const inputs = [];
+      Object.keys(LONG_DAY_VARIANTS).forEach(function (variantKey) {
+        const inputId = 's-saturday-variant-' + variantKey.toLowerCase();
+        const label = document.createElement('label');
+        label.setAttribute('for', inputId);
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'saturday-long-variant';
+        input.id = inputId;
+        input.value = variantKey;
+        input.dataset.capability = 'plan.select_long_day_variant';
+        const caption = document.createElement('span');
+        caption.textContent = LONG_DAY_VARIANTS[variantKey];
+        label.append(input, caption);
+        radioGroup.append(label);
+        inputs.push(input);
+
+        input.addEventListener('change', function () {
+          if (!input.checked) return;
+          state.longDayVariant = variantKey;
+          const saved = saveState();
+          refreshAll();
+          emitAttempt(
+            input,
+            'plan.select_long_day_variant',
+            { day: 'Saturday', slot: 'long', variant: variantKey, activity: LONG_DAY_VARIANTS[variantKey] },
+            saved ? 'completed' : 'abandoned',
+            saved ? 0.95 : 0.5
+          );
+          announce('Saturday long day set to ' + LONG_DAY_VARIANTS[variantKey] + '.');
+        });
+      });
+
+      slotEl.insertBefore(radioGroup, slotApi.group);
+      refreshers.push(function () {
+        inputs.forEach(function (input) { input.checked = input.value === state.longDayVariant; });
+      });
+    }
+
+    const slotIndex = {};
+
+    document.querySelectorAll('.day-card[data-day]').forEach(function (card) {
+      const day = card.dataset.day;
+      const dayKey = day.toLowerCase();
+      const heading = card.querySelector('h3');
+      heading.id = 'h-' + dayKey;
+
+      if (day === todayName) {
         card.classList.add('is-today');
         card.setAttribute('aria-current', 'date');
       }
+
+      slotIndex[day] = [];
+      card.querySelectorAll('.slot[data-slot]').forEach(function (slotEl) {
+        const api = buildSlot(day, dayKey, heading.id, slotEl);
+        slotIndex[day].push(api);
+        if (dayKey === 'saturday' && api.slotId === 'long') {
+          buildLongDayVariant(heading.id, slotEl, api);
+        }
+      });
     });
+
+    /* --- 5. Second surface for the same capabilities ----------------------
+       session.complete / session.reopen are reachable from the Today panel as
+       well as from the weekly grid. Without two surfaces the `surface`
+       dimension of the envelope is degenerate. */
+    const todayActions = document.getElementById('today-actions');
+
+    (slotIndex[todayName] || []).forEach(function (api) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.id = 'today-done-' + api.slotId;
+      button.className = 'btn';
+      button.textContent = api.label + ' done';
+      button.setAttribute('aria-pressed', 'false');
+      button.setAttribute('aria-labelledby', button.id + ' today-day-label');
+      button.dataset.capability = 'session.complete session.reopen';
+      button.addEventListener('click', function () { api.toggleComplete(button); });
+      todayActions.append(button);
+      refreshers.push(function () {
+        button.setAttribute('aria-pressed', slotState(api.key).complete ? 'true' : 'false');
+      });
+    });
+
+    /* --- 6. Destructive capability ---------------------------------------
+       The confirm dialog is what makes a genuinely `abandoned` outcome
+       reachable in this prototype. */
+    const resetButton = document.getElementById('reset-progress');
+    resetButton.addEventListener('click', function () {
+      const confirmed = window.confirm('Reset all logged progress for the week? This cannot be undone.');
+      if (!confirmed) {
+        emitAttempt(resetButton, 'plan.reset_progress', { confirmed: false }, 'abandoned', 0.95);
+        announce('Reset cancelled. Nothing was changed.');
+        return;
+      }
+      state = defaultState();
+      const saved = saveState();
+      refreshAll();
+      emitAttempt(resetButton, 'plan.reset_progress', { confirmed: true }, saved ? 'completed' : 'abandoned', saved ? 0.95 : 0.5);
+      announce('All logged progress cleared.');
+    });
+
+    /* --- 7. Static day-of-week content ------------------------------------ */
+    document.getElementById('today-day-label').textContent = todayName;
+    document.getElementById('today-plan').textContent = scheduleByDay[todayName];
+
+    refreshAll();
   </script>
 </body>
 </html>
