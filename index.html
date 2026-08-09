@@ -360,6 +360,77 @@
       cursor: pointer;
     }
 
+    /* ---- Run 5: derivation targets ------------------------------------
+       These custom properties are the ONLY presentational difference between
+       render targets. No component knows which target it is being rendered
+       into; the solver varies density and disclosure, CSS varies scale. */
+    .today[data-target="standard"]     { --d-scale: 1;    --d-lead: 1.5; }
+    .today[data-target="large-type"]   { --d-scale: 1.35; --d-lead: 1.7; }
+    .today[data-target="reader-first"] { --d-scale: 1;    --d-lead: 1.8; }
+
+    /* Fixed height, not min-height: the headline is derived and its length
+       varies per user, so clamping it is what keeps the action controls below
+       it from moving. This is ADR 0004 costing us content. */
+    .today-plan {
+      font-size: calc(1.02rem * var(--d-scale, 1));
+      line-height: var(--d-lead, 1.5);
+      height: calc(2 * var(--d-lead, 1.5) * 1.02rem * var(--d-scale, 1));
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .slot-region {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .slot-region:empty { display: none; }
+
+    .derived {
+      margin: 0;
+      font-size: calc(0.88rem * var(--d-scale, 1));
+      line-height: var(--d-lead, 1.5);
+      color: #e7eefb;
+    }
+
+    .derived-notice {
+      border-left: 2px solid var(--accent);
+      padding-left: 0.55rem;
+    }
+
+    .derived-ask {
+      border: 1px dashed rgba(100, 212, 144, 0.65);
+      border-radius: 10px;
+      padding: 0.55rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .derived-explain {
+      color: var(--muted);
+      font-size: calc(0.78rem * var(--d-scale, 1));
+    }
+
+    .derived ul {
+      margin: 0.2rem 0 0;
+      font-size: calc(0.86rem * var(--d-scale, 1));
+    }
+
+    .prefs {
+      display: grid;
+      gap: 0.7rem;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    }
+
+    .pref {
+      display: grid;
+      gap: 0.25rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
     @media (max-width: 620px) {
       body {
         padding: 1rem;
@@ -386,7 +457,7 @@
       </div>
     </header>
 
-    <section class="panel today" aria-labelledby="today-workout-heading">
+    <section class="panel today" aria-labelledby="today-workout-heading" data-target="standard">
       <div class="eyebrow">Daily focus</div>
       <div class="today-title">
         <h2 id="today-workout-heading">Today’s Workout</h2>
@@ -396,6 +467,19 @@
       <div id="today-actions" class="today-actions" role="group" aria-labelledby="today-actions-label today-day-label">
         <span id="today-actions-label" class="sr-only">Sessions today</span>
       </div>
+      <div id="slot-notices" class="slot-region" data-slot="notices" aria-live="polite"></div>
+      <div id="slot-detail" class="slot-region" data-slot="detail"></div>
+      <div id="slot-secondary" class="slot-region" data-slot="secondary"></div>
+      <div id="slot-explain" class="slot-region" data-slot="explain"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="setup-heading">
+      <div class="section-head">
+        <h2 id="setup-heading">Your setup</h2>
+        <p>Five independent settings. Each one stands alone — none of them conditions on another,
+           and there is no way to express “when this, then that”. That restriction is deliberate.</p>
+      </div>
+      <div id="prefs" class="prefs"></div>
     </section>
 
     <section class="panel" aria-labelledby="weekly-plan-heading">
@@ -565,7 +649,9 @@
       'session.restore_planned':      { urn: 'urn:cap:session.restore_planned',      label: 'Restore the planned exercise' },
       'session.log_note':             { urn: 'urn:cap:session.log_note',             label: 'Log a note against a session' },
       'plan.select_long_day_variant': { urn: 'urn:cap:plan.select_long_day_variant', label: 'Select the long-day variant' },
-      'plan.reset_progress':          { urn: 'urn:cap:plan.reset_progress',          label: 'Reset all logged progress' }
+      'plan.reset_progress':          { urn: 'urn:cap:plan.reset_progress',          label: 'Reset all logged progress' },
+      'preference.set':               { urn: 'urn:cap:preference.set',               label: 'Set a scalar preference' },
+      'adaptation.dismiss':           { urn: 'urn:cap:adaptation.dismiss',           label: 'Decline a proposed adaptation' }
     };
 
     const SUBSTITUTIONS = [
@@ -686,6 +772,21 @@
       return raw;
     }
 
+    /* A label that wraps its own control must not pull that control's value
+       into the name. Found by the run-5 selects: the SDK was computing
+       "Equipment available Full facilities" where Chromium computes
+       "Equipment available". Same class of defect as run 4's invented select
+       name — a reimplementation over-collects as readily as it under-collects. */
+    function labelTextExcluding(labelEl, target) {
+      let out = '';
+      labelEl.childNodes.forEach(function (node) {
+        if (node.nodeType === 1 && (node === target || node.contains(target))) return;
+        if (node.nodeType === 3) out += node.nodeValue;
+        else if (node.nodeType === 1) out += ' ' + renderedText(node) + ' ';
+      });
+      return out.replace(/\s+/g, ' ').trim();
+    }
+
     function accessibleName(el) {
       const labelledBy = el.getAttribute('aria-labelledby');
       if (labelledBy) {
@@ -701,10 +802,10 @@
       if (ariaLabel && ariaLabel.trim()) return ariaLabel.trim();
       if (el.id) {
         const explicit = document.querySelector('label[for="' + CSS.escape(el.id) + '"]');
-        if (explicit) return renderedText(explicit);
+        if (explicit) return labelTextExcluding(explicit, el);
       }
       const wrapping = el.closest('label');
-      if (wrapping) return renderedText(wrapping);
+      if (wrapping) return labelTextExcluding(wrapping, el);
       return renderedText(el);
     }
 
@@ -1044,11 +1145,485 @@
       announce('All logged progress cleared.');
     });
 
+    /* =====================================================================
+       RUN 5 — the smallest real derivation.
+
+           surface = derive(domain state, capabilities, context, user)
+
+       Strategy A from Q2: a constraint solver over a fixed component library.
+       No model is called at render time. Every decision below is a declarative
+       predicate plus a confidence, and the whole thing is deterministic.
+
+       Three invariants are load-bearing and are checked, not just asserted:
+         ADR 0004  content, density, ordering and disclosure may vary; the
+                   position of persistent controls may not. The action row sits
+                   ABOVE every derived region, and the derived headline has a
+                   fixed clamped height, so no derivation can move a control.
+         ADR 0008  user input is scalar and non-composing. PREFERENCES is a flat
+                   map of single enum values. There is no syntax for a rule.
+         ADR 0003  act, ask, or show the default — three moves, chosen by
+                   confidence, never two.
+       ===================================================================== */
+
+    /* ---- Domain state: what the activities actually are ----------------- */
+    const ACTIVITY_MODEL = {
+      Swim:       { loads: ['shoulder'],          facility: 'pool',   minutes: 45,  kind: 'endurance' },
+      Run:        { loads: ['ankle', 'knee'],     facility: 'none',   minutes: 40,  kind: 'endurance' },
+      Strength:   { loads: ['shoulder', 'knee'],  facility: 'gym',    minutes: 60,  kind: 'strength'  },
+      Bouldering: { loads: ['shoulder'],          facility: 'gym',    minutes: 90,  kind: 'skill'     },
+      Tennis:     { loads: ['ankle', 'shoulder'], facility: 'court',  minutes: 60,  kind: 'skill'     },
+      Golf:       { loads: [],                    facility: 'course', minutes: 180, kind: 'skill'     },
+      Week:       { loads: ['ankle'],             facility: 'none',   minutes: 180, kind: 'endurance' }
+    };
+
+    const ALTERNATIVE_MODEL = {
+      'Easy swim (20–30 min)': { loads: [],        facility: 'pool', minutes: 30 },
+      'Foam rolling (30 min)': { loads: [],        facility: 'none', minutes: 30 },
+      'Easy bike (30 min)':    { loads: ['knee'],  facility: 'bike', minutes: 30 },
+      'Rest / full recovery':  { loads: [],        facility: 'none', minutes: 0  }
+    };
+
+    const FACILITIES_BY_EQUIPMENT = {
+      full: ['pool', 'gym', 'court', 'course', 'bike', 'none'],
+      home: ['none', 'bike'],
+      none: ['none']
+    };
+
+    function classifyActivity(text) {
+      const head = String(text || '').split(/[\s(:]/)[0];
+      return ACTIVITY_MODEL[head] ? Object.assign({ name: head }, ACTIVITY_MODEL[head]) : null;
+    }
+
+    /* ---- User: scalar, non-composing ------------------------------------ */
+    const PREF_SPEC = [
+      { key: 'equipment', label: 'Equipment available', def: 'full',
+        options: [['full', 'Full facilities'], ['home', 'Home only'], ['none', 'Nothing today']] },
+      { key: 'protecting', label: 'Currently protecting', def: 'none',
+        options: [['none', 'Nothing'], ['ankle', 'Ankle'], ['shoulder', 'Shoulder'], ['knee', 'Knee']] },
+      { key: 'experience', label: 'Experience', def: 'regular',
+        options: [['novice', 'New to this'], ['regular', 'Regular'], ['advanced', 'Advanced']] },
+      { key: 'timeBudget', label: 'Time available today', def: '90',
+        options: [['20', '20 minutes'], ['45', '45 minutes'], ['90', '90+ minutes']] },
+      { key: 'target', label: 'Rendering', def: 'standard',
+        options: [['standard', 'Standard'], ['large-type', 'Large type'], ['reader-first', 'Screen-reader first']] }
+    ];
+
+    const PREFS_KEY = 'pt.l2.prefs.v1';
+
+    function loadPrefs() {
+      const out = {};
+      PREF_SPEC.forEach(function (p) { out[p.key] = p.def; });
+      try {
+        const raw = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}');
+        PREF_SPEC.forEach(function (p) {
+          if (typeof raw[p.key] === 'string' && p.options.some(function (o) { return o[0] === raw[p.key]; })) {
+            out[p.key] = raw[p.key];
+          }
+        });
+      } catch (err) { /* defaults */ }
+      return out;
+    }
+
+    let PREFERENCES = loadPrefs();
+
+    /* The non-composition invariant, enforced rather than described: every
+       preference must be a plain string drawn from its own fixed enum. A rule,
+       a conditional, or a reference to another preference cannot survive this
+       check, because none of them is a string from the enum. */
+    function assertNonComposing(prefs) {
+      const problems = [];
+      PREF_SPEC.forEach(function (p) {
+        const v = prefs[p.key];
+        if (typeof v !== 'string') problems.push(p.key + ' is not a scalar');
+        else if (!p.options.some(function (o) { return o[0] === v; })) problems.push(p.key + ' is outside its enum');
+      });
+      Object.keys(prefs).forEach(function (k) {
+        if (!PREF_SPEC.some(function (p) { return p.key === k; })) problems.push(k + ' is not a declared preference');
+      });
+      return problems;
+    }
+
+    /* ---- Context --------------------------------------------------------- */
+    let weekdayOverride = null;   /* L2 test hook: the weekday is otherwise an uncontrolled variable */
+
+    function readContext() {
+      return {
+        weekday: weekdayOverride || todayName,
+        viewport: window.innerWidth,
+        pointer: matchMedia('(pointer: coarse)').matches ? 'touch' : 'fine',
+        reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
+        target: PREFERENCES.target
+      };
+    }
+
+    /* ---- Confidence: act / ask / default --------------------------------- */
+    const ACT_THRESHOLD = 0.8;
+    const ASK_THRESHOLD = 0.5;
+
+    function protectionConfidence(part, activity) {
+      if (!part || part === 'none' || !activity) return 0;
+      if (!activity.loads.includes(part)) return 0.15;
+      if (activity.kind === 'endurance') return 0.9;
+      return 0.65;
+    }
+
+    /* ---- Facts: one resolved view of the four inputs --------------------- */
+    function buildFacts(ctx, user) {
+      const slots = (slotIndex[ctx.weekday] || []).map(function (api) {
+        const st = slotState(api.key);
+        const plannedText = document.getElementById('s-' + ctx.weekday.toLowerCase() + '-' + api.slotId + '-text');
+        const planned = classifyActivity(plannedText ? plannedText.textContent : '');
+        const alt = st.substitution ? Object.assign({ name: st.substitution }, ALTERNATIVE_MODEL[st.substitution] || {}) : null;
+        const effective = alt || planned;
+        return {
+          key: api.key, slotId: api.slotId, label: api.label,
+          plannedText: plannedText ? plannedText.textContent.trim() : '',
+          planned: planned, substitution: st.substitution || '', effective: effective,
+          complete: st.complete, note: st.note
+        };
+      });
+      const facilities = FACILITIES_BY_EQUIPMENT[user.equipment] || FACILITIES_BY_EQUIPMENT.full;
+      const budgetMinutes = parseInt(user.timeBudget, 10);
+      const primary = slots.find(function (s) { return !s.complete; }) || slots[0] || null;
+      return {
+        ctx: ctx, user: user, slots: slots, primary: primary,
+        facilities: facilities, budgetMinutes: budgetMinutes,
+        totalMinutes: slots.reduce(function (n, s) { return n + ((s.effective && s.effective.minutes) || 0); }, 0),
+        protection: user.protecting,
+        protectionConfidence: primary ? protectionConfidence(user.protecting, primary.effective) : 0,
+        dismissed: dismissedAdaptations
+      };
+    }
+
+    let dismissedAdaptations = {};
+    try { dismissedAdaptations = JSON.parse(localStorage.getItem('pt.l2.dismissed.v1') || '{}'); } catch (err) { dismissedAdaptations = {}; }
+
+    /* ---- The fixed component library ------------------------------------
+       Each component declares where it may appear, what it costs in density,
+       and a predicate. It cannot choose its own position, and it never sees
+       the render target. */
+    const COMPONENTS = [
+      {
+        id: 'headline', slot: 'headline', pinned: true, density: 0,
+        evaluate: function (f) {
+          if (!f.primary) return { ok: false };
+          return { ok: true, confidence: 1, score: 100, data: { slot: f.primary } };
+        },
+        build: function (item, f) {
+          const s = item.data.slot;
+          const activity = s.substitution || s.plannedText;
+          const parts = [s.label + ': ' + activity + '.'];
+          if (f.protectionConfidence >= ACT_THRESHOLD && !s.substitution) {
+            parts.push('Flagged against your ' + f.protection + ' — an easier option is offered below.');
+          } else if (f.user.experience === 'novice') {
+            parts.push('Keep the effort conversational.');
+          }
+          const p = document.createTextNode(parts.join(' '));
+          return p;
+        }
+      },
+      {
+        id: 'notice.substitution', slot: 'notices', density: 1,
+        evaluate: function (f) {
+          if (!f.primary || !f.primary.substitution) return { ok: false };
+          return { ok: true, confidence: 1, score: 90, data: { slot: f.primary } };
+        },
+        build: function (item) {
+          const el = document.createElement('p');
+          el.className = 'derived derived-notice';
+          el.textContent = 'Swapped: ' + item.data.slot.plannedText + ' → ' + item.data.slot.substitution + '.';
+          return el;
+        }
+      },
+      {
+        id: 'adapt.protection', slot: 'notices', density: 1, proposal: true,
+        evaluate: function (f) {
+          if (!f.primary || f.primary.substitution) return { ok: false };
+          const c = f.protectionConfidence;
+          if (c <= 0) return { ok: false };
+          if (f.dismissed[f.primary.key + '|' + f.protection]) return { ok: false };
+          return { ok: true, confidence: c, score: 95, data: { slot: f.primary } };
+        },
+        build: function (item, f) {
+          const s = item.data.slot;
+          const suggestion = f.facilities.includes('pool') ? 'Easy swim (20–30 min)' : 'Foam rolling (30 min)';
+          if (item.mode === 'act') {
+            const el = document.createElement('p');
+            el.className = 'derived derived-notice';
+            el.textContent = 'Your ' + f.protection + ' is flagged and ' + (s.planned ? s.planned.name.toLowerCase() : 'this session') +
+              ' loads it. Suggested instead: ' + suggestion + '.';
+            return el;
+          }
+          const box = document.createElement('div');
+          box.className = 'derived derived-ask';
+          box.setAttribute('role', 'group');
+          const q = document.createElement('p');
+          q.className = 'derived';
+          q.id = 'ask-protection-label';
+          q.textContent = 'Your ' + f.protection + ' is flagged. Swap ' + s.label.toLowerCase() +
+            ' for ' + suggestion + '?';
+          box.setAttribute('aria-labelledby', q.id);
+          const row = document.createElement('div');
+          row.className = 'slot-controls';
+          const yes = document.createElement('button');
+          yes.type = 'button'; yes.className = 'btn'; yes.id = 'ask-protection-accept';
+          yes.textContent = 'Swap it';
+          yes.setAttribute('aria-labelledby', yes.id + ' ' + q.id);
+          yes.dataset.capability = 'session.substitute_exercise';
+          yes.addEventListener('click', function () {
+            const sel = document.getElementById('s-' + f.ctx.weekday.toLowerCase() + '-' + s.slotId + '-swap');
+            if (sel) { sel.value = suggestion; sel.dispatchEvent(new Event('change', { bubbles: true })); }
+            emitAttempt(yes, 'session.substitute_exercise',
+              { day: f.ctx.weekday, slot: s.slotId, substituted_with: suggestion, source: 'proposal' }, 'completed', 0.95);
+          });
+          const no = document.createElement('button');
+          no.type = 'button'; no.className = 'btn'; no.id = 'ask-protection-dismiss';
+          no.textContent = 'Keep as planned';
+          no.setAttribute('aria-labelledby', no.id + ' ' + q.id);
+          no.dataset.capability = 'adaptation.dismiss';
+          no.addEventListener('click', function () {
+            dismissedAdaptations[s.key + '|' + f.protection] = true;
+            try { localStorage.setItem('pt.l2.dismissed.v1', JSON.stringify(dismissedAdaptations)); } catch (err) { /* ignore */ }
+            emitAttempt(no, 'adaptation.dismiss', { day: f.ctx.weekday, slot: s.slotId, proposal: 'protection' }, 'completed', 0.95);
+            announce('Kept as planned. This suggestion will not be offered again.');
+            rerender();
+          });
+          row.append(yes, no);
+          box.append(q, row);
+          return box;
+        }
+      },
+      {
+        id: 'detail.equipment_gap', slot: 'detail', density: 1,
+        evaluate: function (f) {
+          if (!f.primary || !f.primary.effective) return { ok: false };
+          const need = f.primary.effective.facility;
+          if (!need || f.facilities.includes(need)) return { ok: false };
+          return { ok: true, confidence: 0.95, score: 80, data: { need: need } };
+        },
+        build: function (item, f) {
+          const el = document.createElement('p');
+          el.className = 'derived derived-notice';
+          el.textContent = 'This session needs ' + item.data.need + ', which you have marked unavailable. ' +
+            (f.facilities.includes('none') ? 'Foam rolling (30 min) needs nothing.' : '');
+          return el;
+        }
+      },
+      {
+        id: 'detail.time_fit', slot: 'detail', density: 1,
+        evaluate: function (f) {
+          if (!f.primary || !f.primary.effective) return { ok: false };
+          const need = f.primary.effective.minutes || 0;
+          if (need <= f.budgetMinutes) return { ok: false };
+          return { ok: true, confidence: 0.9, score: 70, data: { need: need } };
+        },
+        build: function (item, f) {
+          const el = document.createElement('p');
+          el.className = 'derived';
+          el.textContent = 'Planned at about ' + item.data.need + ' minutes against your ' + f.budgetMinutes +
+            '. Shorten it or take one of the swaps.';
+          return el;
+        }
+      },
+      {
+        id: 'secondary.checklist', slot: 'secondary', density: 3, collapsible: true,
+        evaluate: function (f) {
+          if (!f.primary || !f.primary.effective || f.primary.effective.kind !== 'strength') return { ok: false };
+          return { ok: true, confidence: 0.85, score: 60, data: {} };
+        },
+        expandWhen: function (f) { return f.user.experience === 'novice'; },
+        build: function (item) {
+          const wrap = document.createElement('div');
+          wrap.className = 'derived';
+          const h = document.createElement('p');
+          h.className = 'derived';
+          h.textContent = 'Session structure';
+          wrap.append(h);
+          if (item.disclosure === 'expanded') {
+            const ul = document.createElement('ul');
+            ['Mobility primer — 10 min', 'Functional compounds — 25 min', 'Stability and prehab — 15 min', 'Flexibility cool-down — 10 min']
+              .forEach(function (t) { const li = document.createElement('li'); li.textContent = t; ul.append(li); });
+            wrap.append(ul);
+          } else {
+            const p = document.createElement('p');
+            p.className = 'derived-explain';
+            p.textContent = 'Four blocks, 60 minutes. Full breakdown in the blueprint below.';
+            wrap.append(p);
+          }
+          return wrap;
+        }
+      },
+      {
+        id: 'secondary.guideline', slot: 'secondary', density: 1,
+        evaluate: function (f) {
+          if (f.user.experience === 'advanced') return { ok: false };
+          return { ok: true, confidence: 1, score: 40, data: {} };
+        },
+        build: function (item, f) {
+          const el = document.createElement('p');
+          el.className = 'derived derived-explain';
+          el.textContent = f.user.experience === 'novice'
+            ? 'Easy mandate: keep morning sessions at recovery intensity so the evening session stays high quality.'
+            : 'Keep the easy sessions easy.';
+          return el;
+        }
+      },
+      {
+        id: 'explain.why', slot: 'explain', density: 1,
+        evaluate: function (f) {
+          return { ok: true, confidence: 1, score: 10, data: {} };
+        },
+        build: function (item, f) {
+          const el = document.createElement('p');
+          el.className = 'derived derived-explain';
+          const bits = [];
+          if (f.protection !== 'none') bits.push('protecting your ' + f.protection);
+          if (f.user.equipment !== 'full') bits.push('equipment set to ' + f.user.equipment);
+          if (f.budgetMinutes < 90) bits.push(f.budgetMinutes + ' minutes available');
+          if (f.user.experience !== 'regular') bits.push(f.user.experience + ' level');
+          el.textContent = bits.length
+            ? 'Shown this way because: ' + bits.join(', ') + '. Change any of them under Your setup.'
+            : 'Showing the default plan. Nothing in Your setup is narrowing it.';
+          return el;
+        }
+      }
+    ];
+
+    const COMPONENT_BY_ID = {};
+    COMPONENTS.forEach(function (c) { COMPONENT_BY_ID[c.id] = c; });
+
+    function densityBudget(ctx, user) {
+      if (ctx.target === 'reader-first') return 99;
+      let b = ctx.viewport < 620 ? 4 : 7;
+      if (ctx.target === 'large-type') b = Math.max(3, b - 3);
+      if (user.experience === 'novice') b += 1;
+      if (user.experience === 'advanced') b -= 1;
+      return b;
+    }
+
+    /* ---- derive() -------------------------------------------------------- */
+    function derive(ctx, user) {
+      const facts = buildFacts(ctx, user);
+      const budget = densityBudget(ctx, user);
+      const decisions = [];
+      const scored = [];
+      COMPONENTS.forEach(function (c) {
+        const r = c.evaluate(facts) || { ok: false };
+        if (!r.ok) { decisions.push({ id: c.id, action: 'not applicable' }); return; }
+        if (c.proposal && r.confidence < ASK_THRESHOLD) {
+          decisions.push({ id: c.id, action: 'below confidence, default shown', confidence: r.confidence });
+          return;
+        }
+        scored.push({ c: c, confidence: r.confidence, score: r.score || 0, data: r.data || {} });
+      });
+      scored.sort(function (a, b) {
+        return (b.c.pinned === true) - (a.c.pinned === true) || b.score - a.score;
+      });
+
+      const plan = [];
+      let spent = 0;
+      scored.forEach(function (e) {
+        const wantExpanded = ctx.target === 'reader-first' ? true : (e.c.expandWhen ? e.c.expandWhen(facts) : false);
+        let disclosure = wantExpanded ? 'expanded' : 'collapsed';
+        let cost = e.c.density * (disclosure === 'expanded' ? 2 : 1);
+        if (!e.c.pinned && spent + cost > budget) {
+          if (e.c.collapsible && disclosure === 'expanded') {
+            disclosure = 'collapsed';
+            cost = e.c.density;
+          }
+          if (spent + cost > budget) {
+            decisions.push({ id: e.c.id, action: 'dropped for density budget', confidence: e.confidence });
+            return;
+          }
+        }
+        spent += cost;
+        plan.push({
+          id: e.c.id, slot: e.c.slot, disclosure: disclosure, data: e.data,
+          confidence: e.confidence,
+          mode: e.c.proposal ? (e.confidence >= ACT_THRESHOLD ? 'act' : 'ask') : 'render'
+        });
+        decisions.push({ id: e.c.id, action: 'included', confidence: e.confidence, disclosure: disclosure });
+      });
+
+      return { plan: plan, facts: facts, budget: budget, spent: spent, decisions: decisions, target: ctx.target };
+    }
+
+    /* ---- The renderer ----------------------------------------------------
+       One path. It contains no conditional on the render target: the target
+       reached the solver as context, and reaches CSS as a data attribute. */
+    const SLOT_HOSTS = { notices: 'slot-notices', detail: 'slot-detail', secondary: 'slot-secondary', explain: 'slot-explain' };
+    const todaySection = document.querySelector('.today');
+    const headlineHost = document.getElementById('today-plan');
+
+    function renderSurface(surface) {
+      todaySection.dataset.target = surface.target;
+      headlineHost.textContent = '';
+      Object.keys(SLOT_HOSTS).forEach(function (s) { document.getElementById(SLOT_HOSTS[s]).textContent = ''; });
+      surface.plan.forEach(function (item) {
+        const comp = COMPONENT_BY_ID[item.id];
+        const node = comp.build(item, surface.facts);
+        if (!node) return;
+        const host = item.slot === 'headline' ? headlineHost : document.getElementById(SLOT_HOSTS[item.slot]);
+        if (host) host.append(node);
+      });
+    }
+
+    function rerender() {
+      const ctx = readContext();
+      const surface = derive(ctx, PREFERENCES);
+      document.getElementById('today-day-label').textContent = ctx.weekday;
+      renderSurface(surface);
+      window.__datuxSurface = surface;
+      return surface;
+    }
+
+    window.__datuxDerive = derive;
+    window.__datuxSetPreference = function (key, value) {
+      PREFERENCES = Object.assign({}, PREFERENCES, {});
+      PREFERENCES[key] = value;
+      try { localStorage.setItem(PREFS_KEY, JSON.stringify(PREFERENCES)); } catch (err) { /* ignore */ }
+      const sel = document.getElementById('pref-' + key);
+      if (sel && sel.value !== value) sel.value = value;
+      return rerender();
+    };
+    window.__datuxAssertNonComposing = function () { return assertNonComposing(PREFERENCES); };
+    window.__datuxSetWeekday = function (d) { weekdayOverride = d; return rerender(); };
+
+    /* ---- Preference controls: scalar selects, nothing else --------------- */
+    const prefsHost = document.getElementById('prefs');
+    PREF_SPEC.forEach(function (spec) {
+      const wrap = document.createElement('label');
+      wrap.className = 'pref';
+      wrap.setAttribute('for', 'pref-' + spec.key);
+      const caption = document.createElement('span');
+      caption.textContent = spec.label;
+      const sel = document.createElement('select');
+      sel.id = 'pref-' + spec.key;
+      sel.className = 'field';
+      sel.dataset.capability = 'preference.set';
+      spec.options.forEach(function (o) { sel.add(new Option(o[1], o[0])); });
+      sel.value = PREFERENCES[spec.key];
+      sel.addEventListener('change', function () {
+        PREFERENCES[spec.key] = sel.value;
+        try { localStorage.setItem(PREFS_KEY, JSON.stringify(PREFERENCES)); } catch (err) { /* ignore */ }
+        const surface = rerender();
+        emitAttempt(sel, 'preference.set',
+          { preference: spec.key, value: sel.value, components_shown: surface.plan.length, density_budget: surface.budget },
+          'completed', 0.95);
+        announce(spec.label + ' set to ' + sel.options[sel.selectedIndex].text + '. Today’s focus re-derived.');
+      });
+      wrap.append(caption, sel);
+      prefsHost.append(wrap);
+    });
+
     /* --- 7. Static day-of-week content ------------------------------------ */
     document.getElementById('today-day-label').textContent = todayName;
-    document.getElementById('today-plan').textContent = scheduleByDay[todayName];
 
     refreshAll();
+    rerender();
+
+    const nonComposing = assertNonComposing(PREFERENCES);
+    if (nonComposing.length) console.warn('[non-composition invariant violated]', nonComposing);
   </script>
 </body>
 </html>

@@ -65,6 +65,14 @@ in event attributes and never in the name.
 | `session.log_note` | Log a note against a session | `textbox` "Note …" + `button` "Log …" | weekly grid | `completed`, `abandoned` |
 | `plan.select_long_day_variant` | Select the long-day variant | `radio` Week A / Week B | weekly grid | `completed` |
 | `plan.reset_progress` | Reset all logged progress | `button` "Reset progress" + confirm | hero | `completed`, `abandoned` |
+| `preference.set` | Set a scalar preference | `combobox` under "Your setup" | setup panel | `completed` |
+| `adaptation.dismiss` | Decline a proposed adaptation | `button` "Keep as planned" | today panel | `completed` |
+
+The last two were added in run 5, when the app gained a derived surface. They are
+deliberately *not* modelled as one `preference.change` capability with a direction
+attribute: accepting a proposed adaptation is not a preference change at all, it re-uses
+`session.substitute_exercise`, so only the decline needed a name. That asymmetry is the
+kind of thing the run-1 write-up argues about at length in §4.
 
 Full URNs are `urn:cap:<id>`. The registry is `CAPABILITIES` at the top of the script in
 `index.html`; `window.__datuxCapabilities` exposes it at runtime and
