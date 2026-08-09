@@ -68,7 +68,7 @@ in event attributes and never in the name.
 | `preference.set` | Set a scalar preference | `combobox` under "Your setup" | setup panel | `completed` |
 | `adaptation.dismiss` | Decline a proposed adaptation | `button` "Keep as planned" | today panel | `completed` |
 | `adaptation.undismiss` | Show a declined suggestion again | `button` "Show it again" | today panel | `completed` |
-| `adaptation.revert` / `adaptation.reapply` | Use the planned session instead / use the adapted one | one toggle, `aria-pressed` | today panel | `completed` |
+| `adaptation.revert` / `adaptation.reapply` | Decline an applied adaptation / re-apply a declined one | one toggle, `aria-pressed`, label names what it restores and what that costs | today panel | `completed` |
 
 The last two were added in run 5, when the app gained a derived surface. They are
 deliberately *not* modelled as one `preference.change` capability with a direction
