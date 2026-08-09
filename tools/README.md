@@ -31,6 +31,7 @@ node --experimental-websocket <script> <args>
 | `derivecheck.js` | derivation gate: expressiveness across user profiles, render-target code duplication, the ADR 0004 frame check, and the cost of holding it |
 | `derivecontrast.js` | splits derived difference into material and advisory, and dumps the rendered surfaces so they can be judged by reading rather than counting |
 | `invariants.js` | the Q4 correctness gate. Every invariant is reported with how many derivations met its precondition — one that never had the chance to fail is not a pass |
+| `langcheck.js` | polices generated language before anyone reads it: placeholder and fact preservation, an anti-engagement wordlist, shape, and register variation. Also reports **reachability** — what fraction of the phrase cache can ever be shown to anyone. A treatment with zero opportunities is not a null result |
 
 ## The one to steal
 
@@ -139,3 +140,4 @@ The rig can drive live third-party applications. When it does:
 - Run 5 — [`../experiments/RUN5-DERIVATION.md`](../experiments/RUN5-DERIVATION.md) — the smallest real derivation
 - Run 6 — [`../experiments/RUN6-Q4-INVARIANTS.md`](../experiments/RUN6-Q4-INVARIANTS.md) — the Q4 gate, and [`../experiments/L3-PROTOCOL.md`](../experiments/L3-PROTOCOL.md)
 - Run 7 — [`../experiments/RUN7-FIX-THE-GATE.md`](../experiments/RUN7-FIX-THE-GATE.md) — clearing the gate, and what green still hides
+- Run 8 — [`../experiments/RUN8-LANGUAGE.md`](../experiments/RUN8-LANGUAGE.md) — generated wording, and why it moved nothing
