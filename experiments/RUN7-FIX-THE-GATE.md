@@ -9,7 +9,36 @@ are true, and the gap between them is the finding.**
 
 ---
 
-## 1. Before and after
+## 1. The number that matters: distinct prescribed activities
+
+Not distinct component sets, not material component sets. The prescription itself — the one
+line every user reads first, which run 5 found identical for everyone and which no invariant
+in the gate examines.
+
+| measure | before | after |
+|---|---|---|
+| distinct prescribed activities across 6 user-model-differing profiles, per weekday | **1** | **2–3** |
+| distinct recommended activities, counted independently by two outside judges | **1** | **3** |
+
+Both judges, given only rendered text and no context, counted three: Run, Easy swim, Foam
+rolling. In run 5 they counted one and said so in almost identical words — *"Every single
+surface — all six — prescribes the identical workout."*
+
+**ADR 0013's prediction held on this measure.** Adding a plan-replacing component moved the
+prescription, which is what it was predicted to do. Had it stayed at one, that would be the
+headline instead.
+
+**The outside read came before the number was reported.** The judges were run on the new
+surfaces and their verdicts read *before* this document existed — judge input written 01:05,
+this write-up created 01:09. That ordering is the point of the requirement, not a formality:
+had I written the report first, §5's three defects would not be in it, because I did not find
+them and would not have gone looking.
+
+Where I fell short of the rule as now written: I originally led with the gate table and put
+this number in §4. The read happened first; the *reporting order* did not follow it. Fixed
+here.
+
+## 2. The gate: before and after
 
 | invariant | before | after | precondition met (before → after) |
 |---|---|---|---|
@@ -31,7 +60,7 @@ That is the fix working, not the gate narrowing. I4's fell from 68 to 49 for the
 fewer surfaces name a constraint at all, because the explanation now names only constraints
 that changed something.
 
-## 2. What was changed
+## 3. What was changed
 
 **A plan-replacing component (ADR 0013).** `adapt.applied` replaces the prescription when
 protection confidence is high, and carries the visible reason plus a one-click revert. The
@@ -70,7 +99,7 @@ reversible, and nothing stopped that being a flag flip. I5 requires that when a 
 effect is *currently active*, the control reversing it is actually on the surface. It passes
 108/108, which means the reversibility is real rather than declared.
 
-## 3. Did material adaptation move? No.
+## 4. Did material adaptation move? No.
 
 The measurement invented in run 5, run again unchanged:
 
@@ -92,23 +121,18 @@ output, and ADR 0013 never predicted otherwise.
 The weakness in that argument: it is exactly the shape of reasoning that would also excuse a
 system that never adapts. It is only credible because something else moved.
 
-## 4. What did move: the plan itself
+## 5. The metric that could not see it
 
-| measure | before | after |
-|---|---|---|
-| distinct prescribed activities across 6 user-model profiles, per weekday | **1** | **2–3** |
-| distinct recommended activities, counted independently by two blind judges | **1** | **3** |
-
-Both blind judges, given only the rendered text and no context, independently counted three:
-Run, Easy swim, Foam rolling. In run 5 they counted one and said so in almost identical
-words — *"Every single surface — all six — prescribes the identical workout."*
+§4 shows the material-adaptation count unchanged: 3 of 6 users receive none, before and
+after. §1 shows the prescription count moving from one to three — same surfaces, same day,
+same users.
 
 **So the material-count metric could not see the change, and the prescription count could.**
 That is the third time a metric has been blind to the thing that actually changed. The
 material/advisory split answers "how many users got an adaptation"; it does not answer
 "was the adaptation a plan or a warning", which is the question ADR 0013 was about.
 
-## 5. Is it green because it's fixed, or because the invariants can't see the rest?
+## 6. Is it green because it's fixed, or because the invariants can't see the rest?
 
 **Both, and the second half is larger than I expected.**
 
@@ -145,7 +169,7 @@ third — "the derivation should use the control it offers" — is a rule I woul
 immediately after being caught by it, which is the condition under which I have twice written
 a metric that measured the wrong thing.
 
-## 6. Preconditions for L3, restated
+## 7. Preconditions for L3, restated
 
 | precondition | run 6 | run 7 |
 |---|---|---|
@@ -161,7 +185,7 @@ describe it as superficially personalised.
 
 ---
 
-## 7. What this run does not establish
+## 8. What this run does not establish
 
 - **Nothing about whether users prefer it.** No L3 was run.
 - **One constraint was made plan-replacing.** Equipment and time were not, and the judges
