@@ -50,14 +50,14 @@ const PROFILES = [
   { name: 'advanced-full',    prefs: { protecting: 'none',     equipment: 'full', experience: 'advanced', timeBudget: '90' } },
   { name: 'shoulder-home',    prefs: { protecting: 'shoulder', equipment: 'home', experience: 'regular',  timeBudget: '45' } },
   { name: 'knee-nothing',     prefs: { protecting: 'knee',     equipment: 'none', experience: 'novice',   timeBudget: '20' } },
-  { name: 'knee-evening',     completeMorning: true, prefs: { protecting: 'knee',  equipment: 'full', experience: 'regular', timeBudget: '90' } },
-  { name: 'ankle-evening',    completeMorning: true, prefs: { protecting: 'ankle', equipment: 'full', experience: 'regular', timeBudget: '90' } },
+  { name: 'knee-second',      completeFirst: true, prefs: { protecting: 'knee',  equipment: 'full', experience: 'regular', timeBudget: '90' } },
+  { name: 'ankle-second',     completeFirst: true, prefs: { protecting: 'ankle', equipment: 'full', experience: 'regular', timeBudget: '90' } },
   /* I2a was vacuous on the first run — no derivation in the matrix had an
      active substitution, so the invariant had no opportunity to fail. Added a
      profile that substitutes, rather than reporting a pass it had not earned. */
-  { name: 'swapped-session',  substituteMorning: true, prefs: { protecting: 'none', equipment: 'full', experience: 'regular', timeBudget: '90' } }
+  { name: 'swapped-session',  substituteFirst: true, prefs: { protecting: 'none', equipment: 'full', experience: 'regular', timeBudget: '90' } }
 ];
-const WEEKDAYS = ['Monday', 'Tuesday', 'Thursday', 'Saturday'];
+const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const TARGETS = ['standard', 'large-type', 'reader-first'];
 
 function serve(dir) {
@@ -159,7 +159,7 @@ const CHECK = `(() => {
     const meta = caps[id];
     if (!meta.reverseOf) return;
     const activeStates = {
-      'adaptation.undismiss': !!(f.primary && f.dismissed[f.primary.key + '|' + f.protection]),
+      'adaptation.undismiss': !!(f.primary && f.dismissed[scopedKey(f.primary.key) + '|' + f.protection]),
       'adaptation.reapply': !!(f.adaptation && f.adaptation.reverted)
     };
     if (activeStates[id] === true && !capsOnSurface.has(id)) reverseGaps.push(id);
@@ -248,16 +248,18 @@ const CHECK = `(() => {
         await cdp.evaluate(`(() => {
           window.__datuxResetState();
           window.__datuxSetWeekday(${JSON.stringify(weekday)});
-          if (${p.substituteMorning ? 'true' : 'false'}) {
-            const sw = document.getElementById('s-' + ${JSON.stringify(weekday)}.toLowerCase() + '-morning-swap');
-            if (sw) { sw.value = 'Easy swim (20–30 min)'; sw.dispatchEvent(new Event('change', { bubbles: true })); }
-          }
-          if (${p.completeMorning ? 'true' : 'false'}) {
-            const d = document.getElementById('s-' + ${JSON.stringify(weekday)}.toLowerCase() + '-morning-done');
-            if (d && d.getAttribute('aria-pressed') !== 'true') d.click();
-          }
           const prefs = ${JSON.stringify(prefs)};
           Object.keys(prefs).forEach((k) => window.__datuxSetPreference(k, prefs[k]));
+          const first = window.__datuxSurface.facts.slots[0];
+          const prefix = first ? 's-' + ${JSON.stringify(weekday)}.toLowerCase() + '-' + first.slotId : '';
+          if (${p.substituteFirst ? 'true' : 'false'} && first) {
+            const sw = document.getElementById(prefix + '-swap');
+            sw.value = 'Easy swim (15–20 min, with rests)'; sw.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          if (${p.completeFirst ? 'true' : 'false'} && first) {
+            const d = document.getElementById(prefix + '-done');
+            if (d.getAttribute('aria-pressed') !== 'true') d.click();
+          }
         })()`);
         const r = JSON.parse(await cdp.evaluate(CHECK));
         rows.push({ target, weekday, profile: p.name, results: r.results, ids: r.ids, named: r.named, substituted: r.substituted, prescription: r.prescription, unsafeRestore: r.unsafeRestore });
@@ -322,7 +324,7 @@ const CHECK = `(() => {
      substitute a session change the prescription through domain state, which
      would flatter this number by counting variation the derivation did not
      produce. */
-  const USER_MODEL_ONLY = PROFILES.filter((p) => !p.completeMorning && !p.substituteMorning).map((p) => p.name);
+  const USER_MODEL_ONLY = PROFILES.filter((p) => !p.completeFirst && !p.substituteFirst).map((p) => p.name);
   WEEKDAYS.forEach((w) => {
     const rows_ = rows.filter((r) => r.weekday === w && r.target === 'standard' && USER_MODEL_ONLY.includes(r.profile));
     /* The prescribed activity is the first sentence. Everything after it is
@@ -339,5 +341,5 @@ const CHECK = `(() => {
 
   fs.writeFileSync(path.join(OUT, 'invariants.json'), JSON.stringify({ rows, byId, opportunity }, null, 2), 'utf8');
   proc.kill(); server.close();
-  process.exit(0);
+  process.exit(flaggedByAny ? 1 : 0);
 })().catch((e) => { console.error('INVARIANTS FAILED', e); process.exit(1); });

@@ -38,17 +38,14 @@ const PROFILES = [
   { name: 'advanced-full',  prefs: { protecting: 'none', equipment: 'full', experience: 'advanced', timeBudget: '90' } },
   { name: 'shoulder-home',  prefs: { protecting: 'shoulder', equipment: 'home', experience: 'regular', timeBudget: '45' } },
   { name: 'nothing-today',  prefs: { protecting: 'knee', equipment: 'none', experience: 'novice', timeBudget: '20' } },
-  /* The evening session is strength or skill rather than endurance, and that is
-     the only path reaching the middle confidence band. Without these two the
-     ask branch is never exercised and would have shipped untested. */
-  { name: 'knee-evening',   completeMorning: true, prefs: { protecting: 'knee', equipment: 'full', experience: 'regular', timeBudget: '90' } },
-  { name: 'ankle-evening',  completeMorning: true, prefs: { protecting: 'ankle', equipment: 'full', experience: 'regular', timeBudget: '90' } }
+  { name: 'knee-second',   completeFirst: true, prefs: { protecting: 'knee', equipment: 'full', experience: 'regular', timeBudget: '90' } },
+  { name: 'ankle-second',  completeFirst: true, prefs: { protecting: 'ankle', equipment: 'full', experience: 'regular', timeBudget: '90' } }
 ];
 
 const TARGETS = ['standard', 'large-type', 'reader-first'];
 /* The weekday changes which activity is planned, so it is an uncontrolled
    variable unless pinned. Run 4 taught this the hard way. */
-const WEEKDAYS = ['Monday', 'Tuesday', 'Thursday', 'Saturday'];
+const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 function serve(dir) {
   const server = http.createServer((req, res) => {
@@ -84,12 +81,13 @@ const jaccard = (a, b) => {
   for (const target of TARGETS) {
    for (const weekday of WEEKDAYS) {
     for (const profile of PROFILES) {
-      const prefs = Object.assign({ target: target }, profile.prefs);
+      const prefs = Object.assign({ target, protecting: 'none', equipment: 'full', experience: 'regular', timeBudget: '90' }, profile.prefs);
       const r = await cdp.evaluate(`(() => {
         window.__datuxResetState();
         window.__datuxSetWeekday(${JSON.stringify(weekday)});
-        if (${profile.completeMorning ? "true" : "false"}) {
-          const done = document.getElementById('s-' + ${JSON.stringify(weekday)}.toLowerCase() + '-morning-done');
+        if (${profile.completeFirst ? "true" : "false"}) {
+          const first = window.__datuxSurface.facts.slots[0];
+          const done = first && document.getElementById('s-' + ${JSON.stringify(weekday)}.toLowerCase() + '-' + first.slotId + '-done');
           if (done && done.getAttribute('aria-pressed') !== 'true') done.click();
         }
         const prefs = ${JSON.stringify(prefs)};
@@ -118,7 +116,7 @@ const jaccard = (a, b) => {
   }
 
   /* ---- 1. expressiveness ---- */
-  const std = results.filter((r) => r.target === 'standard' && r.weekday === 'Tuesday');
+  const std = results.filter((r) => r.target === 'standard' && r.weekday === 'Saturday');
   console.log('=== 1. EXPRESSIVENESS (standard target) ===');
   std.forEach((r) => console.log('  ' + r.profile.padEnd(18) + r.components.length + ' components, budget ' +
     r.spent + '/' + r.budget + (r.dropped.length ? ', dropped ' + r.dropped.join(',') : '')));
@@ -173,8 +171,11 @@ const jaccard = (a, b) => {
   let moved = [];
   TARGETS.forEach((t) => {
     const rows = results.filter((r) => r.target === t);
-    const base = JSON.stringify(rows.filter((x) => x.weekday === rows[0].weekday)[0].geo);
-    rows.forEach((r) => { if (JSON.stringify(r.geo) !== base) moved.push(t + '/' + r.profile); });
+    WEEKDAYS.forEach((weekday) => {
+      const sameDay = rows.filter((r) => r.weekday === weekday);
+      const base = JSON.stringify(sameDay[0].geo);
+      sameDay.forEach((r) => { if (JSON.stringify(r.geo) !== base) moved.push(t + '/' + weekday + '/' + r.profile); });
+    });
   });
   console.log('  persistent controls that moved across user models: ' + (moved.length ? moved.join(', ') : 'NONE'));
 
@@ -194,5 +195,5 @@ const jaccard = (a, b) => {
 
   fs.writeFileSync(path.join(OUT, 'derivecheck.json'), JSON.stringify(results, null, 2), 'utf8');
   proc.kill(); server.close();
-  process.exit(0);
+  process.exit(moved.length || bad.length || targetBranches ? 1 : 0);
 })().catch((e) => { console.error('DERIVECHECK FAILED', e); process.exit(1); });
