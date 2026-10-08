@@ -160,20 +160,21 @@ function serializeAx(nodes) {
   const behaviour = await evaluate(`(() => {
     const out = {};
     const fire = (el, type) => el.dispatchEvent(new Event(type, { bubbles: true }));
-    document.getElementById('s-monday-morning-done').click();
-    const swap = document.getElementById('s-tuesday-morning-swap');
-    swap.value = 'Easy swim (20–30 min)'; fire(swap, 'change');
-    const note = document.getElementById('s-tuesday-morning-note');
-    note.value = 'ankle sore, swam instead'; document.getElementById('s-tuesday-morning-log').click();
-    const radioB = document.getElementById('s-saturday-variant-b');
-    radioB.checked = true; fire(radioB, 'change');
-    document.getElementById('s-monday-morning-done').click();   // reopen
-    const restore = document.getElementById('s-tuesday-morning-swap');
+    document.getElementById('s-monday-lower-done').click();
+    const swap = document.getElementById('s-saturday-run-swap');
+    swap.value = 'Easy swim (15–20 min, with rests)'; fire(swap, 'change');
+    const note = document.getElementById('s-saturday-run-note');
+    note.value = 'ankle sore, swam instead'; document.getElementById('s-saturday-run-log').click();
+    const variant = document.getElementById('week-mode');
+    variant.value = 'snowboard-day'; fire(variant, 'change');
+    variant.value = 'standard'; fire(variant, 'change');
+    document.getElementById('s-monday-lower-done').click();   // reopen
+    const restore = document.getElementById('s-saturday-run-swap');
     restore.value = ''; fire(restore, 'change');
-    document.getElementById('s-tuesday-morning-log').click();   // no-op save
+    document.getElementById('s-saturday-run-log').click();   // no-op save
     out.attempts = window.__datuxAttempts.map(a => a.capability.id + ' | ' + a.outcome + ' @ ' + a.surface.role + ' "' + a.surface.name + '" in "' + (a.surface.container ? a.surface.container.name : '-') + '"');
-    out.stored = localStorage.getItem('pt.l2.state.v1');
-    out.saturdayText = document.getElementById('s-saturday-long-text').textContent;
+    out.stored = localStorage.getItem('pt.athletic.state.v2');
+    out.saturdayText = document.getElementById('s-saturday-run-text').textContent;
     out.status = document.getElementById('app-status').textContent;
     out.capabilityAttrs = [...new Set([...document.querySelectorAll('[data-capability]')].flatMap(el => el.dataset.capability.split(' ')))].sort();
     out.controlCount = document.querySelectorAll('button, select, input').length;
@@ -189,6 +190,8 @@ function serializeAx(nodes) {
   await evaluate("localStorage.clear()");
   await cdp.send('Page.reload');
   await sleep(2000);
+  await evaluate(`document.getElementById('all-days').click();
+    document.querySelectorAll('details').forEach(d => { if (!d.hidden) d.open = true; });`);
 
   const { nodes } = await cdp.send('Accessibility.getFullAXTree');
   const outline = serializeAx(nodes);
@@ -238,5 +241,5 @@ function serializeAx(nodes) {
 
   edge.kill();
   server.close();
-  process.exit(0);
+  process.exit(problems.length || behaviour.unnamed.length || mismatches.length ? 1 : 0);
 })().catch((e) => { console.error('HARNESS FAILED', e); process.exit(1); });

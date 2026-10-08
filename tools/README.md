@@ -22,7 +22,8 @@ node --experimental-websocket <script> <args>
 | `capture.js` | captures multi-state accessibility trees, and emits the `FULL` / `NAME_ONLY` / `ROLE_ONLY` ablation variants |
 | `behave.js` | drives an app and records what observably happened — URL change, network calls, HTTP status |
 | `probe.js` | loads one page and lists its navigation targets, for discovering flow URLs |
-| `selfcheck.js` | self-check against this repo's own `index.html`: frame stability, keyboard reachability, and the accessible-name conformance diff |
+| `selfcheck.js` | current app capability events, local persistence, console errors and accessible-name conformance across the expanded full-week view |
+| `plannercheck.js` | current planner regression checks: all eleven sessions including pickleball, tracking/reload, archive and weekly isolation, winter replacements, adaptations, keyboard tabs, responsive layouts, illustrations and print; writes local screenshots |
 | `accname.js` | the conformance harness: eight in-page AccName implementations diffed against `Accessibility.getFullAXTree` across a corpus, with divergence classification |
 | `annotate.js` | `href` mode captures a tree with link destinations joined in; `flip` mode enumerates controls whose ARIA state can flip |
 | `crossengine.js` | Blink vs Gecko accessible-name comparison on frozen page snapshots, via CDP and WebDriver Get Computed Label |
@@ -42,8 +43,22 @@ would have flagged. Some version of it belongs in any product that emits `surfac
 `surface.name` telemetry from inside the page.
 
 ```
-node --experimental-websocket tools/selfcheck.js . ./out
+node --experimental-websocket tools\selfcheck.js . .\out
 ```
+
+For the current UI, run `plannercheck.js`, `selfcheck.js`, `invariants.js` and
+`derivecheck.js` with a repository path and an output directory. For example, on
+Windows:
+
+```
+node --experimental-websocket tools\plannercheck.js . C:\Temp\athletic-week-check
+```
+
+The current schedule uses semantic slots (for example `monday.lower` and
+`saturday.pickleball`), not the historical morning/night slots. Tuesday is now
+recovery, so expressiveness comparisons are pinned to Saturday; invariant coverage
+includes all seven days. Frame comparisons hold the selected day and reading
+target constant. Historical experiment numbers are not recalculated by these checks.
 
 ---
 

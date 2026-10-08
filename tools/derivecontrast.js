@@ -27,7 +27,7 @@ const { sleep, launch } = require('./cdp');
 const REPO = process.argv[2];
 const OUT = process.argv[3];
 const PORT = 8790;
-const WEEKDAY = 'Tuesday';
+const WEEKDAY = 'Saturday';
 
 /* Does the component change what the user should DO, or only what they read? */
 /* Run 7 adds adapt.applied — the component that actually replaces the plan —
@@ -71,7 +71,7 @@ function serve(dir) {
   for (const p of PROFILES) {
     const prefs = Object.assign({ target: 'standard' }, p.prefs);
     const r = await cdp.evaluate(`(() => {
-      localStorage.removeItem('pt.l2.dismissed.v1');
+      window.__datuxResetState();
       window.__datuxSetWeekday(${JSON.stringify(WEEKDAY)});
       const prefs = ${JSON.stringify(prefs)};
       Object.keys(prefs).forEach((k) => window.__datuxSetPreference(k, prefs[k]));

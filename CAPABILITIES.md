@@ -16,6 +16,23 @@ makes the app instrumentable, and then uses it as a test rig.
 
 ---
 
+**Current planner revision (October 2026).** The app now presents an eleven-session
+athletic week with three support-focused lifts, protected Tuesday recovery,
+bouldering, beach volleyball, golf, two easy runs, beginner-friendly swimming and
+Saturday pickleball. `plan.select_week_variant` selects the usual rhythm, a
+Saturday riding replacement or a riding weekend. The old
+`plan.select_long_day_variant` id is retained for historical envelopes but no
+longer has a control. Presentation navigation, illustration playback and printing
+are not modeled as workout outcomes.
+
+Tracking and adaptation overrides are week-scoped; original planner entries are
+archived separately, not mapped onto different new sessions. The uniform/holdout
+policies use the new schedule and ignore user preferences. Historical measurements
+below are not claims about this revised UI. Browser checks now use semantic session
+ids and compare frame positions within a selected day and reading target.
+
+---
+
 ## 1. The finding, first
 
 **Three independent namers looking at the same interface produced three capability

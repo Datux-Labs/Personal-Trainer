@@ -21,204 +21,225 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Personal Trainer — Weekly Master Plan</title>
+  <meta name="theme-color" content="#101214" />
+  <meta name="description" content="Your athletic week: support-focused strength, running, swimming, climbing, volleyball, golf and pickleball, with room for recovery." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23d7fc70'/%3E%3Cpath d='M9 29 19 10h3l9 19h-6l-5-11-5 11z' fill='%23101214'/%3E%3C/svg%3E" />
+  <title>Your Athletic Week — Personal Trainer</title>
   <style>
     :root {
-      --bg: #0f1216;
-      --panel: #171b20;
-      --panel-soft: #1d232b;
-      --text: #ecf1f8;
-      --muted: #9aa9bb;
-      --line: #2a333f;
-      --accent: #64d490;
-      --accent-soft: rgba(100, 212, 144, 0.12);
-      --radius: 14px;
+      color-scheme: dark;
+      --bg: #101214;
+      --panel: #181b1e;
+      --panel-soft: #1e2226;
+      --text: #f3f5f6;
+      --muted: #a6afb8;
+      --line: #30363b;
+      --accent: #d7fc70;
+      --accent-soft: rgba(215, 252, 112, 0.08);
+      --aqua: #8cdae0;
+      --lilac: #c1b0f4;
+      --peach: #efb497;
+      --radius: 16px;
     }
 
     * { box-sizing: border-box; }
-
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
       line-height: 1.5;
       background: var(--bg);
       color: var(--text);
-      padding: 1.5rem;
     }
-
-    .page {
-      max-width: 980px;
-      margin: 0 auto;
-      display: grid;
-      gap: 1rem;
+    h1, h2, h3, h4, p { margin: 0; }
+    h1, h2, h3, h4 { line-height: 1.2; }
+    h2 { font-size: 1.25rem; font-weight: 600; letter-spacing: -0.025em; }
+    p { color: var(--muted); }
+    a { color: inherit; }
+    svg { flex-shrink: 0; }
+    button, select, input { font: inherit; }
+    :where(button, select, input, a, summary):focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
     }
-
-    .panel {
-      background: linear-gradient(180deg, var(--panel), var(--panel-soft));
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 1rem;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4 {
-      line-height: 1.2;
-      margin: 0;
-    }
-
-    p {
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .hero {
-      display: grid;
-      gap: 0.6rem;
-      padding: 1.2rem;
-    }
-
-    .hero h1 {
-      font-size: clamp(1.55rem, 2.7vw, 2rem);
-    }
-
-    .hero p {
-      max-width: 65ch;
-    }
-
-    .today {
-      border-color: rgba(100, 212, 144, 0.45);
-      background: linear-gradient(180deg, rgba(100, 212, 144, 0.2), rgba(100, 212, 144, 0.08));
-      display: grid;
-      gap: 0.6rem;
-    }
-
-    .eyebrow {
-      font-size: 0.76rem;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .today-title {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    .day-chip {
-      display: inline-block;
-      border: 1px solid rgba(100, 212, 144, 0.65);
-      background: rgba(100, 212, 144, 0.18);
-      color: #d8ffe6;
-      border-radius: 999px;
-      font-size: 0.8rem;
-      padding: 0.2rem 0.55rem;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .today-plan {
-      color: #f8fff9;
-      font-size: 1.02rem;
-    }
-
-    .section-head {
-      display: grid;
-      gap: 0.4rem;
-      margin-bottom: 0.8rem;
-    }
-
-    .week-grid {
-      display: grid;
-      gap: 0.75rem;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-
-    .day-card {
-      background: #14191f;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 0.85rem;
-      display: grid;
-      gap: 0.55rem;
-      min-height: 100%;
-    }
-
-    .day-card h3 {
-      font-size: 1rem;
-    }
-
-    .item-title {
-      color: #c8d2df;
-      font-size: 0.76rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      margin-bottom: 0.18rem;
-    }
-
-    .item-text {
-      color: #f4f8ff;
-      font-size: 0.94rem;
-    }
-
-    .note {
-      color: var(--muted);
-      font-size: 0.88rem;
-      border-top: 1px solid var(--line);
-      padding-top: 0.5rem;
-    }
-
-    .day-card.is-today {
-      border-color: rgba(100, 212, 144, 0.7);
-      box-shadow: 0 0 0 1px rgba(100, 212, 144, 0.35) inset;
-      background: linear-gradient(180deg, #16231c, #14191f);
-    }
-
-    .split-grid {
-      display: grid;
-      gap: 0.75rem;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-
-    .step {
-      background: #131920;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 0.75rem;
-    }
-
-    .step h3 {
-      margin-bottom: 0.55rem;
-      font-size: 0.95rem;
-    }
-
-    ul {
-      margin: 0;
-      padding-left: 1.05rem;
-      color: #eaf0f8;
-    }
-
-    li + li {
-      margin-top: 0.22rem;
-    }
-
-    .guidelines li {
-      color: #ecf2fb;
-    }
-
-    .guidelines strong {
-      color: #ffffff;
-    }
-
-    /* ---- L2 capability layer ------------------------------------------
-       Frame-holding rules (ADR 0004): every control below occupies a fixed
-       position and every state line reserves its height, so populating state
-       never moves anything the user has built recall against. */
-
+    .skip-link { position: fixed; top: -60px; left: 16px; z-index: 10; background: var(--accent); color: var(--bg); padding: 12px; }
+    .skip-link:focus { top: 12px; }
+    .app-shell { display: grid; grid-template-columns: 218px minmax(0, 1fr); }
+    .sidebar { position: sticky; top: 0; height: 100vh; padding: 32px 22px; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 44px; }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .brand-mark { width: 38px; height: 38px; border-radius: 11px; background: var(--accent); color: var(--bg); display: grid; place-items: center; }
+    .brand-name { font-size: 1rem; font-weight: 650; line-height: 1.2; letter-spacing: -0.025em; }
+    .brand-name span { display: block; }
+    .sidebar-nav { display: grid; gap: 8px; }
+    .nav-link { text-decoration: none; display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 9px; font-size: 0.85rem; color: var(--muted); }
+    .nav-link svg { width: 18px; height: 18px; }
+    .nav-link:hover { background: var(--panel-soft); color: var(--text); }
+    .nav-link.is-active { background: var(--accent-soft); color: var(--accent); }
+    .sidebar-plan { border-top: 1px solid var(--line); padding-top: 24px; font-size: 0.8rem; display: grid; gap: 9px; }
+    .sidebar-note { margin-top: auto; font-size: 0.75rem; display: grid; gap: 6px; }
+    .sidebar-note strong { color: var(--text); font-weight: 500; }
+    .page { width: 100%; max-width: 1410px; padding: 30px 42px 22px; margin: 0 auto; display: grid; gap: 30px; min-width: 0; }
+    .page > section { scroll-margin-top: 24px; min-width: 0; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .eyebrow { font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    .topbar-actions { display: flex; align-items: center; gap: 18px; }
+    .local-indicator { color: var(--muted); font-size: 0.75rem; display: flex; align-items: center; gap: 7px; }
+    .local-indicator::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+    .hero h1 { font-size: clamp(2rem, 3.6vw, 3.4rem); letter-spacing: -0.055em; font-weight: 600; margin: 7px 0 12px; }
+    .hero p { font-size: 0.92rem; max-width: 62ch; }
+    .week-label { margin-top: 12px; border: 1px solid var(--line); border-radius: 9px; padding: 10px 14px; font-size: 0.8rem; white-space: nowrap; display: flex; gap: 8px; align-items: center; }
+    .week-label svg { width: 16px; height: 16px; color: var(--muted); }
+    .goals { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .goal { display: flex; gap: 12px; align-items: center; padding: 15px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+    .goal-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; color: var(--accent); background: var(--accent-soft); }
+    .goal:nth-child(2) .goal-icon { color: var(--aqua); background: rgba(140, 218, 224, 0.08); }
+    .goal:nth-child(3) .goal-icon { color: var(--lilac); background: rgba(193, 176, 244, 0.08); }
+    .goal:nth-child(4) .goal-icon { color: var(--peach); background: rgba(239, 180, 151, 0.08); }
+    .goal-icon svg { width: 20px; height: 20px; }
+    .goal strong { font-size: 0.83rem; font-weight: 550; display: block; }
+    .goal p { font-size: 0.7rem; margin-top: 2px; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr); gap: 16px; align-items: start; }
+    .today { border-color: #49583a; background: linear-gradient(115deg, #20251c, var(--panel) 70%); }
+    .today-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+    .day-chip { color: var(--accent); background: var(--accent-soft); border: 1px solid #4d5a37; border-radius: 6px; padding: 4px 8px; font-size: 0.7rem; }
+    .today[data-target="standard"] { --d-scale: 1; --d-lead: 1.5; }
+    .today[data-target="large-type"] { --d-scale: 1.25; --d-lead: 1.6; }
+    .today[data-target="reader-first"] { --d-scale: 1; --d-lead: 1.7; }
+    /* Reserve three lines so changing the derived prescription never shifts its controls. */
+    .today-plan { font-size: calc(1.08rem * var(--d-scale, 1)); line-height: var(--d-lead, 1.5); height: calc(3 * 1.08rem * var(--d-scale, 1) * var(--d-lead, 1.5)); margin: 18px 0 12px; color: var(--text); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+    .btn { color: var(--text); border: 1px solid var(--line); background: var(--panel-soft); border-radius: 8px; font-size: 0.77rem; padding: 9px 12px; cursor: pointer; line-height: 1.35; display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; }
+    .btn svg { width: 16px; height: 16px; }
+    .btn:hover { border-color: #77834e; background: #272e23; }
+    .btn[aria-pressed="true"] { color: var(--accent); border-color: #5c6d3c; background: var(--accent-soft); }
+    .btn:disabled { cursor: default; opacity: 0.6; }
+    .btn-quiet { background: transparent; }
+    .btn-consequence { border-color: #9d7257; white-space: normal; text-align: left; }
+    .field { font-size: 0.78rem; color: var(--text); background: #131618; border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px; min-height: 36px; min-width: 0; max-width: 100%; }
+    .field::placeholder { color: var(--muted); }
+    .today-actions { display: flex; flex-wrap: wrap; gap: 7px; align-items: flex-start; min-height: 36px; }
+    #today-actions-derived { display: flex; flex-basis: 100%; min-width: 0; }
+    #today-actions-derived > span { display: flex; min-width: 0; max-width: 100%; }
+    .today-actions .field { width: 260px; max-width: 100%; }
+    .slot-region { display: grid; gap: 8px; margin-top: 12px; }
+    .slot-region:empty { display: none; }
+    .derived { margin: 0; font-size: calc(0.8rem * var(--d-scale, 1)); line-height: var(--d-lead, 1.5); color: var(--text); }
+    .derived-notice { border-left: 2px solid var(--accent); padding-left: 12px; display: grid; gap: 8px; justify-items: start; }
+    .derived-ask { border: 1px dashed #6b7b48; border-radius: 10px; padding: 12px; display: grid; gap: 9px; }
+    .derived-explain { font-size: calc(0.73rem * var(--d-scale, 1)); color: var(--muted); }
+    .derived ul { margin: 8px 0; padding-left: 18px; }
+    .week-progress h2 { font-size: 1rem; margin-top: 12px; }
+    .progress-value { font-size: 2.4rem; font-weight: 600; letter-spacing: -0.05em; margin: 14px 0 10px; display: flex; align-items: baseline; gap: 9px; }
+    .progress-value span { font-size: 0.8rem; color: var(--muted); font-weight: 400; letter-spacing: normal; }
+    progress { display: block; width: 100%; height: 5px; border: 0; border-radius: 6px; background: var(--line); accent-color: var(--accent); }
+    progress::-webkit-progress-bar { background: var(--line); border-radius: 6px; }
+    progress::-webkit-progress-value { background: var(--accent); border-radius: 6px; }
+    progress::-moz-progress-bar { background: var(--accent); border-radius: 6px; }
+    .week-metrics { display: grid; grid-template-columns: repeat(3, 1fr); margin: 24px 0 18px; }
+    .week-metrics div + div { border-left: 1px solid var(--line); padding-left: 16px; }
+    .week-metrics strong { font-size: 1.15rem; font-weight: 500; display: block; }
+    .week-metrics span { display: block; font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .summary-note { font-size: 0.73rem; line-height: 1.6; border-top: 1px solid var(--line); padding-top: 16px; }
+    .section-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; }
+    .section-head p { font-size: 0.8rem; margin-top: 6px; }
+    .section-actions { display: flex; gap: 7px; flex-shrink: 0; }
+    .week-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+    .week-toolbar p { font-size: 0.75rem; }
+    .week-variant { display: flex; align-items: center; gap: 9px; font-size: 0.75rem; color: var(--muted); }
+    .day-tabs { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+    .day-tab { text-align: left; padding: 12px; min-height: 125px; background: var(--panel); border: 1px solid var(--line); color: var(--text); border-radius: 11px; cursor: pointer; display: flex; flex-direction: column; gap: 5px; }
+    .day-tab:hover { border-color: #738044; }
+    .day-tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #202616; }
+    .tab-day { font-size: 0.68rem; }
+    .tab-date { font-size: 1.45rem; line-height: 1.2; font-weight: 550; }
+    .tab-activity { font-size: 0.65rem; margin-top: auto; }
+    .tab-state { font-size: 0.6rem; color: var(--muted); }
+    .day-tab[aria-selected="true"] .tab-state { color: #3c4929; }
+    .day-tab.is-today .tab-day { text-decoration: underline; text-underline-offset: 4px; }
+    .week-grid { display: grid; gap: 16px; margin-top: 16px; }
+    .week-grid.all-days { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+    .day-card { padding: 24px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); min-width: 0; }
+    .day-card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 9px; }
+    .day-card h3 { font-size: 1.2rem; font-weight: 600; letter-spacing: -0.025em; }
+    .day-count { font-size: 0.7rem; color: var(--muted); }
+    .day-note { font-size: 0.8rem; max-width: 80ch; margin-bottom: 18px; }
+    .session-list { display: grid; gap: 12px; }
+    .slot { border: 1px solid var(--line); background: #15181b; border-radius: 12px; padding: 18px; min-width: 0; }
+    .slot.is-complete { border-color: #54673a; }
+    .session-heading { display: flex; align-items: center; gap: 12px; }
+    .session-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 10px; color: var(--accent); background: var(--accent-soft); flex-shrink: 0; }
+    .session-icon svg { width: 23px; height: 23px; }
+    .slot[data-kind="endurance"] .session-icon { color: var(--aqua); background: rgba(140, 218, 224, 0.08); }
+    .slot[data-kind="skill"] .session-icon { color: var(--lilac); background: rgba(193, 176, 244, 0.08); }
+    .session-heading-text { min-width: 0; flex: 1; }
+    .item-title { font-size: 0.92rem; font-weight: 550; color: var(--text); }
+    .item-text { font-size: 0.76rem; color: var(--muted); margin-top: 4px; }
+    .session-kind { font-size: 0.62rem; padding: 4px 7px; border: 1px solid var(--line); border-radius: 5px; color: var(--muted); }
+    .session-description { font-size: 0.78rem; margin-top: 13px; max-width: 90ch; }
+    .slot-group { display: grid; gap: 10px; margin-top: 14px; }
+    .slot-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .slot-controls .grow { flex: 1 1 160px; max-width: 340px; }
+    .slot-state { height: 1.25rem; line-height: 1.25rem; font-size: 0.7rem; color: var(--muted); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .note-log { font-size: 0.75rem; }
+    .note-log summary { cursor: pointer; color: var(--muted); width: fit-content; }
+    .note-log .slot-controls { margin-top: 10px; }
+    .session-detail { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 13px; }
+    .session-detail > summary { cursor: pointer; color: var(--accent); font-size: 0.78rem; }
+    .session-guidance { font-size: 0.78rem; color: var(--muted); margin: 14px 0 0; padding-left: 18px; }
+    .session-guidance li + li { margin-top: 8px; }
+    .exercise-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+    .exercise-card { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); min-width: 0; }
+    .exercise-visual { position: relative; height: 132px; display: grid; place-items: center; background: radial-gradient(ellipse at 50% 100%, #303b24, #1b2019 70%); color: var(--accent); }
+    .exercise-visual svg { height: 110px; width: 150px; overflow: visible; }
+    .exercise-visual .btn { position: absolute; right: 7px; bottom: 7px; padding: 4px 7px; min-height: 28px; font-size: 0.65rem; background: #151915; }
+    .exercise-copy { padding: 13px; }
+    .exercise-copy h4 { font-size: 0.81rem; font-weight: 550; line-height: 1.4; }
+    .exercise-dose { font-size: 0.9rem; color: var(--accent); margin-top: 7px; }
+    .exercise-rest, .exercise-cue { font-size: 0.72rem; margin-top: 6px; }
+    .exercise-conditional { color: var(--peach); font-size: 0.68rem; margin-top: 6px; }
+    .all-days .exercise-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .movement .motion-part { transform-box: fill-box; transform-origin: center; animation: movement-bend calc(3s / var(--motion-speed, 1)) ease-in-out infinite; }
+    .movement[data-movement="jump"] .motion-part { animation-name: movement-jump; }
+    .movement[data-movement="push"] .motion-part, .movement[data-movement="pull"] .motion-part { animation-name: movement-reach; }
+    .movement.is-paused .motion-part { animation-play-state: paused; }
+    .movement.is-static .motion-part { animation: none; }
+    @keyframes movement-bend { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(5px) rotate(8deg); } }
+    @keyframes movement-jump { 0%, 100% { transform: translateY(0); } 45%, 60% { transform: translateY(-12px); } }
+    @keyframes movement-reach { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+    .illustration-note { font-size: 0.7rem; margin-top: 12px; }
+    .recovery-card { background: linear-gradient(115deg, #22291d, #181e19); border: 1px dashed #5b6b41; border-radius: 12px; padding: 26px; display: flex; align-items: center; gap: 20px; }
+    .recovery-card svg { width: 52px; height: 52px; color: var(--accent); }
+    .recovery-card h4 { font-size: 1rem; font-weight: 550; }
+    .recovery-card p { font-size: 0.8rem; margin-top: 8px; max-width: 64ch; }
+    .strength-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .strength-card { border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 20px; }
+    .strength-card .eyebrow { color: var(--accent); }
+    .strength-card h3 { font-size: 1.05rem; margin: 10px 0; font-weight: 550; }
+    .strength-card p { font-size: 0.75rem; min-height: 3.3em; }
+    .strength-card .btn { margin-top: 16px; width: 100%; }
+    .motion-controls { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-top: 15px; }
+    .motion-controls label { font-size: 0.7rem; color: var(--muted); display: flex; align-items: center; gap: 7px; }
+    .motion-controls p { font-size: 0.7rem; }
+    .training-rule { border-left: 2px solid var(--accent); padding: 6px 0 6px 15px; margin: 18px 0; font-size: 0.83rem; color: var(--text); }
+    .guide-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+    .guide-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 17px 19px; }
+    .guide-card summary { cursor: pointer; font-size: 0.87rem; font-weight: 500; }
+    .guide-card ul { margin: 16px 0 0; padding-left: 18px; color: var(--muted); font-size: 0.78rem; }
+    .guide-card li + li { margin-top: 10px; }
+    .guide-card strong { color: var(--text); font-weight: 550; }
+    .guide-card p { font-size: 0.78rem; margin-top: 12px; }
+    .prefs { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+    .pref { display: grid; gap: 7px; font-size: 0.73rem; color: var(--muted); }
+    .pref .field { width: 100%; }
+    .storage-alert { color: var(--peach); background: #2b211c; border: 1px solid #906348; border-radius: 9px; padding: 12px; font-size: 0.8rem; }
+    .archive-list { font-size: 0.8rem; padding-left: 20px; }
+    .archive-list li + li { margin-top: 9px; }
+    .footer { display: grid; gap: 14px; border-top: 1px solid var(--line); padding-top: 18px; }
+    .hero-actions { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .status { font-size: 0.73rem; min-height: 1.5em; }
+    .footer-note { font-size: 0.69rem; max-width: 100ch; }
     .sr-only {
       position: absolute;
       width: 1px;
@@ -231,412 +252,253 @@
       border: 0;
     }
 
-    :where(button, select, input, a):focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
+    @media (max-width: 1180px) {
+      .app-shell { grid-template-columns: 185px minmax(0, 1fr); }
+      .sidebar { padding: 26px 16px; }
+      .page { padding: 26px; }
+      .goal { padding: 13px; gap: 9px; }
+      .dashboard-grid { grid-template-columns: minmax(0, 1.4fr) minmax(250px, 1fr); }
+      .day-tab { padding: 10px; }
     }
-
-    .btn {
-      font: inherit;
-      font-size: 0.82rem;
-      line-height: 1.3;
-      color: var(--text);
-      background: #1b2229;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 0.3rem 0.75rem;
-      cursor: pointer;
-      white-space: nowrap;
+    @media (max-width: 920px) {
+      .app-shell { display: block; }
+      .sidebar { position: static; height: auto; padding: 16px 24px; border-right: 0; border-bottom: 1px solid var(--line); flex-direction: row; align-items: center; justify-content: space-between; gap: 24px; }
+      .sidebar-nav { display: flex; gap: 4px; }
+      .nav-link { padding: 10px; }
+      .nav-link svg { display: none; }
+      .sidebar-plan, .sidebar-note { display: none; }
+      .brand-name span { display: inline; }
+      .brand-name span + span::before { content: " "; }
+      .goal p { font-size: 0.65rem; }
     }
-
-    .btn:hover {
-      border-color: rgba(100, 212, 144, 0.5);
+    @media (max-width: 700px) {
+      .sidebar { flex-wrap: wrap; gap: 12px; padding: 16px; }
+      .sidebar-nav { width: 100%; justify-content: space-between; }
+      .nav-link { font-size: 0.76rem; padding: 8px; }
+      .page { padding: 20px 16px; gap: 24px; }
+      .hero { flex-direction: column; gap: 0; }
+      .hero h1 { font-size: 2.4rem; }
+      .week-label { margin-top: 16px; }
+      .goals { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+      .panel, .day-card { padding: 20px; }
+      .week-progress { padding: 18px 20px; }
+      .week-progress .progress-value { font-size: 2rem; margin: 10px 0; }
+      .week-metrics { margin: 16px 0; }
+      .section-head { flex-wrap: wrap; gap: 12px; }
+      .day-tabs { display: flex; overflow-x: auto; padding-bottom: 6px; }
+      .day-tab { flex: 0 0 94px; min-height: 119px; }
+      .week-grid.all-days, .guide-grid { grid-template-columns: minmax(0, 1fr); }
+      .strength-grid { grid-template-columns: minmax(0, 1fr); }
+      .strength-card p { min-height: 0; }
+      .strength-card .btn { width: auto; }
+      .exercise-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .slot { padding: 16px; }
+      .session-kind { display: none; }
+      .local-indicator { display: none; }
+      .topbar .eyebrow { font-size: 0.6rem; }
+      .recovery-card { padding: 20px; gap: 16px; }
+      .hero-actions { flex-wrap: wrap; }
     }
-
-    .btn[aria-pressed="true"] {
-      background: var(--accent-soft);
-      border-color: rgba(100, 212, 144, 0.7);
-      color: #d8ffe6;
+    @media (max-width: 400px) {
+      .exercise-list, .all-days .exercise-list { grid-template-columns: minmax(0, 1fr); }
+      .goal { padding: 11px; gap: 8px; }
+      .goal-icon { width: 28px; height: 28px; }
+      .goal strong { font-size: 0.75rem; }
+      .recovery-card { align-items: flex-start; }
+      .recovery-card svg { width: 32px; height: 32px; }
     }
-
-    .field {
-      font: inherit;
-      font-size: 0.82rem;
-      color: var(--text);
-      background: #11161c;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 0.3rem 0.45rem;
-      min-width: 0;
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .movement .motion-part { animation: none !important; }
     }
-
-    .field::placeholder {
-      color: #6d7d90;
-    }
-
-    .hero-actions {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      min-height: 2.1rem;
-    }
-
-    .status {
-      flex: 1 1 16rem;
-      min-height: 1.35rem;
-      margin: 0;
-      font-size: 0.86rem;
-      color: var(--muted);
-    }
-
-    .today-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      align-items: center;
-      min-height: 2.1rem;
-    }
-
-    .slot {
-      padding-left: 0.55rem;
-      border-left: 2px solid transparent;
-    }
-
-    .slot.is-complete {
-      border-left-color: var(--accent);
-    }
-
-    .slot.is-substituted .item-text {
-      text-decoration: line-through;
-      color: var(--muted);
-    }
-
-    .slot-group {
-      display: grid;
-      gap: 0.3rem;
-      margin-top: 0.35rem;
-    }
-
-    .slot-controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-      align-items: center;
-    }
-
-    .slot-controls .grow {
-      flex: 1 1 7rem;
-    }
-
-    /* Fixed height, not min-height: a wrapping state line was measured pushing
-       the next slot's controls down, which is exactly the frame movement
-       ADR 0004 forbids. Clipped visually; the full text stays in the DOM for
-       assistive technology. */
-    .slot-state {
-      height: 1.15rem;
-      line-height: 1.15rem;
-      margin: 0;
-      font-size: 0.76rem;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .variant {
-      display: grid;
-      gap: 0.25rem;
-      margin-top: 0.35rem;
-    }
-
-    .variant label {
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.86rem;
-      color: #f4f8ff;
-      cursor: pointer;
-    }
-
-    /* ---- Run 5: derivation targets ------------------------------------
-       These custom properties are the ONLY presentational difference between
-       render targets. No component knows which target it is being rendered
-       into; the solver varies density and disclosure, CSS varies scale. */
-    .today[data-target="standard"]     { --d-scale: 1;    --d-lead: 1.5; }
-    .today[data-target="large-type"]   { --d-scale: 1.35; --d-lead: 1.7; }
-    .today[data-target="reader-first"] { --d-scale: 1;    --d-lead: 1.8; }
-
-    /* Fixed height, not min-height: the headline is derived and its length
-       varies per user, so clamping it is what keeps the action controls below
-       it from moving. This is ADR 0004 costing us content. */
-    .today-plan {
-      font-size: calc(1.02rem * var(--d-scale, 1));
-      line-height: var(--d-lead, 1.5);
-      height: calc(2 * var(--d-lead, 1.5) * 1.02rem * var(--d-scale, 1));
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-
-    .slot-region {
-      display: grid;
-      gap: 0.4rem;
-    }
-
-    .slot-region:empty { display: none; }
-
-    .derived {
-      margin: 0;
-      font-size: calc(0.88rem * var(--d-scale, 1));
-      line-height: var(--d-lead, 1.5);
-      color: #e7eefb;
-    }
-
-    .derived-notice {
-      border-left: 2px solid var(--accent);
-      padding-left: 0.55rem;
-    }
-
-    .derived-ask {
-      border: 1px dashed rgba(100, 212, 144, 0.65);
-      border-radius: 10px;
-      padding: 0.55rem;
-      display: grid;
-      gap: 0.45rem;
-    }
-
-    .derived-explain {
-      color: var(--muted);
-      font-size: calc(0.78rem * var(--d-scale, 1));
-    }
-
-    .btn-consequence {
-      border-color: rgba(233, 176, 106, 0.7);
-    }
-
-    .derived ul {
-      margin: 0.2rem 0 0;
-      font-size: calc(0.86rem * var(--d-scale, 1));
-    }
-
-    .prefs {
-      display: grid;
-      gap: 0.7rem;
-      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-    }
-
-    .pref {
-      display: grid;
-      gap: 0.25rem;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    @media (max-width: 620px) {
-      body {
-        padding: 1rem;
-      }
-
-      .panel {
-        padding: 0.85rem;
-      }
-
-      .today-plan {
-        font-size: 0.98rem;
-      }
+    @media print {
+      :root { color-scheme: light; --bg: #fff; --panel: #fff; --panel-soft: #f6f7f4; --text: #1a2116; --muted: #4d5747; --line: #d3dacd; --accent: #3f5b21; --accent-soft: #f0f4e9; }
+      body { background: #fff; color: var(--text); }
+      .app-shell { display: block; }
+      .page { display: block; padding: 0; max-width: none; }
+      .page > * { margin-bottom: 20px; }
+      .sidebar, .skip-link, .topbar, .dashboard-grid, .day-tabs, .section-actions, .week-toolbar, .motion-controls, .slot-group, .exercise-visual .btn, #setup, .hero-actions, .strength-card .btn { display: none !important; }
+      .hero { display: block; }
+      .hero h1 { font-size: 2rem; }
+      .goals { gap: 6px; }
+      .goal { padding: 10px; }
+      .goal-icon { display: none; }
+      .week-grid, .week-grid.all-days, .guide-grid { display: block; }
+      .day-card[hidden] { display: block !important; }
+      .day-card, .guide-card { margin-bottom: 14px; }
+      .slot, .exercise-card, .guide-card, .strength-card { break-inside: avoid; }
+      .day-card { border-color: var(--line); padding: 16px; }
+      .slot { background: #fff; }
+      .session-description, .item-text { color: var(--muted); }
+      .exercise-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .exercise-visual { background: #f1f4eb; color: #3f5b21; height: 110px; }
+      .exercise-visual .motion-part { animation: none !important; }
+      .guide-card summary { color: var(--text); }
+      .training-rule { color: var(--text); }
     }
   </style>
 </head>
 <body>
-  <main class="page">
-    <header class="panel hero">
-      <h1>Weekly Training Planner</h1>
-      <p>A minimalist weekly reference to keep daily decisions easy, training balanced, and strength progress consistent.</p>
-      <div class="hero-actions">
-        <p id="app-status" class="status" role="status"></p>
-        <button type="button" id="reset-progress" class="btn">Reset progress</button>
+  <a class="skip-link" href="#main-content">Skip to your plan</a>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Planner navigation">
+      <a class="brand" href="#main-content" aria-label="Athletic Week home">
+        <span class="brand-mark"><svg aria-hidden="true" viewBox="0 0 40 40" width="28" height="28"><path d="M7 30 18 9h4l11 21h-7l-6-13-6 13z" fill="currentColor"/></svg></span>
+        <span class="brand-name"><span>athletic</span><span>week.</span></span>
+      </a>
+      <nav class="sidebar-nav" aria-label="Main">
+        <a class="nav-link is-active" href="#weekly-plan"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M7 2v4m10-4v4M3 10h18m-13 4h2m4 0h2m-8 4h2"/></svg>Your week</a>
+        <a class="nav-link" href="#strength-plans"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8v8m4-10v12m10-12v12m4-10v8M7 12h10"/></svg>Strength plans</a>
+        <a class="nav-link" href="#training-guide"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v16M3 4c4-1 6 0 9 1 3-1 5-2 9-1v15c-4-1-6 0-9 1-3-1-5-2-9-1z"/></svg>Training guide</a>
+        <a class="nav-link" href="#setup"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3" fill="var(--bg)"/><circle cx="15" cy="17" r="3" fill="var(--bg)"/></svg>Your setup</a>
+      </nav>
+      <div class="sidebar-plan">
+        <p class="eyebrow">Your foundation</p>
+        <p>Three support-focused lifts.</p>
+        <p>One protected recovery day.</p>
+        <p>Room for the sports you love.</p>
       </div>
-    </header>
-
-    <section class="panel today" aria-labelledby="today-workout-heading" data-target="standard">
-      <div class="eyebrow">Daily focus</div>
-      <div class="today-title">
-        <h2 id="today-workout-heading">Today’s Workout</h2>
-        <span id="today-day-label" class="day-chip">Today</span>
+      <div class="sidebar-note">
+        <strong>Personal. Not connected.</strong>
+        <p>Your progress lives in this browser.<br>No account. No uploads.</p>
       </div>
-      <p id="today-plan" class="today-plan" aria-live="polite"></p>
-      <div id="today-actions" class="today-actions" role="group" aria-labelledby="today-actions-label today-day-label">
-        <span id="today-actions-label" class="sr-only">Sessions today</span>
-        <span id="today-actions-derived"></span>
+    </aside>
+    <main id="main-content" class="page">
+      <div class="topbar">
+        <p class="eyebrow">Personal training / weekly plan</p>
+        <div class="topbar-actions">
+          <span class="local-indicator">Stored on this device</span>
+          <button type="button" id="print-plan" class="btn btn-quiet"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 8V3h10v5M7 17H4V9h16v8h-3M7 14h10v7H7z"/></svg>Print plan</button>
+        </div>
       </div>
-      <div id="slot-notices" class="slot-region" data-slot="notices" aria-live="polite"></div>
-      <div id="slot-detail" class="slot-region" data-slot="detail"></div>
-      <div id="slot-secondary" class="slot-region" data-slot="secondary"></div>
-      <div id="slot-explain" class="slot-region" data-slot="explain"></div>
-    </section>
-
-    <section class="panel" aria-labelledby="setup-heading">
-      <div class="section-head">
-        <h2 id="setup-heading">Your setup</h2>
-        <p>Five independent settings. Each one stands alone — none of them conditions on another,
-           and there is no way to express “when this, then that”. That restriction is deliberate.</p>
+      <header class="hero">
+        <div>
+          <p class="eyebrow">A sustainable starting point</p>
+          <h1>Your athletic week.</h1>
+          <p>Build strength. Keep your sports. A balanced rhythm for lifting, endurance, skill and the recovery that makes it all possible.</p>
+        </div>
+        <div class="week-label"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M7 2v4m10-4v4M3 10h18"/></svg><span id="week-range"></span></div>
+      </header>
+      <p id="storage-alert" class="storage-alert" role="alert" hidden></p>
+      <div class="goals" aria-label="Training goals">
+        <div class="goal"><span class="goal-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 8v8m4-10v12m10-12v12m4-10v8M7 12h10"/></svg></span><div><strong>Strength &amp; muscle</strong><p>Three shorter lifts</p></div></div>
+        <div class="goal"><span class="goal-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m4 15 4-5 5 3 5-7m-4 0h4v4M4 20h16"/></svg></span><div><strong>Endurance base</strong><p>Two runs + one swim</p></div></div>
+        <div class="goal"><span class="goal-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="m9 15 6-6m-6 0h6v6"/></svg></span><div><strong>Athleticism</strong><p>Sport + quality power</p></div></div>
+        <div class="goal"><span class="goal-icon"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 17c0-6 12-6 12-12M6 17l-3-3m3 3 3-3m9-9-3 3m3-3 3 3M5 21h14"/></svg></span><div><strong>Mobility &amp; recovery</strong><p>Move well. Leave room.</p></div></div>
       </div>
-      <div id="prefs" class="prefs"></div>
-    </section>
-
-    <section class="panel" aria-labelledby="weekly-plan-heading">
-      <div class="section-head">
-        <h2 id="weekly-plan-heading">Weekly Schedule</h2>
-        <p>Morning and night sessions at a glance. Saturday alternates between Week A and Week B long-day options.</p>
+      <div class="dashboard-grid">
+        <section class="panel today" aria-labelledby="today-workout-heading" data-target="standard">
+          <p class="eyebrow">One session at a time</p>
+          <div class="today-title"><h2 id="today-workout-heading">Today’s focus</h2><span id="today-day-label" class="day-chip">Today</span></div>
+          <p id="today-plan" class="today-plan" aria-live="polite"></p>
+          <div id="today-actions" class="today-actions" role="group" aria-labelledby="today-actions-label today-day-label">
+            <span id="today-actions-label" class="sr-only">Sessions</span>
+            <span id="today-actions-derived"></span>
+          </div>
+          <div id="slot-notices" class="slot-region" data-slot="notices" aria-live="polite"></div>
+          <div id="slot-detail" class="slot-region" data-slot="detail"></div>
+          <div id="slot-secondary" class="slot-region" data-slot="secondary"></div>
+          <div id="slot-explain" class="slot-region" data-slot="explain"></div>
+        </section>
+        <section class="panel week-progress" aria-labelledby="progress-heading">
+          <p class="eyebrow">This week, not a streak</p>
+          <h2 id="progress-heading">Your training balance</h2>
+          <div class="progress-value"><strong id="completed-count">0</strong><span id="session-total">of 11 sessions logged</span></div>
+          <progress id="week-progress" value="0" max="11" aria-label="Sessions logged this week"></progress>
+          <div class="week-metrics">
+            <div><strong id="strength-count">3</strong><span>strength sessions</span></div>
+            <div><strong id="sport-count">5</strong><span>sport sessions</span></div>
+            <div><strong id="recovery-count">1</strong><span>recovery day</span></div>
+          </div>
+          <p id="balance-note" class="summary-note">A starting template, not a completion target. Shorten or skip a session when recovery asks for it. Tuesday is never a catch-up day.</p>
+        </section>
       </div>
-      <div class="week-grid">
-        <article class="day-card" data-day="Monday">
-          <h3>Monday</h3>
-          <div class="slot" data-slot="morning">
-            <div class="item-title">Morning</div>
-            <div class="item-text">Swim (1): 1,500–2,000m steady</div>
-          </div>
-          <div class="slot" data-slot="night">
-            <div class="item-title">Night</div>
-            <div class="item-text">Strength (1): 60-minute blueprint</div>
-          </div>
-          <div class="note">Functional compounds focus.</div>
-        </article>
-
-        <article class="day-card" data-day="Tuesday">
-          <h3>Tuesday</h3>
-          <div class="slot" data-slot="morning">
-            <div class="item-title">Morning</div>
-            <div class="item-text">Run (4 miles): conversational pace</div>
-          </div>
-          <div class="slot" data-slot="night">
-            <div class="item-title">Night</div>
-            <div class="item-text">Strength (2): 60-minute blueprint</div>
-          </div>
-          <div class="note">Focus on rhythmic breathing.</div>
-        </article>
-
-        <article class="day-card" data-day="Wednesday">
-          <h3>Wednesday</h3>
-          <div class="slot" data-slot="morning">
-            <div class="item-title">Morning</div>
-            <div class="item-text">Swim (2): technique + leg flush</div>
-          </div>
-          <div class="slot" data-slot="night">
-            <div class="item-title">Night</div>
-            <div class="item-text">Bouldering (1)</div>
-          </div>
-          <div class="note">Flush swim followed by technical climbing.</div>
-        </article>
-
-        <article class="day-card" data-day="Thursday">
-          <h3>Thursday</h3>
-          <div class="slot" data-slot="morning">
-            <div class="item-title">Morning</div>
-            <div class="item-text">Run (4 miles)</div>
-          </div>
-          <div class="slot" data-slot="night">
-            <div class="item-title">Night</div>
-            <div class="item-text">Tennis</div>
-          </div>
-          <div class="note">High ankle/calf load day — hydrate well.</div>
-        </article>
-
-        <article class="day-card" data-day="Friday">
-          <h3>Friday</h3>
-          <div class="slot" data-slot="morning">
-            <div class="item-title">Morning</div>
-            <div class="item-text">Golf (1): relaxed pace</div>
-          </div>
-          <div class="slot" data-slot="night">
-            <div class="item-title">Night</div>
-            <div class="item-text">Strength (3): 60-minute blueprint</div>
-          </div>
-          <div class="note">Final strength push for the week.</div>
-        </article>
-
-        <article class="day-card" data-day="Saturday">
-          <h3>Saturday</h3>
-          <div class="slot" data-slot="long">
-            <div class="item-title">Long Day (Alternate)</div>
-            <div class="item-text">Week A: 3-hour hike</div>
-          </div>
-          <div class="note">Build both time-on-feet endurance and impact tolerance.</div>
-        </article>
-
-        <article class="day-card" data-day="Sunday">
-          <h3>Sunday</h3>
-          <div class="slot" data-slot="morning">
-            <div class="item-title">Morning</div>
-            <div class="item-text">Golf (2): low intensity</div>
-          </div>
-          <div class="slot" data-slot="night">
-            <div class="item-title">Night</div>
-            <div class="item-text">Bouldering (2): technical movement focus</div>
-          </div>
-          <div class="note">Skill day with controlled effort.</div>
-        </article>
-      </div>
-    </section>
-
-    <section class="panel" aria-labelledby="strength-heading">
-      <div class="section-head">
-        <h2 id="strength-heading">60-Minute Strength Blueprint (Mon/Tue/Fri)</h2>
-        <p>Use this same structure for each strength session.</p>
-      </div>
-      <div class="split-grid">
-        <article class="step">
-          <h3>1) Mobility Primer (10 min)</h3>
-          <ul>
-            <li>World's Greatest Stretch — 5 reps/side</li>
-            <li>90/90 Hip Switches — 10 reps total</li>
-            <li>Single-Leg Deadlift (bodyweight) — 10 reps/side</li>
-          </ul>
-        </article>
-
-        <article class="step">
-          <h3>2) Functional Compounds (25 min)</h3>
-          <ul>
-            <li>Goblet Squats — 3×12</li>
-            <li>Romanian Deadlifts (RDLs) — 3×12</li>
-            <li>Renegade Rows — 3×10/side</li>
-          </ul>
-        </article>
-
-        <article class="step">
-          <h3>3) Stability &amp; Prehab Circuit (15 min)</h3>
-          <ul>
-            <li>Lateral Lunges — 2×12</li>
-            <li>Pallof Press — 2×12</li>
-            <li>Farmer's Carry — 3×45 sec</li>
-          </ul>
-        </article>
-
-        <article class="step">
-          <h3>4) Flexibility Cool-Down (10 min)</h3>
-          <ul>
-            <li>Couch Stretch — 1 min/side</li>
-            <li>Pigeon Pose — 1 min/side</li>
-          </ul>
-        </article>
-      </div>
-    </section>
-
-    <section class="panel" aria-labelledby="guidelines-heading">
-      <div class="section-head">
-        <h2 id="guidelines-heading">Guidelines for Sustainable Execution</h2>
-      </div>
-      <ul class="guidelines">
-        <li><strong>Easy Mandate:</strong> Keep morning runs/swims at recovery intensity (Zone 2) so evening sessions stay high quality.</li>
-        <li><strong>Saturday Pivot:</strong> Alternate long hike and long run to build endurance and running durability.</li>
-        <li><strong>Sleep Requirement:</strong> Prioritize 7–9 hours/night for adaptation and recovery.</li>
-        <li><strong>Listen to Discomfort:</strong> If ankle/shoulder tightness persists, replace a run with an easy swim or 30-minute foam rolling session.</li>
-      </ul>
-    </section>
-  </main>
+      <section id="weekly-plan" aria-labelledby="weekly-plan-heading">
+        <div class="section-head">
+          <div><h2 id="weekly-plan-heading">Your weekly rhythm</h2><p>Six active days. One day that stays yours.</p></div>
+          <div class="section-actions"><button type="button" id="go-today" class="btn btn-quiet">Today</button><button type="button" id="all-days" class="btn" aria-pressed="false">View full week</button></div>
+        </div>
+        <div class="week-toolbar">
+          <p>Choose a day to see its sessions and movement details.</p>
+          <label class="week-variant" for="week-mode">This week<select id="week-mode" class="field" data-capability="plan.select_week_variant"><option value="standard">Usual rhythm</option><option value="snowboard-day">Saturday snowboarding</option><option value="snowboard-weekend">Snowboarding weekend</option></select></label>
+        </div>
+        <div id="day-tabs" class="day-tabs" role="tablist" aria-label="Days of your training week"></div>
+        <div id="week-grid" class="week-grid"></div>
+      </section>
+      <section id="strength-plans" aria-labelledby="strength-heading">
+        <div class="section-head"><div><h2 id="strength-heading">Strength that supports your sport</h2><p>Familiar loads, clean reps, and energy left for everything else.</p></div><span class="day-chip">Lower / upper / full body</span></div>
+        <div class="strength-grid">
+          <article class="strength-card"><p class="eyebrow">Monday · 35–45 min</p><h3>Lower body</h3><p>Squat, leg curl, conservative calf work and a little fresh power.</p><button type="button" class="btn btn-quiet" data-workout-day="Monday" data-workout-slot="lower">View lower-body plan</button></article>
+          <article class="strength-card"><p class="eyebrow">Wednesday · 25–35 min</p><h3>Upper body</h3><p>Pressing and light accessories. Your climb already adds pulling load.</p><button type="button" class="btn btn-quiet" data-workout-day="Wednesday" data-workout-slot="upper">View upper-body plan</button></article>
+          <article class="strength-card"><p class="eyebrow">Thursday · 30–40 min</p><h3>Full body &amp; power</h3><p>Hinge, trunk and modest single-leg work. Leave 3–4 good reps in reserve.</p><button type="button" class="btn btn-quiet" data-workout-day="Thursday" data-workout-slot="full">View full-body plan</button></article>
+        </div>
+        <div id="motion-controls" class="motion-controls" role="group" aria-label="Movement illustrations">
+          <label for="motion-mode">Illustrations<select id="motion-mode" class="field"><option value="animated">Animated</option><option value="static">Static references</option></select></label>
+          <label for="motion-speed">Speed<select id="motion-speed" class="field"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option></select></label>
+          <button type="button" id="pause-motion" class="btn btn-quiet" aria-pressed="false">Pause all</button>
+          <p id="motion-status">Simplified reminders, not technique instruction.</p>
+        </div>
+      </section>
+      <section id="training-guide" aria-labelledby="guidelines-heading">
+        <div class="section-head"><div><h2 id="guidelines-heading">The long game</h2><p>Progression, recovery and the tradeoffs behind this week.</p></div><span class="day-count">Expand a guide</span></div>
+        <p class="training-rule">The lifting supports your activities. It should not compete with every one of them for maximum effort.</p>
+        <div class="guide-grid">
+          <details class="guide-card"><summary>Rebuild a repeatable running base</summary><ul>
+            <li><strong>Start:</strong> Monday 20–25 minutes; Saturday 30–40 minutes. Walk breaks count. Keep the effort conversational, around 3–4/10.</li>
+            <li>After at least <strong>two comfortable exposures</strong> to a duration with normal next-day function, consider adding five minutes to <strong>one run only</strong>. Hold other training increases steady.</li>
+            <li>Later possibilities: Monday 30–40 minutes and Saturday 60–75 minutes. Consider 75–90 minutes only after several stable weeks—not now.</li>
+            <li>Saturday depends on recovery from Friday volleyball and the demands of pickleball later that day. Shorten the run when needed.</li>
+            <li>Two weekly runs are <strong>not a promise of half-marathon readiness</strong>. A race-specific block may require a third short run and reducing another activity.</li>
+          </ul></details>
+          <details class="guide-card"><summary>Swim with breaks, not a distance test</summary><ul>
+            <li>Start with <strong>15–20 elapsed minutes</strong>, including rest: roughly 6–8 comfortable short lengths, usually 25 yards/meters each.</li>
+            <li>Rest 30–60 seconds or longer until breathing settles. If a length is not comfortable, choose a suitable supervised shorter-distance setting or a beginner lesson.</li>
+            <li>After two relaxed sessions at the same dose, add <strong>1–2 repeats or lengthen one repeat</strong>—not both while cutting rest.</li>
+            <li>Eventually, 20–30 easy minutes including breaks may fit. Swimming adds shoulder work; it is not automatically recovery between climbing and volleyball.</li>
+            <li>No paddles, sprint sets or breath-holding challenges.</li>
+          </ul></details>
+          <details class="guide-card"><summary>Strength progression without the extra fatigue</summary><ul>
+            <li>Use familiar loads and finish cleanly before failure. Start Monday squats with about <strong>three good reps left</strong>; keep Thursday at 3–4 reps in reserve.</li>
+            <li>Build clean reps within the range before increasing load. A third squat set is a later option only if the <strong>whole week</strong> remains sustainable.</li>
+            <li>Power work is brief, early and only when fresh. Reset fully between jumps. No bonus plyometric circuit or hard bike intervals are required.</li>
+            <li>Boulder first on Wednesday; separate lifting by several hours when practical. Pulldowns are only a substitute when the climb is canceled.</li>
+            <li>No routine heavy extra vertical pulling, curls, hangboarding or grip finishers. Mobility uses a controlled, comfortable range.</li>
+          </ul></details>
+          <details class="guide-card"><summary>Recovery is part of the schedule</summary><ul>
+            <li><strong>Tuesday is protected.</strong> No training is required. Optional gentle mobility is not a catch-up session.</li>
+            <li>Eleven sessions across six active days is a starting template—not a guarantee of recoverability. Separate double sessions by several hours when practical.</li>
+            <li>Wednesday-to-Thursday upper-body work and Thursday-to-Friday leg work are compromises. Shoulder, elbow, grip or leg fatigue is a reason to reduce work.</li>
+            <li>Prioritize 7–9 hours of sleep when possible. Reduce optional jumps and accessories before adding more work; do not force every box after an exhausting sport session.</li>
+            <li>Persistent pain or symptoms that affect normal movement need appropriate professional assessment, not an automatic exercise swap.</li>
+          </ul></details>
+          <details class="guide-card"><summary>Golf, volleyball &amp; pickleball</summary><ul>
+            <li><strong>Friday range:</strong> 30–40 minutes including a gentle warm-up, ideally several hours before beach volleyball. Roughly 30–40 balls or fewer—not a quota.</li>
+            <li>Start with wedges, use mostly controlled mid-irons, and add a few longer-club shots only while fresh. Pick one target or technique cue and reset between shots.</li>
+            <li>No extra golf-specific circuit or maximum-speed swing work. Shorten or skip the range for back, shoulder, elbow or wrist fatigue.</li>
+            <li><strong>Saturday pickleball:</strong> keep your usual moderate session, not an extra conditioning workout. Shorten the earlier run if Friday volleyball leaves residual fatigue.</li>
+            <li>Sunday bouldering includes a recovery check. Shorten the climb when needed.</li>
+          </ul></details>
+          <details class="guide-card"><summary>Winter rule: replace, don’t stack</summary><ul>
+            <li>Use the <strong>This week</strong> selector above. Saturday snowboarding replaces the longer run and pickleball. A full riding weekend replaces Sunday bouldering too.</li>
+            <li>Before a demanding trip, reduce Thursday lower-body volume and omit gym jumps. Shorten or skip Friday golf/volleyball for recovery or travel.</li>
+            <li>Monday afterward is a recovery decision—not an obligation to repay missed training. Two short lifts may fit a demanding riding week better than forcing three.</li>
+            <li>Optional preseason wall-sits can <strong>replace</strong> an accessory set, starting around 2 × 20–30 seconds. They are not bonus volume.</li>
+            <li>Frequent winter interruptions to the longer run mean reassessing the half-marathon goal, not claiming both schedules fit unchanged.</li>
+          </ul></details>
+        </div>
+      </section>
+      <section id="setup" class="panel" aria-labelledby="setup-heading">
+        <div class="section-head"><div><h2 id="setup-heading">Make the next session fit</h2><p>Independent settings for available facilities, time, experience and how you prefer to read. Joint flags are not a medical assessment.</p></div></div>
+        <div id="prefs" class="prefs"></div>
+      </section>
+      <details id="legacy-history" class="guide-card" hidden><summary>Notes &amp; progress from your earlier plan</summary><p>Kept separately because the schedule changed. Earlier completions do not mark this new week complete.</p><ul id="legacy-list" class="archive-list"></ul></details>
+      <footer class="footer">
+        <div class="hero-actions"><p id="app-status" class="status" role="status">Progress is saved locally and kept separately for each week.</p><button type="button" id="reset-progress" class="btn btn-quiet">Reset this week</button></div>
+        <p class="footer-note">A personal planning reference, not individualized medical or technique advice. Start with the listed doses, adjust to your actual recovery, and keep the easy sessions easy. This remains a dependency-free <a href="CAPABILITIES.md">Datux Labs prototype</a>.</p>
+      </footer>
+    </main>
+  </div>
 
   <script>
     /* =====================================================================
@@ -674,6 +536,7 @@
       'session.restore_planned':      { urn: 'urn:cap:session.restore_planned',      label: 'Restore the planned exercise',       reversible: true,  reverseOf: 'session.substitute_exercise', destructive: false, confirmed: false },
       'session.log_note':             { urn: 'urn:cap:session.log_note',             label: 'Log a note against a session',       reversible: true,  reverseOf: null,                        destructive: false, confirmed: false },
       'plan.select_long_day_variant': { urn: 'urn:cap:plan.select_long_day_variant', label: 'Select the long-day variant',        reversible: true,  reverseOf: null,                        destructive: false, confirmed: false },
+      'plan.select_week_variant':     { urn: 'urn:cap:plan.select_week_variant',     label: 'Select the seasonal week variant',  reversible: true,  reverseOf: null,                        destructive: false, confirmed: false },
       'plan.reset_progress':          { urn: 'urn:cap:plan.reset_progress',          label: 'Reset all logged progress',          reversible: false, reverseOf: null,                        destructive: true,  confirmed: true  },
       'preference.set':               { urn: 'urn:cap:preference.set',               label: 'Set a scalar preference',            reversible: true,  reverseOf: null,                        destructive: false, confirmed: false },
       /* Run 6's I3 flagged this as irreversible with no undo surface anywhere.
@@ -687,61 +550,261 @@
     };
 
     const SUBSTITUTIONS = [
-      'Easy swim (20–30 min)',
-      'Foam rolling (30 min)',
-      'Easy bike (30 min)',
+      'Shorter planned session (15 min)',
+      'Easy swim (15–20 min, with rests)',
+      'Gentle mobility (5–10 min)',
+      'Easy bike (15–20 min)',
       'Rest / full recovery'
     ];
 
-    const LONG_DAY_VARIANTS = { A: 'Week A: 3-hour hike', B: 'Week B: 8–10 mile run' };
-
-    const scheduleByDay = {
-      Sunday: 'Golf (2) in the morning, Bouldering (2) at night. Keep it low intensity and technical.',
-      Monday: 'Swim 1,500–2,000m steady in the morning, then Strength (1) with the 60-minute blueprint at night.',
-      Tuesday: 'Run 4 miles at conversational pace in the morning, then Strength (2) with the 60-minute blueprint at night.',
-      Wednesday: 'Technique/flush swim in the morning, then Bouldering (1) at night.',
-      Thursday: 'Run 4 miles in the morning, then Tennis at night. Hydrate and monitor calves/ankles.',
-      Friday: 'Relaxed Golf (1) in the morning, then Strength (3) with the 60-minute blueprint at night.',
-      Saturday: 'Long Day: alternate Week A (3-hour hike) and Week B (8–10 mile run).'
+    const WEEK_PLAN = {
+      Monday: {
+        overview: 'Lower + run',
+        note: 'Lift first. Separate the easy run by several hours when practical; shorten it if fatigue changes your stride.',
+        sessions: [
+          { id: 'lower', label: 'Lower-body strength', activity: 'Strength', kind: 'strength', minutes: 45, loads: ['ankle', 'knee'], routine: 'lower',
+            planned: 'Strength: lower body · 35–45 min', description: 'A squat-focused support session. Start with about three good reps left; calf work starts conservatively.',
+            guidance: ['Use progressive squat warm-up sets after five minutes of mobility.', 'A third squat set is a later option only if the whole week remains sustainable.'] },
+          { id: 'run', label: 'Short easy run / walk', activity: 'Run', kind: 'endurance', minutes: 25,
+            planned: 'Run / walk: 20–25 min · conversational',
+            description: 'Rebuild a repeatable base, not a pace record. Walk breaks count; aim for an easy 3–4/10 effort.',
+            guidance: ['Go shorter if needed. Keep the run easy after lifting.', 'After two comfortable exposures with normal next-day function, consider adding five minutes to one run only.'] }
+        ]
+      },
+      Tuesday: {
+        overview: 'Recovery',
+        note: 'Protected recovery. No training required, and no missed sessions to make up.',
+        sessions: []
+      },
+      Wednesday: {
+        overview: 'Climb + upper',
+        note: 'Boulder first for climbing quality. Separate lifting by several hours when practical, and do less after an exhausting climb.',
+        sessions: [
+          { id: 'climb', label: 'Bouldering', activity: 'Bouldering', kind: 'skill', minutes: null,
+            planned: 'Bouldering: your usual moderate session',
+            description: 'Skill practice with real grip and pulling load. Keep the session manageable enough to leave room for the week.',
+            guidance: ['Climbing is not an exact set-for-set replacement for gym pulling, but its fatigue still counts.', 'No extra hangboarding, grip finishers or heavy pulling are required.'] },
+          { id: 'upper', label: 'Upper-body strength', activity: 'Strength', kind: 'strength', minutes: 35, loads: ['shoulder'], routine: 'upper',
+            planned: 'Strength: upper body · 25–35 min',
+            description: 'Pressing, rotational core and four light accessory sets. Pulldowns are only for a day when bouldering is canceled.',
+            guidance: ['Boulder first; do not force the lift after an exhausting climb.', 'Skip routine extra vertical pulling, curls and grip work.'] }
+        ]
+      },
+      Thursday: {
+        overview: 'Full body + swim',
+        note: 'Keep the lift modest before Friday volleyball. Swimming also adds shoulder work; it is not automatically recovery.',
+        sessions: [
+          { id: 'full', label: 'Full-body strength & power', activity: 'Strength', kind: 'strength', minutes: 40, loads: ['shoulder', 'knee'], routine: 'full',
+            planned: 'Strength: full body & power · 30–40 min',
+            description: 'Hinge, trunk and single-leg work with familiar loads. Leave roughly 3–4 good reps in reserve and avoid chasing soreness.',
+            guidance: ['Start with one set each of overhead press, row and reverse lunge.', 'Reduce work for residual shoulder, elbow, grip or leg fatigue. Before a riding trip, reduce lower-body volume and omit jumps.'] },
+          { id: 'swim', label: 'Easy swimming', activity: 'Swim', kind: 'endurance', minutes: 20,
+            planned: 'Swim: 15–20 min elapsed · rests included',
+            description: 'Short, relaxed repeats—not a continuous-distance test. Start with 6–8 comfortable short lengths, usually 25 yards/meters each.',
+            guidance: ['Rest 30–60 seconds or longer until breathing settles. Choose a supervised shorter-distance setting or beginner lesson if needed.', 'After two relaxed sessions at the same dose, add 1–2 repeats or lengthen one repeat—not both while cutting rest.', 'No paddles, sprint sets or breath-holding challenges.'] }
+        ]
+      },
+      Friday: {
+        overview: 'Golf + volleyball',
+        note: 'Keep the range relaxed, ideally several hours before beach volleyball. Shorten or skip golf for upper-body or back fatigue.',
+        sessions: [
+          { id: 'golf', label: 'Golf range', activity: 'Golf', kind: 'skill', minutes: 40,
+            planned: 'Golf range: 30–40 min · warm-up included',
+            description: 'Roughly 30–40 balls or fewer, not a quota. Work on one target or technique cue; reset between shots.',
+            guidance: ['Start with wedges and mostly controlled mid-irons. Add a few longer-club shots only while fresh.', 'No maximum-speed swings or extra golf-specific lifting circuit. Shorten or skip for back, shoulder, elbow or wrist fatigue.'] },
+          { id: 'volleyball', label: 'Beach volleyball', activity: 'Volleyball', kind: 'skill', minutes: null,
+            planned: 'Beach volleyball: your usual moderate session',
+            description: 'Your regular sport session. Thursday leg and shoulder fatigue is a reason to reduce work, not push through every box.',
+            guidance: ['Warm up comfortably and account for the demands of Saturday running and pickleball.', 'Shorten or skip for recovery or travel before a demanding snowboarding trip.'] }
+        ]
+      },
+      Saturday: {
+        overview: 'Run + pickleball',
+        note: 'The longer run depends on recovery from Friday volleyball and the demands of pickleball later today. Shorten it when needed.',
+        sessions: [
+          { id: 'run', label: 'Longer easy run / walk', activity: 'Run', kind: 'endurance', minutes: 40,
+            planned: 'Run / walk: start at 30–40 min · easy effort',
+            description: 'Keep it conversational, with walk breaks as needed. The longer duration is a starting point, not an obligation.',
+            guidance: ['After two comfortable exposures with normal next-day function, add about five minutes to one run only. No mandatory weekly mileage increase.', 'Later targets of 60–75 minutes, and eventually 75–90, require several stable weeks. Two runs alone do not promise half-marathon readiness.'] },
+          { id: 'pickleball', label: 'Pickleball', activity: 'Pickleball', kind: 'skill', minutes: null,
+            planned: 'Pickleball: your usual moderate session',
+            description: 'Keep your Saturday court time. It counts toward the week’s workload—it is not a bonus conditioning session.',
+            guidance: ['Leave time between the run and court session when practical.', 'Reduce the earlier run or shorten play if Friday volleyball leaves residual fatigue. A riding day replaces both Saturday sessions.'] }
+        ]
+      },
+      Sunday: {
+        overview: 'Climb + reset',
+        note: 'Bouldering plus a recovery check. Shorten the climb when needed; Monday afterward is a recovery decision, not a debt.',
+        sessions: [
+          { id: 'climb', label: 'Bouldering', activity: 'Bouldering', kind: 'skill', minutes: null,
+            planned: 'Bouldering: moderate session + recovery check',
+            description: 'A second skill-focused climb, adjusted to how your shoulders, elbows, grip and legs actually feel.',
+            guidance: ['Shorten the session when needed. Assess recovery before the next week instead of repaying missed work.', 'A full snowboarding weekend replaces this climb.'] }
+        ]
+      }
     };
 
-    const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const todayName = weekdayNames[new Date().getDay()];
-
-    /* --- 2. Persistence -------------------------------------------------- */
-    const STORAGE_KEY = 'pt.l2.state.v1';
-    const ACTOR_KEY = 'pt.l2.actor';
-
-    function defaultState() {
-      return { version: 1, longDayVariant: 'A', slots: {} };
+    const RIDING_SESSION = {
+      id: 'ride', label: 'Snowboarding', activity: 'Snowboarding', kind: 'skill', minutes: null,
+      planned: 'Snowboarding: riding day · replaces regular sessions',
+      description: 'Replace, don’t stack. Riding replaces Saturday’s run and pickleball; a full weekend also replaces Sunday bouldering.',
+      guidance: ['Reduce Thursday lower-body volume and omit gym jumps before a demanding trip.', 'Shorten or skip Friday golf/volleyball for recovery or travel. Monday afterward is a recovery decision.', 'Repeated winter interruptions to longer runs mean reassessing the half-marathon goal.']
+    };
+    const WEEK_VARIANTS = ['standard', 'snowboard-day', 'snowboard-weekend'];
+    const STRENGTH_WORKOUTS = {
+      lower: [
+        { name: 'Dynamic mobility prep', dose: '5 min + squat warm-up sets', rest: 'Move comfortably', cue: 'Controlled range, then progressively heavier warm-up sets.', movement: 'mobility' },
+        { name: 'Box jump', dose: '2 × 3', rest: '45–90 sec; full reset', cue: 'Use a manageable box and step down. Stop as quality drops.', condition: 'Only when fresh', movement: 'jump' },
+        { name: 'Back squat or front squat', dose: '2 × 5–8', rest: '2–3 min', cue: 'Use familiar loads. Start with about three good reps left.', movement: 'squat' },
+        { name: 'Seated or lying leg curl', dose: '2 × 8–12', rest: '60–90 sec', cue: 'Keep the movement controlled; no need to chase heavier low reps.', movement: 'curl' },
+        { name: 'Supported calf raise', dose: '2 × 10–15', rest: '45–60 sec', cue: 'Start conservatively, typically bodyweight, with support for balance.', movement: 'calf' },
+        { name: 'Lower-body mobility', dose: '3–5 min', rest: 'Unhurried', cue: 'Use comfortable hip and ankle ranges. Never force painful stretches.', movement: 'mobility' }
+      ],
+      upper: [
+        { name: 'Cable rotation / chop', dose: '2 × 8 per side', rest: '45–60 sec', cue: 'A controlled trunk movement with a light, manageable load.', movement: 'rotation' },
+        { name: 'Bench or dumbbell bench press', dose: '2 × 5–8', rest: '2–3 min', cue: 'Leave good reps in reserve. Reduce work after a tiring climb.', movement: 'push' },
+        { name: 'Lat pulldown', dose: '2 × 6–10', rest: '90–120 sec', cue: 'A replacement for the canceled climb—not extra pulling afterward.', condition: 'Only if bouldering is canceled', movement: 'pull' },
+        { name: 'Lateral raise', dose: '1 × 12–15', rest: '45–60 sec', cue: 'Light, controlled reps in a comfortable shoulder range.', movement: 'raise' },
+        { name: 'Triceps pressdown', dose: '1 × 10–15', rest: '45–60 sec', cue: 'Keep this a light accessory, not a second main lift.', movement: 'pull' },
+        { name: 'Light band external rotation', dose: '2 × 12–15', rest: '45–60 sec', cue: 'Very light resistance and a comfortable, controlled range.', movement: 'rotation' }
+      ],
+      full: [
+        { name: 'Broad jump or box jump', dose: 'Optional 1–2 × 3', rest: '60–90 sec; full reset', cue: 'Brief quality power work, not conditioning. Omit before a riding trip.', condition: 'Only when fresh', movement: 'jump' },
+        { name: 'Dead bug', dose: '2 × 6–8 per side', rest: '45–60 sec', cue: 'Slow alternating limbs; choose a range you can control.', movement: 'core' },
+        { name: 'Romanian deadlift', dose: '2 × 6–8', rest: '2–3 min', cue: 'Familiar loads and 3–4 good reps left. Do not chase soreness.', movement: 'hinge' },
+        { name: 'Dumbbell overhead press', dose: '1–2 × 6–10', rest: '90–120 sec', cue: 'Start with one set and account for climbing and volleyball fatigue.', movement: 'press' },
+        { name: 'Chest-supported row', dose: '1–2 × 8–12', rest: '90–120 sec', cue: 'Start with one set. Support the torso and keep pulling modest.', movement: 'row' },
+        { name: 'Reverse lunge', dose: '1–2 × 6–8 per leg', rest: '60–90 sec', cue: 'Start with one set; leave energy for Friday volleyball.', movement: 'lunge' }
+      ]
+    };
+    const ICON_PATHS = {
+      Strength: '<path d="M3 8v8m4-10v12m10-12v12m4-10v8M7 12h10"/>',
+      Run: '<circle cx="15" cy="4" r="2"/><path d="m13 8-4 4 4 3-4 6m4-13 3 4h4M9 12H4m9 3 4 5"/>',
+      Swim: '<path d="m8 8 4-3 5 4m-5-4-3-2M2 15c2-2 3 2 5 0s3 2 5 0 3 2 5 0 3 2 5 0M2 20c2-2 3 2 5 0s3 2 5 0 3 2 5 0 3 2 5 0"/><circle cx="19" cy="6" r="2"/>',
+      Bouldering: '<path d="m2 21 7-17 5 7 3-5 5 15zM8 10l4 2m2 4 3-2"/><circle cx="12" cy="7" r="1.5"/>',
+      Golf: '<path d="M7 20V3l11 4-11 4M3 21h12"/><circle cx="19" cy="19" r="2"/>',
+      Volleyball: '<circle cx="12" cy="12" r="9"/><path d="M12 3v8l7 6M12 11l-9 2m9-2 7-5m-7 5-2 10"/>',
+      Pickleball: '<rect x="8" y="2" width="11" height="13" rx="5" transform="rotate(25 13 9)"/><path d="m10 14-4 7m7-14 2 1m-4 2 2 1"/><circle cx="20" cy="19" r="2"/>',
+      Snowboarding: '<path d="M3 20c4 3 13 3 18-1M8 17l3-4 5 4m-5-4 2-6 4 4m-4-4-5 2"/><circle cx="15" cy="3" r="2"/>',
+      Recovery: '<path d="M19 4C8 4 4 8 5 15c7 3 14-2 14-11ZM5 20l9-10"/>'
+    };
+    function activityIcon(activity) {
+      return '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">' + ICON_PATHS[activity] + '</svg>';
     }
 
-    function loadState() {
+    const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const now = new Date();
+    const todayName = weekdayNames[now.getDay()];
+    const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12);
+    weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
+    const weekKey = weekStart.getFullYear() + '-' + String(weekStart.getMonth() + 1).padStart(2, '0') + '-' + String(weekStart.getDate()).padStart(2, '0');
+    let selectedDay = todayName;
+    let showAllDays = false;
+
+    /* --- 2. Persistence -------------------------------------------------- */
+    const STORAGE_KEY = 'pt.athletic.state.v2';
+    const LEGACY_STORAGE_KEY = 'pt.l2.state.v1';
+    const ACTOR_KEY = 'pt.l2.actor';
+    let storageWarning = '';
+
+    function reportStorageError(err, operation) {
+      console.error('[planner storage] ' + operation, err);
+      storageWarning = 'Browser storage could not ' + operation + '. Unsaved changes remain in this tab only. Check browser storage permissions before closing.';
+      const alert = document.getElementById('storage-alert');
+      alert.textContent = storageWarning;
+      alert.hidden = false;
+    }
+
+    function readStoredObject(key, fallback) {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return defaultState();
-        const parsed = JSON.parse(raw);
-        if (!parsed || parsed.version !== 1) return defaultState();
-        return Object.assign(defaultState(), parsed);
+        const raw = localStorage.getItem(key);
+        if (raw === null) return fallback;
+        const value = JSON.parse(raw);
+        if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid stored object: ' + key);
+        return value;
       } catch (err) {
-        return defaultState();
+        reportStorageError(err, 'read saved data');
+        return fallback;
       }
     }
 
-    function saveState() {
+    function writeStoredObject(key, value) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        localStorage.setItem(key, JSON.stringify(value));
         return true;
       } catch (err) {
+        reportStorageError(err, 'save changes');
         return false;
       }
     }
 
+    function defaultState() {
+      return { version: 2, weeks: {}, legacySlots: {} };
+    }
+
+    function loadState() {
+      const parsed = readStoredObject(STORAGE_KEY, null);
+      if (parsed) {
+        if (parsed.version === 2 && parsed.weeks && typeof parsed.weeks === 'object' && !Array.isArray(parsed.weeks)) {
+          return Object.assign(defaultState(), parsed);
+        }
+        reportStorageError(new Error('Unsupported planner state'), 'read saved progress');
+      }
+      const next = defaultState();
+      const legacy = readStoredObject(LEGACY_STORAGE_KEY, null);
+      if (legacy && legacy.version === 1 && legacy.slots && typeof legacy.slots === 'object') next.legacySlots = legacy.slots;
+      return next;
+    }
+
+    function saveState() {
+      return writeStoredObject(STORAGE_KEY, state);
+    }
+
     let state = loadState();
 
+    function weekState() {
+      if (!state.weeks[weekKey]) state.weeks[weekKey] = { mode: 'standard', slots: {} };
+      let week = state.weeks[weekKey];
+      if (typeof week !== 'object' || Array.isArray(week)) {
+        reportStorageError(new Error('Invalid saved week'), 'read this week’s progress');
+        week = { mode: 'standard', slots: {} };
+        state.weeks[weekKey] = week;
+      }
+      if (!week.slots || typeof week.slots !== 'object' || Array.isArray(week.slots)) {
+        reportStorageError(new Error('Invalid saved week'), 'read this week’s progress');
+        week.slots = {};
+      }
+      if (!WEEK_VARIANTS.includes(week.mode)) {
+        reportStorageError(new Error('Invalid saved week variant'), 'read this week’s variant');
+        week.mode = 'standard';
+      }
+      return week;
+    }
+
     function slotState(key) {
-      if (!state.slots[key]) state.slots[key] = { complete: false, substitution: '', note: '' };
-      return state.slots[key];
+      const slots = weekState().slots;
+      if (!slots[key]) slots[key] = { complete: false, substitution: '', note: '' };
+      const slot = slots[key];
+      if (!slot || typeof slot.complete !== 'boolean' || typeof slot.substitution !== 'string' || typeof slot.note !== 'string') {
+        reportStorageError(new Error('Invalid saved session: ' + key), 'read a saved session');
+        slots[key] = { complete: false, substitution: '', note: '' };
+      }
+      if (slots[key].substitution && !SUBSTITUTIONS.includes(slots[key].substitution)) {
+        reportStorageError(new Error('Unknown saved substitution'), 'read a saved swap');
+        slots[key].substitution = '';
+      }
+      return slots[key];
+    }
+
+    function sessionsForDay(day) {
+      const mode = weekState().mode;
+      if (day === 'Saturday' && mode !== 'standard') return [RIDING_SESSION];
+      if (day === 'Sunday' && mode === 'snowboard-weekend') return [RIDING_SESSION];
+      return WEEK_PLAN[day].sessions;
+    }
+
+    function scopedKey(key) {
+      return weekKey + '|' + key;
     }
 
     /* --- 3. Attempt emitter ----------------------------------------------
@@ -866,7 +929,9 @@
           modality: lastModality,
           ms_into_session: Date.now() - sessionStart,
           policy: POLICY,
-          viewing_weekday: todayName
+          viewing_weekday: selectedDay,
+          week: weekKey,
+          week_variant: weekState().mode
         },
         detail: detail,
         /* Outcome is normally DERIVED downstream (instrumentation.md §4).
@@ -903,7 +968,7 @@
       return span;
     }
 
-    function buildSlot(day, dayKey, headingId, slotEl) {
+    function buildSlot(day, dayKey, headingId, slotEl, session) {
       const slotId = slotEl.dataset.slot;
       const base = 's-' + dayKey + '-' + slotId;
       const key = dayKey + '.' + slotId;
@@ -935,7 +1000,7 @@
       done.type = 'button';
       done.id = base + '-done';
       done.className = 'btn';
-      done.textContent = 'Done';
+      done.textContent = 'Mark done';
       done.setAttribute('aria-pressed', 'false');
       done.setAttribute('aria-labelledby', done.id + nameRefs);
       done.setAttribute('aria-describedby', stateLine.id);
@@ -955,7 +1020,8 @@
       note.type = 'text';
       note.id = base + '-note';
       note.className = 'field grow';
-      note.placeholder = 'What you actually did';
+      note.placeholder = 'How it felt, changes, or what you did';
+      note.maxLength = 1000;
       note.setAttribute('aria-labelledby', noteLabel.id + nameRefs);
       note.dataset.capability = 'session.log_note';
 
@@ -969,29 +1035,53 @@
 
       rowOne.append(done, swapLabel, swap);
       rowTwo.append(noteLabel, note, log);
-      group.append(rowOne, rowTwo, stateLine);
+      const notePanel = document.createElement('details');
+      notePanel.className = 'note-log';
+      const noteSummary = document.createElement('summary');
+      noteSummary.textContent = 'Add a session note';
+      notePanel.append(noteSummary, rowTwo);
+      group.append(rowOne, stateLine, notePanel);
       slotEl.append(group);
 
       function plannedText() {
-        if (dayKey === 'saturday' && slotId === 'long') return LONG_DAY_VARIANTS[state.longDayVariant];
-        return text.dataset.planned;
+        return session.planned;
       }
 
       text.dataset.planned = text.textContent.trim();
+      let initialized = false;
 
       function refresh() {
         const current = slotState(key);
-        text.textContent = plannedText();
+        text.textContent = current.substitution ? 'Swapped to: ' + current.substitution : plannedText();
+        done.textContent = current.complete ? 'Completed' : 'Mark done';
         done.setAttribute('aria-pressed', current.complete ? 'true' : 'false');
+        const options = substitutionsFor(session, swapPreferences());
+        if (current.substitution && !options.includes(current.substitution)) options.push(current.substitution);
+        const signature = options.join('|');
+        if (swap.dataset.options !== signature) {
+          swap.textContent = '';
+          swap.add(new Option('Keep as planned', ''));
+          options.forEach(function (option) { swap.add(new Option(option, option)); });
+          swap.dataset.options = signature;
+        }
         swap.value = current.substitution;
         if (document.activeElement !== note) note.value = current.note;
         slotEl.classList.toggle('is-complete', current.complete);
         slotEl.classList.toggle('is-substituted', Boolean(current.substitution));
+        slotEl.querySelector('.session-description').textContent = !current.substitution ? session.description
+          : current.substitution === 'Shorter planned session (15 min)'
+            ? 'A shorter version, not the full prescription squeezed into less time. Reduce sets or omit optional work, keep the effort manageable, and stop within 15 minutes.'
+            : 'Your chosen alternative replaces this session. Restore the planned session to see its original guidance and movement details.';
 
         const parts = [current.complete ? 'Complete' : 'Not logged'];
-        if (current.substitution) parts.push('swapped to ' + current.substitution);
+        if (current.substitution) parts.push('session swapped');
         if (current.note) parts.push('note saved');
         stateLine.textContent = parts.join(' · ');
+        noteSummary.textContent = current.note ? 'View / edit session note' : 'Add a session note';
+        if (!initialized) notePanel.open = Boolean(current.note);
+        initialized = true;
+        const movementPlan = slotEl.querySelector('.session-detail');
+        if (movementPlan) movementPlan.hidden = Boolean(current.substitution);
       }
 
       refreshers.push(refresh);
@@ -999,38 +1089,48 @@
       function toggleComplete(control) {
         const current = slotState(key);
         const nextComplete = !current.complete;
+        const surface = window.__datuxSurface;
+        const applied = nextComplete && control.closest('.today') && surface && surface.facts.primary
+          && surface.facts.primary.key === key && surface.facts.primary.adaptedTo;
+        if (applied) current.substitution = applied;
         current.complete = nextComplete;
         const saved = saveState();
-        refreshAll();
         emitAttempt(
           control,
           nextComplete ? 'session.complete' : 'session.reopen',
-          { day: day, slot: slotId, activity: current.substitution || plannedText() },
+          { day: day, slot: slotId, planned: plannedText(), activity: current.substitution || plannedText(), applied_adaptation: applied || null },
           saved ? 'completed' : 'abandoned',
           saved ? 0.95 : 0.5
         );
-        announce(slotLabel + (nextComplete ? ' marked complete.' : ' reopened.'));
+        refreshAll();
+        announce(saved ? slotLabel + (nextComplete ? ' marked complete.' : ' reopened.') : 'Could not save this completion. It is only changed in this tab.');
       }
 
       done.addEventListener('click', function () { toggleComplete(done); });
 
-      swap.addEventListener('change', function () {
+      function substitute(control, chosen) {
         const current = slotState(key);
-        const chosen = swap.value;
+        if (chosen && !substitutionsFor(session, swapPreferences()).includes(chosen) && chosen !== current.substitution) {
+          console.error('[planner] Unavailable substitution', chosen, key);
+          announce('That swap is not available for this session and setup.');
+          return false;
+        }
         current.substitution = chosen;
         const saved = saveState();
-        refreshAll();
         emitAttempt(
-          swap,
+          control,
           chosen ? 'session.substitute_exercise' : 'session.restore_planned',
           { day: day, slot: slotId, planned: plannedText(), substituted_with: chosen || null },
           saved ? 'completed' : 'abandoned',
           saved ? 0.95 : 0.5
         );
-        announce(chosen
+        refreshAll();
+        announce(saved ? (chosen
           ? slotLabel + ' swapped to ' + chosen + '.'
-          : slotLabel + ' restored to the planned session.');
-      });
+          : slotLabel + ' restored to the planned session.') : 'Could not save this swap. It is only changed in this tab.');
+        return saved;
+      }
+      swap.addEventListener('change', function () { substitute(swap, swap.value); });
 
       function commitNote() {
         const current = slotState(key);
@@ -1048,7 +1148,9 @@
           changed && saved ? 'completed' : 'abandoned',
           changed ? 0.9 : 0.4
         );
-        if (!changed) {
+        if (!saved) {
+          announce('Could not save the note. Keep this tab open to retain it.');
+        } else if (!changed) {
           announce('No change to the note for ' + slotLabel + '.');
         } else if (next) {
           announce('Note saved for ' + slotLabel + '.');
@@ -1065,78 +1167,370 @@
         }
       });
 
-      return { key: key, slotId: slotId, label: title.textContent.trim(), toggleComplete: toggleComplete, group: group };
-    }
-
-    function buildLongDayVariant(headingId, slotEl, slotApi) {
-      const groupLabel = makeSrLabel('s-saturday-variant-label', 'Long day option');
-      const radioGroup = document.createElement('div');
-      radioGroup.className = 'variant';
-      radioGroup.setAttribute('role', 'radiogroup');
-      radioGroup.setAttribute('aria-labelledby', groupLabel.id + ' ' + headingId);
-      radioGroup.append(groupLabel);
-
-      const inputs = [];
-      Object.keys(LONG_DAY_VARIANTS).forEach(function (variantKey) {
-        const inputId = 's-saturday-variant-' + variantKey.toLowerCase();
-        const label = document.createElement('label');
-        label.setAttribute('for', inputId);
-        const input = document.createElement('input');
-        input.type = 'radio';
-        input.name = 'saturday-long-variant';
-        input.id = inputId;
-        input.value = variantKey;
-        input.dataset.capability = 'plan.select_long_day_variant';
-        const caption = document.createElement('span');
-        caption.textContent = LONG_DAY_VARIANTS[variantKey];
-        label.append(input, caption);
-        radioGroup.append(label);
-        inputs.push(input);
-
-        input.addEventListener('change', function () {
-          if (!input.checked) return;
-          state.longDayVariant = variantKey;
-          const saved = saveState();
-          refreshAll();
-          emitAttempt(
-            input,
-            'plan.select_long_day_variant',
-            { day: 'Saturday', slot: 'long', variant: variantKey, activity: LONG_DAY_VARIANTS[variantKey] },
-            saved ? 'completed' : 'abandoned',
-            saved ? 0.95 : 0.5
-          );
-          announce('Saturday long day set to ' + LONG_DAY_VARIANTS[variantKey] + '.');
-        });
-      });
-
-      slotEl.insertBefore(radioGroup, slotApi.group);
-      refreshers.push(function () {
-        inputs.forEach(function (input) { input.checked = input.value === state.longDayVariant; });
-      });
+      return { key: key, slotId: slotId, label: title.textContent.trim(), session: session, plannedText: plannedText, toggleComplete: toggleComplete, substitute: substitute, group: group };
     }
 
     const slotIndex = {};
+    const weekGrid = document.getElementById('week-grid');
+    const dayTabs = document.getElementById('day-tabs');
+    const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+    const motionDefaults = { mode: 'animated', speed: '1', paused: false };
+    const storedMotion = readStoredObject('pt.athletic.motion.v1', motionDefaults);
+    const motionUI = {
+      mode: ['animated', 'static'].includes(storedMotion.mode) ? storedMotion.mode : 'animated',
+      speed: ['0.75', '1', '1.5'].includes(storedMotion.speed) ? storedMotion.speed : '1',
+      paused: storedMotion.paused === true
+    };
+    let isPrinting = false;
+    const movementFigures = [];
+    const motionObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) { entry.target.dataset.visible = String(entry.isIntersecting); });
+      updateMotion();
+    });
 
-    document.querySelectorAll('.day-card[data-day]').forEach(function (card) {
-      const day = card.dataset.day;
+    function movementSvg(movement) {
+      const poses = {
+        mobility: '<circle cx="72" cy="25" r="7"/><path d="m72 34-8 27 23 12 20-1M64 61l-20 25H24m47-46-21 7-15-9m36 3 15-8 14 8"/>',
+        jump: '<circle cx="73" cy="23" r="7"/><path d="m73 32-7 26-18 25 22 3m-4-28 25 12 14 13m-36-43-21 9-12-12m34 1 20-12"/>',
+        squat: '<circle cx="75" cy="23" r="7"/><path d="m75 32-8 23 27 14-21 20H55m12-34-20 14 12 20H42m32-49H46m28 0h27"/><path d="M39 34v13m7-16v19m55-19v19m7-16v13M46 40h55"/>',
+        curl: '<circle cx="61" cy="23" r="7"/><path d="m61 32-6 30h33l16 21m-48-38 19 8m-20 9v26M43 65h48M43 65v28m48-28v28"/>',
+        calf: '<circle cx="74" cy="20" r="7"/><path d="M74 29v28l-8 31h13m-5-31 14 31h13M74 37l22 6 9-12m-31 6L57 51M110 18v77"/>',
+        rotation: '<circle cx="71" cy="21" r="7"/><path d="m71 30-3 31-14 29m14-29 17 29m-15-51 22 8 15-13m-37 5 14 4 20-15M111 20v74M106 32l8-5"/>',
+        push: '<circle cx="38" cy="56" r="7"/><path d="m47 59 43 3 11 25m-32-28 3-24 19-5M27 72h72m-65 0v20m57-20v20"/><path d="M82 22v14m6-18v22m6-18v22m6-18v14M88 29h6"/>',
+        pull: '<circle cx="71" cy="42" r="7"/><path d="M71 51v24l24 3 7 13m-31-16-18 3-7 13m25-31-19-12-8-22m27 34 19-12 8-22M36 18h72M36 18v74M59 77h25"/>',
+        raise: '<circle cx="72" cy="22" r="7"/><path d="M72 31v30l-12 28m12-28 12 28M72 41l-29 6m29-6 29 6"/><path d="M36 40v13m7-16v19m58-19v19m7-16v13"/>',
+        core: '<circle cx="43" cy="75" r="7"/><path d="m51 77 40-4 14-22 18 10M70 74l-7-34m22 34-4-32 21-12M70 74l-22-26"/>',
+        hinge: '<circle cx="98" cy="37" r="7"/><path d="m90 40-29 15 8 25-9 11m1-36-18 23 2 13m34-46-3 31m8-34 10 26"/><path d="M69 72v12m-5-6h18m7-15v12m-5-6h18"/>',
+        press: '<circle cx="72" cy="40" r="7"/><path d="M72 49v24l-14 18m14-18 14 18M72 57 52 43V24m20 33 20-14V24"/><path d="M43 18h18m-15-5v10m12-10v10m25-5h18m-15-5v10m12-10v10"/>',
+        row: '<circle cx="95" cy="36" r="7"/><path d="m88 40-32 14-19 33m20-33 20 32m2-43 6 25m-22-20-7 22M43 57l48-15M50 60v30"/><path d="M49 70h14m15 0h14"/>',
+        lunge: '<circle cx="72" cy="21" r="7"/><path d="M72 30v27l-24 12v21H34m38-33 24 20 7 13h14M72 40l-17 13m17-13 14 13"/>'
+      };
+      return '<svg aria-hidden="true" viewBox="0 0 150 110" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 96h114" opacity=".2"/><g class="motion-part">' + poses[movement] + '</g></svg>';
+    }
+
+    function updateMotion() {
+      const staticMode = motionUI.mode === 'static' || motionPreference.matches || isPrinting;
+      document.documentElement.style.setProperty('--motion-speed', motionUI.speed);
+      movementFigures.forEach(function (figure) {
+        figure.classList.toggle('is-static', staticMode);
+        figure.classList.toggle('is-paused', motionUI.paused || figure.dataset.paused === 'true' || figure.dataset.visible !== 'true' || document.hidden);
+        const button = figure.querySelector('button');
+        const paused = figure.dataset.paused === 'true';
+        button.disabled = staticMode || motionUI.paused;
+        button.title = motionUI.paused ? 'Use Resume all in the illustration controls to resume global playback.' : '';
+        button.textContent = paused ? 'Play' : 'Pause';
+        button.setAttribute('aria-pressed', String(paused));
+        button.setAttribute('aria-label', (paused ? 'Play' : 'Pause') + ' illustration for ' + figure.dataset.exercise);
+      });
+      const pause = document.getElementById('pause-motion');
+      pause.disabled = staticMode;
+      pause.textContent = motionUI.paused ? 'Resume all' : 'Pause all';
+      pause.setAttribute('aria-pressed', String(motionUI.paused));
+      document.getElementById('motion-speed').disabled = staticMode;
+      document.getElementById('motion-status').textContent = motionPreference.matches
+        ? 'Reduced motion is on. Showing static references.'
+        : 'Simplified reminders, not technique instruction. Off-screen motion pauses automatically.';
+    }
+
+    function buildExercise(exercise, id) {
+      const card = document.createElement('article');
+      card.className = 'exercise-card';
+      const visual = document.createElement('div');
+      visual.className = 'exercise-visual movement is-paused';
+      visual.dataset.movement = exercise.movement;
+      visual.dataset.exercise = exercise.name;
+      visual.dataset.visible = 'false';
+      visual.dataset.paused = 'false';
+      visual.innerHTML = movementSvg(exercise.movement);
+      const pause = document.createElement('button');
+      pause.type = 'button';
+      pause.id = id + '-motion';
+      pause.className = 'btn btn-quiet';
+      pause.textContent = 'Pause';
+      pause.setAttribute('aria-label', 'Pause illustration for ' + exercise.name);
+      pause.setAttribute('aria-pressed', 'false');
+      pause.addEventListener('click', function () {
+        visual.dataset.paused = String(visual.dataset.paused !== 'true');
+        updateMotion();
+      });
+      visual.append(pause);
+      movementFigures.push(visual);
+      motionObserver.observe(visual);
+      const copy = document.createElement('div');
+      copy.className = 'exercise-copy';
+      const heading = document.createElement('h4');
+      heading.textContent = exercise.name;
+      const dose = document.createElement('p');
+      dose.className = 'exercise-dose';
+      dose.textContent = exercise.dose;
+      const rest = document.createElement('p');
+      rest.className = 'exercise-rest';
+      rest.textContent = 'Suggested rest: ' + exercise.rest;
+      const cue = document.createElement('p');
+      cue.className = 'exercise-cue';
+      cue.textContent = exercise.cue;
+      copy.append(heading, dose, rest, cue);
+      if (exercise.condition) {
+        const condition = document.createElement('p');
+        condition.className = 'exercise-conditional';
+        condition.textContent = exercise.condition;
+        copy.append(condition);
+      }
+      card.append(visual, copy);
+      return card;
+    }
+
+    Object.keys(WEEK_PLAN).forEach(function (day, index) {
       const dayKey = day.toLowerCase();
-      const heading = card.querySelector('h3');
+      const date = new Date(weekStart);
+      date.setDate(date.getDate() + index);
+      const tab = document.createElement('button');
+      tab.type = 'button';
+      tab.id = 'tab-' + dayKey;
+      tab.className = 'day-tab';
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('aria-controls', 'day-' + dayKey);
+      tab.setAttribute('aria-label', day + ', ' + date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }));
+      tab.dataset.day = day;
+      [['tab-day', day.slice(0, 3)], ['tab-date', String(date.getDate())], ['tab-activity', WEEK_PLAN[day].overview], ['tab-state', '']]
+        .forEach(function (part) {
+          const span = document.createElement('span');
+          span.className = part[0];
+          span.textContent = part[1];
+          tab.append(span);
+        });
+      tab.addEventListener('click', function () { selectDay(day); });
+      tab.addEventListener('keydown', function (event) {
+        const days = Object.keys(WEEK_PLAN);
+        let next = null;
+        if (event.key === 'ArrowRight') next = (index + 1) % days.length;
+        if (event.key === 'ArrowLeft') next = (index + days.length - 1) % days.length;
+        if (event.key === 'Home') next = 0;
+        if (event.key === 'End') next = days.length - 1;
+        if (next !== null) {
+          event.preventDefault();
+          selectDay(days[next]);
+          document.getElementById('tab-' + days[next].toLowerCase()).focus();
+        }
+      });
+      dayTabs.append(tab);
+      const card = document.createElement('article');
+      card.className = 'day-card';
+      card.dataset.day = day;
+      card.id = 'day-' + dayKey;
+      card.setAttribute('role', 'tabpanel');
+      card.setAttribute('aria-labelledby', tab.id);
+      card.tabIndex = 0;
+      const head = document.createElement('div');
+      head.className = 'day-card-head';
+      const heading = document.createElement('h3');
       heading.id = 'h-' + dayKey;
-
+      heading.textContent = day;
+      const count = document.createElement('span');
+      count.className = 'day-count';
+      head.append(heading, count);
+      const note = document.createElement('p');
+      note.className = 'day-note';
+      note.textContent = WEEK_PLAN[day].note;
+      const sessionList = document.createElement('div');
+      sessionList.className = 'session-list';
+      card.append(head, note, sessionList);
       if (day === todayName) {
         card.classList.add('is-today');
         card.setAttribute('aria-current', 'date');
+        tab.classList.add('is-today');
+        tab.setAttribute('aria-current', 'date');
+        tab.setAttribute('aria-label', tab.getAttribute('aria-label') + ', today');
       }
-
       slotIndex[day] = [];
-      card.querySelectorAll('.slot[data-slot]').forEach(function (slotEl) {
-        const api = buildSlot(day, dayKey, heading.id, slotEl);
+      const sessions = WEEK_PLAN[day].sessions.slice();
+      if (day === 'Saturday' || day === 'Sunday') sessions.push(RIDING_SESSION);
+      sessions.forEach(function (session) {
+        const slotEl = document.createElement('div');
+        slotEl.className = 'slot';
+        slotEl.dataset.slot = session.id;
+        slotEl.dataset.kind = session.kind;
+        const sessionHead = document.createElement('div');
+        sessionHead.className = 'session-heading';
+        const icon = document.createElement('span');
+        icon.className = 'session-icon';
+        icon.innerHTML = activityIcon(session.activity);
+        const textWrap = document.createElement('div');
+        textWrap.className = 'session-heading-text';
+        const title = document.createElement('div');
+        title.className = 'item-title';
+        title.textContent = session.label;
+        const text = document.createElement('div');
+        text.className = 'item-text';
+        text.textContent = session.planned;
+        textWrap.append(title, text);
+        const kind = document.createElement('span');
+        kind.className = 'session-kind';
+        kind.textContent = session.kind === 'skill' ? 'Sport' : session.kind === 'strength' ? 'Strength' : 'Endurance';
+        sessionHead.append(icon, textWrap, kind);
+        const description = document.createElement('p');
+        description.className = 'session-description';
+        description.textContent = session.description;
+        slotEl.append(sessionHead, description);
+        const api = buildSlot(day, dayKey, heading.id, slotEl, session);
         slotIndex[day].push(api);
-        if (dayKey === 'saturday' && api.slotId === 'long') {
-          buildLongDayVariant(heading.id, slotEl, api);
+        const detail = document.createElement('details');
+        detail.className = 'session-detail';
+        detail.id = 'detail-' + dayKey + '-' + session.id;
+        const summary = document.createElement('summary');
+        summary.textContent = session.routine ? 'Movement plan · sets, reps & cues' : 'Session guidance';
+        detail.append(summary);
+        if (session.routine) {
+          const exercises = document.createElement('div');
+          exercises.className = 'exercise-list';
+          STRENGTH_WORKOUTS[session.routine].forEach(function (exercise, i) {
+            exercises.append(buildExercise(exercise, dayKey + '-' + session.id + '-exercise-' + i));
+          });
+          detail.append(exercises);
+          const reminder = document.createElement('p');
+          reminder.className = 'illustration-note';
+          reminder.textContent = 'Illustrations are simplified movement reminders, not personalized technique instruction. Suggested rests are starting guides, not timers.';
+          detail.append(reminder);
         }
+        const guidance = document.createElement('ul');
+        guidance.className = 'session-guidance';
+        session.guidance.forEach(function (text) {
+          const li = document.createElement('li');
+          li.textContent = text;
+          guidance.append(li);
+        });
+        detail.append(guidance);
+        slotEl.append(detail);
+        sessionList.append(slotEl);
+      });
+      if (!sessions.length) {
+        const recovery = document.createElement('div');
+        recovery.className = 'recovery-card';
+        recovery.innerHTML = activityIcon('Recovery');
+        const copy = document.createElement('div');
+        const title = document.createElement('h4');
+        title.textContent = 'Nothing to make up. Nothing to prove.';
+        const text = document.createElement('p');
+        text.textContent = 'No training is required today. Optional gentle mobility is welcome, but Tuesday is not a catch-up day. Recovery belongs in your plan.';
+        copy.append(title, text);
+        recovery.append(copy);
+        sessionList.append(recovery);
+      }
+      weekGrid.append(card);
+    });
+
+    function activeSlotApis(day) {
+      const ids = sessionsForDay(day).map(function (session) { return session.id; });
+      return slotIndex[day].filter(function (api) { return ids.includes(api.slotId); });
+    }
+
+    function updateWeekView() {
+      weekGrid.classList.toggle('all-days', showAllDays);
+      document.getElementById('all-days').setAttribute('aria-pressed', String(showAllDays));
+      document.getElementById('all-days').textContent = showAllDays ? 'Single-day view' : 'View full week';
+      document.getElementById('week-mode').value = weekState().mode;
+      Object.keys(WEEK_PLAN).forEach(function (day) {
+        const key = day.toLowerCase();
+        const active = activeSlotApis(day);
+        const card = document.getElementById('day-' + key);
+        card.hidden = !showAllDays && day !== selectedDay;
+        const tab = document.getElementById('tab-' + key);
+        tab.setAttribute('aria-selected', String(day === selectedDay));
+        tab.tabIndex = day === selectedDay ? 0 : -1;
+        tab.querySelector('.tab-activity').textContent = active.some(function (api) { return api.slotId === 'ride'; }) ? 'Snowboarding' : WEEK_PLAN[day].overview;
+        const complete = active.filter(function (api) { return slotState(api.key).complete; }).length;
+        tab.querySelector('.tab-state').textContent = active.length ? complete + '/' + active.length + ' logged' : 'Protected';
+        card.querySelector('.day-count').textContent = active.length ? active.length + (active.length === 1 ? ' session' : ' sessions') : 'Recovery day';
+        card.querySelector('.day-note').textContent = active.some(function (api) { return api.slotId === 'ride'; })
+          ? 'Riding replaces your regular sport sessions today. Do not stack them back into the week.'
+          : WEEK_PLAN[day].note;
+        card.querySelectorAll('.slot').forEach(function (slot) { slot.hidden = !active.some(function (api) { return api.slotId === slot.dataset.slot; }); });
+      });
+      const selectedTab = document.getElementById('tab-' + selectedDay.toLowerCase());
+      const tabBounds = selectedTab.getBoundingClientRect();
+      const stripBounds = dayTabs.getBoundingClientRect();
+      dayTabs.scrollLeft += tabBounds.left - stripBounds.left - (stripBounds.width - tabBounds.width) / 2;
+      updateMotion();
+    }
+
+    function updateProgress() {
+      const active = Object.keys(WEEK_PLAN).flatMap(activeSlotApis);
+      const completed = active.filter(function (api) { return slotState(api.key).complete; }).length;
+      document.getElementById('completed-count').textContent = String(completed);
+      document.getElementById('session-total').textContent = 'of ' + active.length + ' sessions logged';
+      const progress = document.getElementById('week-progress');
+      progress.max = active.length;
+      progress.value = completed;
+      progress.setAttribute('aria-valuetext', completed + ' of ' + active.length + ' planned sessions logged');
+      document.getElementById('strength-count').textContent = String(active.filter(function (api) { return api.session.kind === 'strength'; }).length);
+      document.getElementById('sport-count').textContent = String(active.filter(function (api) { return api.session.kind === 'skill'; }).length);
+      document.getElementById('balance-note').textContent = weekState().mode === 'standard'
+        ? 'A starting template, not a completion target. Shorten or skip a session when recovery asks for it. Tuesday is never a catch-up day.'
+        : 'Riding replaces the regular weekend sessions. Reduce pre-trip lifting and Friday sports as needed. Monday afterward is a recovery decision.';
+    }
+
+    function selectDay(day) {
+      if (!Object.prototype.hasOwnProperty.call(WEEK_PLAN, day)) throw new Error('Unknown training day: ' + day);
+      selectedDay = day;
+      weekdayOverride = null;
+      refreshAll();
+    }
+
+    refreshers.push(updateWeekView, updateProgress);
+    document.getElementById('go-today').addEventListener('click', function () { showAllDays = false; selectDay(todayName); });
+    document.getElementById('all-days').addEventListener('click', function () { showAllDays = !showAllDays; updateWeekView(); });
+    document.getElementById('week-mode').addEventListener('change', function (event) {
+      const control = event.currentTarget;
+      weekState().mode = control.value;
+      const saved = saveState();
+      refreshAll();
+      emitAttempt(control, 'plan.select_week_variant', { variant: control.value }, saved ? 'completed' : 'abandoned', saved ? 0.95 : 0.5);
+      announce(saved ? 'Week updated. Riding replaces sessions rather than adding to them; usual-session notes are kept.' : 'Could not save the week variant. It is only changed in this tab.');
+    });
+    document.querySelectorAll('[data-workout-day]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        showAllDays = false;
+        selectDay(button.dataset.workoutDay);
+        const detail = document.getElementById('detail-' + button.dataset.workoutDay.toLowerCase() + '-' + button.dataset.workoutSlot);
+        if (detail.hidden) {
+          announce('This strength session is swapped. Restore the planned session to view its original movement plan.');
+        } else {
+          detail.open = true;
+        }
+        document.getElementById('day-' + button.dataset.workoutDay.toLowerCase()).scrollIntoView({ block: 'start' });
+        if (!detail.hidden) detail.querySelector('summary').focus({ preventScroll: true });
       });
     });
+    document.getElementById('motion-mode').value = motionUI.mode;
+    document.getElementById('motion-speed').value = motionUI.speed;
+    ['motion-mode', 'motion-speed', 'pause-motion'].forEach(function (id) {
+      document.getElementById(id).addEventListener(id === 'pause-motion' ? 'click' : 'change', function () {
+        if (id === 'pause-motion') motionUI.paused = !motionUI.paused;
+        else if (id === 'motion-mode') motionUI.mode = this.value;
+        else motionUI.speed = this.value;
+        const saved = writeStoredObject('pt.athletic.motion.v1', motionUI);
+        updateMotion();
+        if (!saved) announce('Could not save illustration settings. They apply only in this tab.');
+      });
+    });
+    motionPreference.addEventListener('change', updateMotion);
+    document.addEventListener('visibilitychange', updateMotion);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    document.getElementById('week-range').textContent = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' + weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const legacyEntries = Object.entries(state.legacySlots || {}).filter(function (entry) {
+      const slot = entry[1];
+      return slot && (slot.complete || slot.substitution || slot.note);
+    });
+    if (legacyEntries.length) {
+      document.getElementById('legacy-history').hidden = false;
+      legacyEntries.forEach(function (entry) {
+        const li = document.createElement('li');
+        const slot = entry[1];
+        li.textContent = entry[0].replace('.', ' / ') + ': ' + (slot.complete ? 'complete' : 'not logged') + (slot.substitution ? ' · swapped to ' + slot.substitution : '') + (slot.note ? ' · ' + slot.note : '');
+        document.getElementById('legacy-list').append(li);
+      });
+    }
 
     /* --- 5. Second surface for the same capabilities ----------------------
        session.complete / session.reopen are reachable from the Today panel as
@@ -1144,38 +1538,47 @@
        dimension of the envelope is degenerate. */
     const todayActions = document.getElementById('today-actions');
 
-    (slotIndex[todayName] || []).forEach(function (api) {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.id = 'today-done-' + api.slotId;
-      button.className = 'btn';
-      button.textContent = api.label + ' done';
-      button.setAttribute('aria-pressed', 'false');
-      button.setAttribute('aria-labelledby', button.id + ' today-day-label');
-      button.dataset.capability = 'session.complete session.reopen';
-      button.addEventListener('click', function () { api.toggleComplete(button); });
-      todayActions.append(button);
-      refreshers.push(function () {
-        button.setAttribute('aria-pressed', slotState(api.key).complete ? 'true' : 'false');
+    let focusSignature = '';
+    function syncFocusControls(day) {
+      const active = activeSlotApis(day);
+      const signature = day + '|' + active.map(function (api) { return api.slotId; }).join('|');
+      if (signature !== focusSignature) {
+        todayActions.querySelectorAll('[data-focus-action]').forEach(function (button) { button.remove(); });
+        active.forEach(function (api) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.id = 'today-done-' + api.slotId;
+          button.className = 'btn';
+          button.textContent = api.label + ' done';
+          button.setAttribute('aria-labelledby', button.id + ' today-day-label');
+          button.dataset.capability = 'session.complete session.reopen';
+          button.dataset.focusAction = api.key;
+          button.addEventListener('click', function () { api.toggleComplete(button); });
+          todayActions.insertBefore(button, document.getElementById('today-actions-derived'));
+        });
+        focusSignature = signature;
+      }
+      active.forEach(function (api) {
+        document.getElementById('today-done-' + api.slotId).setAttribute('aria-pressed', String(slotState(api.key).complete));
       });
-    });
+    }
 
     /* --- 6. Destructive capability ---------------------------------------
        The confirm dialog is what makes a genuinely `abandoned` outcome
        reachable in this prototype. */
     const resetButton = document.getElementById('reset-progress');
     resetButton.addEventListener('click', function () {
-      const confirmed = window.confirm('Reset all logged progress for the week? This cannot be undone.');
+      const confirmed = window.confirm('Reset this week’s completions, swaps and notes? Earlier weeks and the earlier plan are kept. This cannot be undone.');
       if (!confirmed) {
         emitAttempt(resetButton, 'plan.reset_progress', { confirmed: false }, 'abandoned', 0.95);
         announce('Reset cancelled. Nothing was changed.');
         return;
       }
-      state = defaultState();
-      const saved = saveState();
+      const cleared = clearCurrentWeek();
+      const saved = saveState() && cleared;
       refreshAll();
       emitAttempt(resetButton, 'plan.reset_progress', { confirmed: true }, saved ? 'completed' : 'abandoned', saved ? 0.95 : 0.5);
-      announce('All logged progress cleared.');
+      announce(saved ? 'This week’s logged progress cleared. Earlier weeks and the earlier plan are unchanged.' : 'Could not save the reset. It is only changed in this tab.');
     });
 
     /* =====================================================================
@@ -1267,7 +1670,7 @@
         "advanced|severe": "~{planned} min, well over your {budget}. Shorten or swap."
       },
       "secondary.guideline": {
-        "novice": "Keep morning sessions at recovery intensity so the evening session stays high quality.",
+        "novice": "Keep running and swimming easy so there is room for lifting and sports.",
         "regular": "Keep the easy sessions easy so the hard sessions stay high quality.",
         "advanced": "Easy sessions easy, so hard sessions stay high quality."
       }
@@ -1317,31 +1720,61 @@
 
     /* ---- Domain state: what the activities actually are ----------------- */
     const ACTIVITY_MODEL = {
-      Swim:       { loads: ['shoulder'],          facility: 'pool',   minutes: 45,  kind: 'endurance' },
-      Run:        { loads: ['ankle', 'knee'],     facility: 'none',   minutes: 40,  kind: 'endurance' },
-      Strength:   { loads: ['shoulder', 'knee'],  facility: 'gym',    minutes: 60,  kind: 'strength'  },
-      Bouldering: { loads: ['shoulder'],          facility: 'gym',    minutes: 90,  kind: 'skill'     },
-      Tennis:     { loads: ['ankle', 'shoulder'], facility: 'court',  minutes: 60,  kind: 'skill'     },
-      Golf:       { loads: [],                    facility: 'course', minutes: 180, kind: 'skill'     },
-      Week:       { loads: ['ankle'],             facility: 'none',   minutes: 180, kind: 'endurance' }
+      Swim:         { loads: ['shoulder'],                facility: 'pool',  minutes: 20,   kind: 'endurance' },
+      Run:          { loads: ['ankle', 'knee'],            facility: 'none',  minutes: 25,   kind: 'endurance' },
+      Strength:     { loads: ['shoulder', 'knee'],         facility: 'gym',   minutes: 40,   kind: 'strength' },
+      Bouldering:   { loads: ['shoulder'],                facility: 'gym',   minutes: null, kind: 'skill' },
+      Golf:         { loads: ['shoulder'],                facility: 'range', minutes: 40,   kind: 'skill' },
+      Volleyball:   { loads: ['ankle', 'knee', 'shoulder'], facility: 'beach', minutes: null, kind: 'skill' },
+      Pickleball:   { loads: ['ankle', 'knee', 'shoulder'], facility: 'court', minutes: null, kind: 'skill' },
+      Snowboarding: { loads: ['ankle', 'knee'],            facility: 'snow',  minutes: null, kind: 'skill' }
     };
 
     const ALTERNATIVE_MODEL = {
-      'Easy swim (20–30 min)': { loads: [],        facility: 'pool', minutes: 30 },
-      'Foam rolling (30 min)': { loads: [],        facility: 'none', minutes: 30 },
-      'Easy bike (30 min)':    { loads: ['knee'],  facility: 'bike', minutes: 30 },
-      'Rest / full recovery':  { loads: [],        facility: 'none', minutes: 0  }
+      'Shorter planned session (15 min)': { inherits: true, minutes: 15 },
+      'Easy swim (15–20 min, with rests)': { loads: ['shoulder'], facility: 'pool', minutes: 20, kind: 'endurance' },
+      'Gentle mobility (5–10 min)':        { loads: [], facility: 'none', minutes: 10, kind: 'recovery' },
+      'Easy bike (15–20 min)':             { loads: ['knee'], facility: 'bike', minutes: 20, kind: 'endurance' },
+      'Rest / full recovery':             { loads: [], facility: 'none', minutes: 0, kind: 'recovery' }
     };
 
     const FACILITIES_BY_EQUIPMENT = {
-      full: ['pool', 'gym', 'court', 'course', 'bike', 'none'],
+      full: ['pool', 'gym', 'court', 'range', 'beach', 'snow', 'bike', 'none'],
       home: ['none', 'bike'],
       none: ['none']
     };
+    const FACILITY_LABELS = { pool: 'a pool', gym: 'a gym / climbing facility', court: 'a pickleball court', range: 'a golf range', beach: 'a beach volleyball court', snow: 'a riding area', bike: 'a bike', none: 'no special facility' };
 
     function classifyActivity(text) {
       const head = String(text || '').split(/[\s(:]/)[0];
       return ACTIVITY_MODEL[head] ? Object.assign({ name: head }, ACTIVITY_MODEL[head]) : null;
+    }
+
+    function activityForSession(session) {
+      const model = ACTIVITY_MODEL[session.activity];
+      if (!model) throw new Error('Unmodeled activity: ' + session.activity);
+      return Object.assign({ name: session.activity }, model, { minutes: session.minutes, kind: session.kind, loads: session.loads || model.loads });
+    }
+
+    function alternativeActivity(choice, planned) {
+      const model = ALTERNATIVE_MODEL[choice];
+      if (!model) throw new Error('Unknown exercise substitution: ' + choice);
+      return Object.assign({}, model.inherits ? planned : model, { name: choice, minutes: model.minutes, shortened: model.inherits === true });
+    }
+
+    function substitutionsFor(session, user) {
+      const planned = activityForSession(session);
+      const facilities = FACILITIES_BY_EQUIPMENT[user.equipment];
+      return SUBSTITUTIONS.filter(function (choice) {
+        if (choice === 'Shorter planned session (15 min)' && !(planned.minutes > 15)) return false;
+        const alt = alternativeActivity(choice, planned);
+        return facilities.includes(alt.facility) && alt.minutes <= Number(user.timeBudget) && !alt.loads.includes(user.protecting);
+      });
+    }
+
+    function protectionAlternative(user) {
+      return user.protecting !== 'shoulder' && FACILITIES_BY_EQUIPMENT[user.equipment].includes('pool')
+        ? 'Easy swim (15–20 min, with rests)' : 'Rest / full recovery';
     }
 
     /* ---- User: scalar, non-composing ------------------------------------ */
@@ -1350,31 +1783,37 @@
         options: [['full', 'Full facilities'], ['home', 'Home only'], ['none', 'Nothing today']] },
       { key: 'protecting', label: 'Currently protecting', def: 'none',
         options: [['none', 'Nothing'], ['ankle', 'Ankle'], ['shoulder', 'Shoulder'], ['knee', 'Knee']] },
-      { key: 'experience', label: 'Experience', def: 'regular',
+      { key: 'experience', label: 'Training experience', def: 'regular',
         options: [['novice', 'New to this'], ['regular', 'Regular'], ['advanced', 'Advanced']] },
-      { key: 'timeBudget', label: 'Time available today', def: '90',
+      { key: 'timeBudget', label: 'Time per session', def: '90',
         options: [['20', '20 minutes'], ['45', '45 minutes'], ['90', '90+ minutes']] },
-      { key: 'target', label: 'Rendering', def: 'standard',
+      { key: 'target', label: 'Reading mode', def: 'standard',
         options: [['standard', 'Standard'], ['large-type', 'Large type'], ['reader-first', 'Screen-reader first']] }
     ];
 
     const PREFS_KEY = 'pt.l2.prefs.v1';
 
-    function loadPrefs() {
+    function preferenceDefaults() {
       const out = {};
       PREF_SPEC.forEach(function (p) { out[p.key] = p.def; });
-      try {
-        const raw = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}');
-        PREF_SPEC.forEach(function (p) {
-          if (typeof raw[p.key] === 'string' && p.options.some(function (o) { return o[0] === raw[p.key]; })) {
-            out[p.key] = raw[p.key];
-          }
-        });
-      } catch (err) { /* defaults */ }
+      return out;
+    }
+
+    function loadPrefs() {
+      const out = preferenceDefaults();
+      const raw = readStoredObject(PREFS_KEY, {});
+      PREF_SPEC.forEach(function (p) {
+        if (typeof raw[p.key] === 'string' && p.options.some(function (o) { return o[0] === raw[p.key]; })) out[p.key] = raw[p.key];
+        else if (Object.prototype.hasOwnProperty.call(raw, p.key)) reportStorageError(new Error('Invalid preference: ' + p.key), 'read saved settings');
+      });
       return out;
     }
 
     let PREFERENCES = loadPrefs();
+
+    function swapPreferences() {
+      return DERIVATION_ACTIVE ? PREFERENCES : preferenceDefaults();
+    }
 
     /* The non-composition invariant, enforced rather than described: every
        preference must be a plain string drawn from its own fixed enum. A rule,
@@ -1417,7 +1856,7 @@
 
     function readContext() {
       return {
-        weekday: weekdayOverride || todayName,
+        weekday: weekdayOverride || selectedDay,
         viewport: window.innerWidth,
         pointer: matchMedia('(pointer: coarse)').matches ? 'touch' : 'fine',
         reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -1437,23 +1876,22 @@
     }
 
     /* ---- Facts: one resolved view of the four inputs --------------------- */
-    function buildFacts(ctx, user) {
-      const slots = (slotIndex[ctx.weekday] || []).map(function (api) {
+    function buildFacts(ctx, user, applyAdaptations) {
+      const slots = activeSlotApis(ctx.weekday).map(function (api) {
         const st = slotState(api.key);
-        const plannedText = document.getElementById('s-' + ctx.weekday.toLowerCase() + '-' + api.slotId + '-text');
-        const planned = classifyActivity(plannedText ? plannedText.textContent : '');
-        const alt = st.substitution ? Object.assign({ name: st.substitution }, ALTERNATIVE_MODEL[st.substitution] || {}) : null;
+        const planned = activityForSession(api.session);
+        const alt = st.substitution ? alternativeActivity(st.substitution, planned) : null;
         const effective = alt || planned;
         return {
           key: api.key, slotId: api.slotId, label: api.label,
-          plannedText: plannedText ? plannedText.textContent.trim() : '',
+          plannedText: api.plannedText(), session: api.session,
           planned: planned, substitution: st.substitution || '', effective: effective,
           complete: st.complete, note: st.note
         };
       });
       const facilities = FACILITIES_BY_EQUIPMENT[user.equipment] || FACILITIES_BY_EQUIPMENT.full;
       const budgetMinutes = parseInt(user.timeBudget, 10);
-      const primary = slots.find(function (s) { return !s.complete; }) || slots[0] || null;
+      const primary = slots.find(function (s) { return !s.complete; }) || null;
       /* Run 7 / ADR 0013: the adaptation is now part of the derived plan
          rather than a note printed beside an unchanged one. High confidence
          replaces the prescription and carries a visible reason plus a
@@ -1461,15 +1899,15 @@
          both directions. */
       const rawConfidence = primary ? protectionConfidence(user.protecting, primary.effective) : 0;
       let adaptation = null;
-      if (primary && !primary.substitution && rawConfidence >= ACT_THRESHOLD) {
-        const key = primary.key + '|' + user.protecting;
+      if (applyAdaptations !== false && primary && !primary.substitution && rawConfidence >= ACT_THRESHOLD) {
+        const key = scopedKey(primary.key) + '|' + user.protecting;
         if (!dismissedAdaptations[key]) {
           adaptation = {
             key: key,
             confidence: rawConfidence,
             reason: user.protecting,
-            suggestion: facilities.includes('pool') ? 'Easy swim (20–30 min)' : 'Foam rolling (30 min)',
-            reverted: planOverrides[primary.key] === 'planned',
+            suggestion: protectionAlternative(user),
+            reverted: planOverrides[scopedKey(primary.key)] === 'planned',
             plannedText: primary.plannedText,
             /* Run 9. The consequence of reverting is a fact about the domain, so
                it lives in the layer rather than being reassembled inside a
@@ -1485,7 +1923,7 @@
       }
       if (adaptation && !adaptation.reverted) {
         primary.adaptedTo = adaptation.suggestion;
-        primary.effective = Object.assign({ name: adaptation.suggestion }, ALTERNATIVE_MODEL[adaptation.suggestion] || {});
+        primary.effective = alternativeActivity(adaptation.suggestion, primary.planned);
       }
       return {
         ctx: ctx, user: user, slots: slots, primary: primary,
@@ -1501,12 +1939,19 @@
     /* A scalar per slot: 'planned' means the user reverted an applied
        adaptation. Not a rule, does not compose, and reversible in both
        directions. */
-    let planOverrides = {};
-    try { planOverrides = JSON.parse(localStorage.getItem('pt.l2.planoverrides.v1') || '{}'); } catch (err) { planOverrides = {}; }
-    function savePlanOverrides() { try { localStorage.setItem('pt.l2.planoverrides.v1', JSON.stringify(planOverrides)); } catch (err) { /* ignore */ } }
+    let planOverrides = readStoredObject('pt.l2.planoverrides.v1', {});
+    function savePlanOverrides() { return writeStoredObject('pt.l2.planoverrides.v1', planOverrides); }
+    let dismissedAdaptations = readStoredObject('pt.l2.dismissed.v1', {});
 
-    let dismissedAdaptations = {};
-    try { dismissedAdaptations = JSON.parse(localStorage.getItem('pt.l2.dismissed.v1') || '{}'); } catch (err) { dismissedAdaptations = {}; }
+    function clearCurrentWeek() {
+      weekState().slots = {};
+      [planOverrides, dismissedAdaptations].forEach(function (map) {
+        Object.keys(map).forEach(function (key) { if (key.startsWith(weekKey + '|')) delete map[key]; });
+      });
+      const overridesSaved = savePlanOverrides();
+      const dismissalsSaved = writeStoredObject('pt.l2.dismissed.v1', dismissedAdaptations);
+      return overridesSaved && dismissalsSaved;
+    }
 
     /* ---- The fixed component library ------------------------------------
        Each component declares where it may appear, what it costs in density,
@@ -1537,15 +1982,13 @@
           sel.className = 'field';
           sel.setAttribute('aria-labelledby', labelId);
           sel.dataset.capability = 'session.substitute_exercise session.restore_planned';
-          sel.add(new Option('As planned', ''));
-          SUBSTITUTIONS.forEach(function (o) { sel.add(new Option(o, o)); });
+          sel.add(new Option('Swap / keep as planned', ''));
+          const options = substitutionsFor(s.session, f.user);
+          if (s.substitution && !options.includes(s.substitution)) options.push(s.substitution);
+          options.forEach(function (o) { sel.add(new Option(o, o)); });
           sel.value = s.substitution || '';
           sel.addEventListener('change', function () {
-            const grid = document.getElementById('s-' + f.ctx.weekday.toLowerCase() + '-' + s.slotId + '-swap');
-            if (grid) { grid.value = sel.value; grid.dispatchEvent(new Event('change', { bubbles: true })); }
-            emitAttempt(sel, sel.value ? 'session.substitute_exercise' : 'session.restore_planned',
-              { day: f.ctx.weekday, slot: s.slotId, substituted_with: sel.value || null, surface: 'today' },
-              'completed', 0.95);
+            slotIndex[f.ctx.weekday].find(function (api) { return api.key === s.key; }).substitute(sel, sel.value);
           });
           wrap.append(caption, sel);
           return wrap;
@@ -1554,14 +1997,16 @@
       {
         id: 'headline', slot: 'headline', pinned: true, density: 0,
         evaluate: function (f) {
-          if (!f.primary) return { ok: false };
           return { ok: true, confidence: 1, score: 100, data: { slot: f.primary } };
         },
         build: function (item, f) {
           const s = item.data.slot;
+          if (!s) return document.createTextNode(f.slots.length
+            ? 'All planned sessions logged. Leave room for recovery; nothing extra is required.'
+            : 'Protected recovery. No training required—and no sessions to make up.');
           const activity = s.adaptedTo || s.substitution || s.plannedText;
-          const parts = [s.label + ': ' + activity + '.'];
-          if (f.user.experience === 'novice') parts.push('Keep the effort conversational.');
+          const parts = [activity + '.'];
+          if (f.user.experience === 'novice' && s.effective.kind === 'endurance') parts.push('Keep this easy, with breaks.');
           return document.createTextNode(parts.join(' '));
         }
       },
@@ -1643,14 +2088,14 @@
           btn.dataset.capability = 'adaptation.revert adaptation.reapply';
           btn.addEventListener('click', function () {
             const nowReverted = !a.reverted;
-            if (nowReverted) planOverrides[f.primary.key] = 'planned';
-            else delete planOverrides[f.primary.key];
-            savePlanOverrides();
+            if (nowReverted) planOverrides[scopedKey(f.primary.key)] = 'planned';
+            else delete planOverrides[scopedKey(f.primary.key)];
+            const saved = savePlanOverrides();
             emitAttempt(btn, nowReverted ? 'adaptation.revert' : 'adaptation.reapply',
               { day: f.ctx.weekday, slot: f.primary.slotId, reason: a.reason,
                 restored: nowReverted ? a.revertRestores : a.suggestion,
-                reViolates: nowReverted ? a.revertReViolates : null }, 'completed', 0.95);
-            announce(nowReverted
+                reViolates: nowReverted ? a.revertReViolates : null }, saved ? 'completed' : 'abandoned', saved ? 0.95 : 0.5);
+            announce(!saved ? 'Could not save this adaptation choice. It applies only in this tab.' : nowReverted
               ? 'Now doing ' + shortActivity(a.revertRestores) + ', which loads your ' + a.revertReViolates + '. The same button switches back.'
               : 'Now doing ' + a.suggestion + ', which avoids your ' + a.reason + '.');
             rerender();
@@ -1679,7 +2124,7 @@
         provides: ['adaptation.undismiss'],
         evaluate: function (f) {
           if (!f.primary || f.primary.substitution) return { ok: false };
-          const key = f.primary.key + '|' + f.protection;
+          const key = scopedKey(f.primary.key) + '|' + f.protection;
           if (!f.dismissed[key]) return { ok: false };
           return { ok: true, confidence: 1, score: 94, data: { key: key } };
         },
@@ -1699,9 +2144,9 @@
           btn.dataset.capability = 'adaptation.undismiss';
           btn.addEventListener('click', function () {
             delete dismissedAdaptations[item.data.key];
-            try { localStorage.setItem('pt.l2.dismissed.v1', JSON.stringify(dismissedAdaptations)); } catch (err) { /* ignore */ }
-            emitAttempt(btn, 'adaptation.undismiss', { day: f.ctx.weekday, slot: f.primary.slotId }, 'completed', 0.95);
-            announce('Suggestion restored.');
+            const saved = writeStoredObject('pt.l2.dismissed.v1', dismissedAdaptations);
+            emitAttempt(btn, 'adaptation.undismiss', { day: f.ctx.weekday, slot: f.primary.slotId }, saved ? 'completed' : 'abandoned', saved ? 0.95 : 0.5);
+            announce(saved ? 'Suggestion restored.' : 'Could not save this restored suggestion. It applies only in this tab.');
             rerender();
           });
           box.append(p, btn);
@@ -1716,12 +2161,12 @@
           if (!f.primary || f.primary.substitution || f.adaptation) return { ok: false };
           const c = f.protectionConfidence;
           if (c <= 0) return { ok: false };
-          if (f.dismissed[f.primary.key + '|' + f.protection]) return { ok: false };
+          if (f.dismissed[scopedKey(f.primary.key) + '|' + f.protection]) return { ok: false };
           return { ok: true, confidence: c, score: 95, data: { slot: f.primary } };
         },
         build: function (item, f) {
           const s = item.data.slot;
-          const suggestion = f.facilities.includes('pool') ? 'Easy swim (20–30 min)' : 'Foam rolling (30 min)';
+          const suggestion = protectionAlternative(f.user);
           if (item.mode === 'act') {
             const el = document.createElement('p');
             el.className = 'derived derived-notice';
@@ -1746,10 +2191,7 @@
           yes.setAttribute('aria-labelledby', yes.id + ' ' + q.id);
           yes.dataset.capability = 'session.substitute_exercise';
           yes.addEventListener('click', function () {
-            const sel = document.getElementById('s-' + f.ctx.weekday.toLowerCase() + '-' + s.slotId + '-swap');
-            if (sel) { sel.value = suggestion; sel.dispatchEvent(new Event('change', { bubbles: true })); }
-            emitAttempt(yes, 'session.substitute_exercise',
-              { day: f.ctx.weekday, slot: s.slotId, substituted_with: suggestion, source: 'proposal' }, 'completed', 0.95);
+            slotIndex[f.ctx.weekday].find(function (api) { return api.key === s.key; }).substitute(yes, suggestion);
           });
           const no = document.createElement('button');
           no.type = 'button'; no.className = 'btn'; no.id = 'ask-protection-dismiss';
@@ -1757,10 +2199,10 @@
           no.setAttribute('aria-labelledby', no.id + ' ' + q.id);
           no.dataset.capability = 'adaptation.dismiss';
           no.addEventListener('click', function () {
-            dismissedAdaptations[s.key + '|' + f.protection] = true;
-            try { localStorage.setItem('pt.l2.dismissed.v1', JSON.stringify(dismissedAdaptations)); } catch (err) { /* ignore */ }
-            emitAttempt(no, 'adaptation.dismiss', { day: f.ctx.weekday, slot: s.slotId, proposal: 'protection' }, 'completed', 0.95);
-            announce('Kept as planned. This suggestion will not be offered again.');
+            dismissedAdaptations[scopedKey(s.key) + '|' + f.protection] = true;
+            const saved = writeStoredObject('pt.l2.dismissed.v1', dismissedAdaptations);
+            emitAttempt(no, 'adaptation.dismiss', { day: f.ctx.weekday, slot: s.slotId, proposal: 'protection' }, saved ? 'completed' : 'abandoned', saved ? 0.95 : 0.5);
+            announce(saved ? 'Kept as planned. Use “Show it again” to restore the suggestion.' : 'Could not save the declined suggestion. It applies only in this tab.');
             rerender();
           });
           row.append(yes, no);
@@ -1779,9 +2221,10 @@
         build: function (item, f) {
           const el = document.createElement('p');
           el.className = 'derived derived-notice';
-          const tmplEquip = 'This session needs ' + item.data.need + ', which you have marked unavailable.';
+          const needLabel = FACILITY_LABELS[item.data.need];
+          const tmplEquip = 'This session needs ' + needLabel + ', which you have marked unavailable.';
           el.textContent = phrase('detail.equipment_gap', phraseKey(f.user.experience, item.data.need), tmplEquip)
-            .split('{need}').join(item.data.need);
+            .split('{need}').join(needLabel);
           return el;
         }
       },
@@ -1812,22 +2255,30 @@
           return { ok: true, confidence: 0.85, score: 60, data: {} };
         },
         expandWhen: function (f) { return f.user.experience === 'novice'; },
-        build: function (item) {
+        build: function (item, f) {
           const wrap = document.createElement('div');
           wrap.className = 'derived';
           const h = document.createElement('p');
           h.className = 'derived';
           h.textContent = 'Session structure';
           wrap.append(h);
-          if (item.disclosure === 'expanded') {
+          if (f.primary.effective.shortened) {
+            const p = document.createElement('p');
+            p.className = 'derived-explain';
+            p.textContent = 'Shortened to 15 minutes. Reduce sets or omit optional work; this is not the full movement prescription in a shorter window.';
+            wrap.append(p);
+          } else if (item.disclosure === 'expanded') {
             const ul = document.createElement('ul');
-            ['Mobility primer — 10 min', 'Functional compounds — 25 min', 'Stability and prehab — 15 min', 'Flexibility cool-down — 10 min']
-              .forEach(function (t) { const li = document.createElement('li'); li.textContent = t; ul.append(li); });
+            STRENGTH_WORKOUTS[f.primary.session.routine].forEach(function (exercise) {
+              const li = document.createElement('li');
+              li.textContent = exercise.name + ' — ' + exercise.dose + (exercise.condition ? ' (' + exercise.condition + ')' : '');
+              ul.append(li);
+            });
             wrap.append(ul);
           } else {
             const p = document.createElement('p');
             p.className = 'derived-explain';
-            p.textContent = 'Four blocks, 60 minutes. Full breakdown in the blueprint below.';
+            p.textContent = 'Short, support-focused work. Sets, reps and movement reminders are in the selected day’s movement plan below.';
             wrap.append(p);
           }
           return wrap;
@@ -1848,7 +2299,7 @@
           const el = document.createElement('p');
           el.className = 'derived derived-explain';
           const tmplGuide = f.user.experience === 'novice'
-            ? 'Easy mandate: keep morning sessions at recovery intensity so the evening session stays high quality.'
+            ? 'Keep running and swimming easy so there is room for lifting and sports.'
             : 'Keep the easy sessions easy.';
           el.textContent = phrase('secondary.guideline', phraseKey(f.user.experience), tmplGuide);
           return el;
@@ -1948,6 +2399,8 @@
     const headlineHost = document.getElementById('today-plan');
 
     function renderSurface(surface) {
+      const focused = document.activeElement;
+      const focusId = focused && focused.closest('.today') ? focused.id : '';
       todaySection.dataset.target = surface.target;
       headlineHost.textContent = '';
       Object.keys(SLOT_HOSTS).forEach(function (s) { document.getElementById(SLOT_HOSTS[s]).textContent = ''; });
@@ -1958,21 +2411,29 @@
         const host = item.slot === 'headline' ? headlineHost : document.getElementById(SLOT_HOSTS[item.slot]);
         if (host) host.append(node);
       });
+      if (focusId) {
+        const nextFocus = document.getElementById(focusId)
+          || document.getElementById(focusId === 'ask-protection-dismiss' ? 'adapt-undismiss' : focusId === 'adapt-undismiss' ? 'ask-protection-dismiss' : 'today-swap');
+        if (nextFocus) nextFocus.focus({ preventScroll: true });
+      }
     }
 
     function rerender() {
       const ctx = readContext();
       document.getElementById('today-day-label').textContent = ctx.weekday;
+      document.getElementById('today-workout-heading').textContent = ctx.weekday === todayName ? 'Today’s focus' : ctx.weekday + '’s focus';
+      syncFocusControls(ctx.weekday);
       if (!DERIVATION_ACTIVE) {
-        /* The frozen baseline. One sentence, identical for every user, and no
-           derived regions. This is what the L3 protocol compares against, and
-           it ships in the same file so an L3 run randomises the policy rather
-           than the build. */
-        headlineHost.textContent = scheduleByDay[ctx.weekday];
+        /* The uniform policy follows the same current schedule but ignores
+           user preferences. Earlier experiment measurements describe the old plan. */
+        const facts = buildFacts(ctx, PREFERENCES, false);
+        headlineHost.textContent = facts.primary
+          ? (facts.primary.substitution || facts.primary.plannedText) + '.'
+          : facts.slots.length ? 'All planned sessions logged. Leave room for recovery; nothing extra is required.' : WEEK_PLAN[ctx.weekday].note;
         Object.keys(SLOT_HOSTS).forEach(function (s) { document.getElementById(SLOT_HOSTS[s]).textContent = ''; });
         todaySection.dataset.target = 'standard';
         const flat = {
-          plan: [], facts: buildFacts(ctx, PREFERENCES), budget: 0, spent: 0,
+          plan: [], facts: facts, budget: 0, spent: 0,
           decisions: [{ id: 'policy', action: 'derivation disabled', policy: POLICY }],
           target: 'standard', policy: POLICY
         };
@@ -1992,25 +2453,33 @@
     window.__datuxComponents = COMPONENTS.map(function (c) {
       return { id: c.id, slot: c.slot, assertsProblem: !!c.assertsProblem, provides: c.provides || [] };
     });
-    window.__datuxSetPreference = function (key, value) {
-      PREFERENCES = Object.assign({}, PREFERENCES, {});
-      PREFERENCES[key] = value;
-      try { localStorage.setItem(PREFS_KEY, JSON.stringify(PREFERENCES)); } catch (err) { /* ignore */ }
+    function setPreference(key, value) {
+      const candidate = Object.assign({}, PREFERENCES, { [key]: value });
+      const problems = assertNonComposing(candidate);
+      if (problems.length) {
+        console.error('[planner settings]', problems);
+        announce('Setting rejected: ' + problems.join('; ') + '.');
+        throw new Error('Invalid planner preference: ' + problems.join('; '));
+      }
+      PREFERENCES = candidate;
+      const saved = writeStoredObject(PREFS_KEY, PREFERENCES);
       const sel = document.getElementById('pref-' + key);
       if (sel && sel.value !== value) sel.value = value;
-      return rerender();
-    };
+      refreshAll();
+      return { saved: saved, surface: window.__datuxSurface };
+    }
+    window.__datuxSetPreference = function (key, value) { return setPreference(key, value).surface; };
     window.__datuxAssertNonComposing = function () { return assertNonComposing(PREFERENCES); };
-    window.__datuxSetWeekday = function (d) { weekdayOverride = d; return rerender(); };
+    window.__datuxSetWeekday = function (d) { selectDay(d); return window.__datuxSurface; };
     /* L2 test hook: reset domain state without the confirm dialog, so a harness
        can isolate one profile from the next. Run 6 found profiles leaking state
        into each other, which had silently contaminated run 5's per-target counts. */
     window.__datuxResetState = function () {
-      state = defaultState();
-      dismissedAdaptations = {};
-      try { localStorage.removeItem('pt.l2.dismissed.v1'); saveState(); } catch (err) { /* ignore */ }
+      clearCurrentWeek();
+      weekState().mode = 'standard';
+      saveState();
       refreshAll();
-      return rerender();
+      return window.__datuxSurface;
     };
 
     /* ---- Preference controls: scalar selects, nothing else --------------- */
@@ -2028,23 +2497,46 @@
       spec.options.forEach(function (o) { sel.add(new Option(o[1], o[0])); });
       sel.value = PREFERENCES[spec.key];
       sel.addEventListener('change', function () {
-        PREFERENCES[spec.key] = sel.value;
-        try { localStorage.setItem(PREFS_KEY, JSON.stringify(PREFERENCES)); } catch (err) { /* ignore */ }
-        const surface = rerender();
+        const result = setPreference(spec.key, sel.value);
+        const surface = result.surface;
         emitAttempt(sel, 'preference.set',
           { preference: spec.key, value: sel.value, components_shown: surface.plan.length, density_budget: surface.budget },
-          'completed', 0.95);
-        announce(spec.label + ' set to ' + sel.options[sel.selectedIndex].text + '. Today’s focus re-derived.');
+          result.saved ? 'completed' : 'abandoned', result.saved ? 0.95 : 0.5);
+        announce(result.saved ? spec.label + ' set to ' + sel.options[sel.selectedIndex].text + '. The selected day’s focus is updated.' : 'Could not save this setting. It applies only in this tab.');
       });
       wrap.append(caption, sel);
       prefsHost.append(wrap);
     });
 
-    /* --- 7. Static day-of-week content ------------------------------------ */
-    document.getElementById('today-day-label').textContent = todayName;
-
+    let printSnapshot = [];
+    addEventListener('beforeprint', function () {
+      if (isPrinting) return;
+      printSnapshot = Array.from(document.querySelectorAll('details')).map(function (detail) { return [detail, detail.open]; });
+      printSnapshot.forEach(function (entry) { if (!entry[0].hidden) entry[0].open = true; });
+      isPrinting = true;
+      updateMotion();
+    });
+    addEventListener('afterprint', function () {
+      printSnapshot.forEach(function (entry) { entry[0].open = entry[1]; });
+      printSnapshot = [];
+      isPrinting = false;
+      updateMotion();
+    });
+    document.getElementById('print-plan').addEventListener('click', function () { window.print(); });
+    const navigation = Array.from(document.querySelectorAll('.nav-link'));
+    const navObserver = new IntersectionObserver(function (entries) {
+      const visible = entries.filter(function (entry) { return entry.isIntersecting; }).sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      if (!visible.length) return;
+      navigation.forEach(function (link) {
+        const active = link.getAttribute('href') === '#' + visible[0].target.id;
+        link.classList.toggle('is-active', active);
+        if (active) link.setAttribute('aria-current', 'location');
+        else link.removeAttribute('aria-current');
+      });
+    }, { rootMargin: '-5% 0px -65% 0px' });
+    navigation.forEach(function (link) { navObserver.observe(document.querySelector(link.getAttribute('href'))); });
+    refreshers.push(rerender);
     refreshAll();
-    rerender();
 
     const nonComposing = assertNonComposing(PREFERENCES);
     if (nonComposing.length) console.warn('[non-composition invariant violated]', nonComposing);
